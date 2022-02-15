@@ -158,7 +158,96 @@ easeeAPI.prototype={
 
 	site: async function(token,chargerId){
 		try {  
-
+			this.log.debug('Retrieving site info')
+			let response = {"data":{
+				"partnerId": 20,
+				"ownerPartnerId": null,
+				"useDynamicMaster": false,
+				"circuits": [
+				{
+				"chargers": [
+				{
+				"userRole": null,
+				"isTemporary": false,
+				"id": "EHXXXXXX",
+				"name": "Autoladegerät 2",
+				"color": 2,
+				"createdOn": "2021-04-12T05:11:13.123206",
+				"updatedOn": "2021-11-22T09:01:07.228822",
+				"backPlate": {
+				"id": "816XXXXXXXX",
+				"masterBackPlateId": "816XXXXXXXX",
+				"name": "Autoladegerät 2"
+				},
+				"levelOfAccess": 1,
+				"productCode": 1
+				},
+				{
+				"userRole": null,
+				"isTemporary": false,
+				"id": "EHXXXXXX",
+				"name": "Autoladegerät 1",
+				"color": 2,
+				"createdOn": "2021-04-12T05:12:30.864357",
+				"updatedOn": "2021-11-22T09:00:50.355545",
+				"backPlate": {
+				"id": "816XXXXXXXXX",
+				"masterBackPlateId": "816XXXXXXX",
+				"name": "Autoladegerät 1"
+				},
+				"levelOfAccess": 1,
+				"productCode": 1
+				}
+				],
+				"masterBackplate": {
+				"id": "816XXXXXXX",
+				"masterBackPlateId": "816XXXXXXX",
+				"name": "Autoladegerät 1"
+				},
+				"useDynamicMaster": false,
+				"parentCircuitId": null,
+				"id": 1245,
+				"siteId": 1357,
+				"circuitPanelId": 17,
+				"panelName": "17",
+				"ratedCurrent": 32
+				}
+				],
+				"equalizers": [],
+				"createdOn": "2021-08-13T15:58:03.576563",
+				"updatedOn": "2022-02-13T06:27:01.145479",
+				"contactInfo": {
+				"installerName": null,
+				"installerPhoneNumber": null,
+				"ownerName": "XXXXXXXX",
+				"ownerPhoneNumber": "+49",
+				"company": "Zuhause"
+				},
+				"costPerKWh": 0.29,
+				"costPerKwhExcludeVat": 0.2437,
+				"vat": 19,
+				"currencyId": "EUR",
+				"siteType": 1,
+				"ratedCurrent": 50,
+				"id": 1333,
+				"siteKey": "LXXXXXXX",
+				"name": "Garage",
+				"levelOfAccess": 3,
+				"address": {
+				"street": "XXXXX",
+				"buildingNumber": "",
+				"zip": "XXXXX",
+				"area": "XXXXX",
+				"country": {
+				"id": "DE",
+				"name": "Germany",
+				"phonePrefix": 0
+				},
+				"latitude": null,
+				"longitude": null,
+				"altitude": null
+				}
+				}}
 				this.log.debug('get site data response',JSON.stringify(response.data,null,2))
 				return response
 			}catch(err) {this.log.error('Error site products %s', err)}
@@ -310,25 +399,10 @@ easeeAPI.prototype={
 	},
 
 	lock: async function(token,chargerId,value){
-		try {  
-			this.log.debug('Setting charger lock state for %s',chargerId,value)
-			let response = await axios({
-					method: 'post',
-					url: endpoint+'chargers/'+chargerId+'/settings',
-					headers: {
-            'Accept': 'application/json',
-						'Content-Type': 'application/json',
-						'Authorization': 'Bearer '+token
-					},
-					data:{
-						'authorizationRequired':value
-					},
-					responseType: 'json'
-			}).catch(err=>{this.log.error('Error locking charger config %s', err)})
-			this.log.debug('put lock response',response.status)
-			return response
-		}catch(err) {this.log.error('Error setting lock state config %s', err)}
-	},
+		let response = {"status":200}
+		this.log.debug('put lock response',response.status)
+		return response
+}
 }
 
 module.exports = easeeAPI

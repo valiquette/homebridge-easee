@@ -1,10 +1,15 @@
 let packageJson=require('../package.json')
 let easeeAPI=require('../easeeapi')
+let easeeTestAPI=require('../easeeapitest')
 
-function lockMechanism (platform,log){
+function lockMechanism (platform,log,config){
 	this.log=log
 	this.platform=platform
-	this.easeeapi=new easeeAPI(this,log)
+	//this.easeeapi=new easeeAPI(this,log)
+	if (config.test){
+		this.easeeapi=new easeeTestAPI(this,log)}
+	else {
+		this.easeeapi=new easeeAPI(this,log)}
 }
 
 lockMechanism.prototype={
@@ -90,7 +95,11 @@ lockMechanism.prototype={
 				lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.SECURED)
 				let chargerId=lockService.getCharacteristic(Characteristic.SerialNumber).value
 				this.easeeapi.lock(this.platform.token,chargerId,value).then(response=>{
-					lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(response.data.data.chargerData.locked)
+					if(response.status=="200"){
+						lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(true)
+					}
+					//maybe check state, what if not 200
+					//lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(response.data.data.chargerData.locked)
 				})
 				//close routine
 			} else {
@@ -99,7 +108,10 @@ lockMechanism.prototype={
 				lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.SECURED)
 				let chargerId=lockService.getCharacteristic(Characteristic.SerialNumber).value
 				this.easeeapi.lock(this.platform.token,chargerId,value).then(response=>{
-					lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(response.data.data.chargerData.locked)
+					if(response.status=="200"){
+						lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(false)
+					}
+					//lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(response.data.data.chargerData.locked)
 				})
 				//open routine
 			}

@@ -22,7 +22,7 @@ easeeAPI.prototype={
 					'Content-Type': 'application/json'
 					},
 				data:{
-					'username':userName,
+					'userName':userName,
 					'password':password
 				},
 				responseType: 'json'

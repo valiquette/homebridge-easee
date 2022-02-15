@@ -7,7 +7,7 @@ class easeePlatform {
 
   constructor(log, config, api){
     //this.easeeapi=new easeeAPI(this,log)
-		this.lockMechanism=new lockMechanism(this,log)
+		this.lockMechanism=new lockMechanism(this,log,config)
 
     this.log=log
     this.config=config
@@ -46,7 +46,7 @@ class easeePlatform {
 		this.easeeapi.login(this.username,this.password).then(response=>{
 			this.log.debug('Found Token %s',response.data.accessToken)
 			this.log.debug('Found Token %s',response.data.refreshToken)
-			this.token=response.data.acessToken 
+			this.token=response.data.accessToken 
 			this.refreshToken=response.data.refreshToken 
 			this.setTokenRefresh(response.data.expiresIn)
 			//get token
@@ -162,6 +162,7 @@ class easeePlatform {
 					this.log.warn('Unknown message received: %s',status)
 				break	
 			}
+			
 		}	
   //**
   //** REQUIRED - Homebridge will call the "configureAccessory" method once for every cached accessory restored
@@ -171,7 +172,6 @@ class easeePlatform {
     this.log.debug('Found cached accessory %s', accessory.displayName);
     this.accessories[accessory.UUID]=accessory;
   }
-  
 }
 
 module.exports=easeePlatform

@@ -7,9 +7,7 @@
 
 ## About
 
-
 <br> Supports the ablity to lock and unlock charger from HomeKit
-<br> if you have more than one home on your Easee account you may filter devices for a home based on the street address for the location you want to display in HomeKit.
 
 ## Notes on testing
 
@@ -25,14 +23,15 @@ This plugin is being remotly test and verified and may be very buggy.
 ```
 "platforms": [
 	{
-			"name": "Easee",
-			"username": "username",
-			"password": "password",
-			"_bridge": {
-					"username": "0E:6C:D4:F2:16:EB",
-					"port": 35919
-			},
-			"platform": "easee"
+		"name": "Easee",
+		"username": "username",
+		"password": "password",
+		"rate":60,
+		"_bridge": {
+			"username": "0E:6C:D4:F2:16:EB",
+			"port": 35919
+		},
+		"platform": "easee"
 	}
 ]
 ```

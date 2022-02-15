@@ -37,7 +37,7 @@ easeeAPI.prototype={
 			this.log.debug('Refreshing token')
 			let response = await axios({
 				method: 'post',
-				url: endpoint + 'refresh_token',
+				url: endpoint + 'accounts/refresh_token',
 				headers: {
 					'Accept': 'application/json',
 					'Content-Type': 'application/json'
@@ -55,20 +55,20 @@ easeeAPI.prototype={
 	
 	profile: async function(token){
 		try {  
-			this.log.debug('Retrieving user info')
+			this.log.debug('Retrieving user profile')
 			let response = await axios({
 				method: 'get',
-				url: endpoint+'profile',
+				url: endpoint+'accounts/profile',
 				headers: {
 					'Accept': 'application/json',
 					'Content-Type': 'application/json',
 					'Authorization': 'Bearer '+token
 				},
 				responseType: 'json'
-			}).catch(err=>{this.log.error('Error getting user ID %s', err)})
+			}).catch(err=>{this.log.error('Error getting user profile %s', err)})
 			this.log.debug('get user response',JSON.stringify(response.data,null,2))
-			return response //userID
-		}catch(err) {this.log.error('Error retrieving user ID %s', err)}
+			return response
+		}catch(err) {this.log.error('Error retrieving user profile %s', err)}
 	},
 
 	products: async function(token,userId){
@@ -77,7 +77,7 @@ easeeAPI.prototype={
 				this.log.debug('Retrieving products info')
 				let response = await axios({
 						method: 'get',
-						url: endpoint+'products',
+						url: endpoint+'accounts/products',
 						headers: {
               'Accept': 'application/json',
 							'Content-Type': 'application/json',
@@ -131,7 +131,7 @@ easeeAPI.prototype={
 			this.log.debug('Retrieving charger info')
 			let response = await axios({
 					method: 'get',
-					url: endpoint+'charger/'+chargerId,
+					url: endpoint+'chargers/'+chargerId,
 					headers: {
 						'Accept': 'application/json',
 						'Content-Type': 'application/json',
@@ -149,7 +149,7 @@ easeeAPI.prototype={
 			this.log.debug('Retrieving charger details')
 			let response = await axios({
 					method: 'get',
-					url: endpoint+'charger/'+chargerId+'/details',
+					url: endpoint+'chargers/'+chargerId+'/details',
 					headers: {
 						'Accept': 'application/json',
 						'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ easeeAPI.prototype={
 			this.log.debug('Retrieving charger state')
 			let response = await axios({
 					method: 'get',
-					url: endpoint+'charger/'+chargerId+'/state',
+					url: endpoint+'chargers/'+chargerId+'/state',
 					headers: {
 						'Accept': 'application/json',
 						'Content-Type': 'application/json',
@@ -185,7 +185,7 @@ easeeAPI.prototype={
 			this.log.debug('Retrieving charger config')
 			let response = await axios({
 					method: 'get',
-					url: endpoint+'charger/'+chargerId+'/config',
+					url: endpoint+'chargers/'+chargerId+'/config',
 					headers: {
 						'Accept': 'application/json',
 						'Content-Type': 'application/json',
@@ -199,6 +199,7 @@ easeeAPI.prototype={
 	},
 
 	lock: async function(token,chargerId,value){
+		//change charger settings
 		try {  
 			this.log.debug('Setting charger lock state for %s',chargerId,value)
 			let response = await axios({

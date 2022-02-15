@@ -1,6 +1,6 @@
 {
   "name": "homebridge-easee",
-  "version": "0.0.1-beta.0",
+  "version": "0.0.1-beta.1",
   "description": "Easee Charger platform plugin for [HomeBridge](https://github.com/nfarina/homebridge).",
   "main": "index.js",
   "dependencies": {

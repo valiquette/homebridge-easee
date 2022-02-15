@@ -25,7 +25,6 @@ lockMechanism.prototype={
   },
 
   createLockService(device, details){
-		this.log.warn(device,details)
     this.log.debug("create Lock service for %s, serial number %s",device.name, details.serialNumber )
 		let lockService=new Service.LockMechanism(device.name,details.id)
 		lockService
@@ -47,7 +46,6 @@ lockMechanism.prototype={
 		lockService
 			.getCharacteristic(Characteristic.LockCurrentState)
 			.on('get', this.getLockCurrentState.bind(this, lockService))
-			//.on('set', this.setLockCurrentState.bind(this, lockService))
   },
 
 	getLockCurrentState: function (lockService, callback) {

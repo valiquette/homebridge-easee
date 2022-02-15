@@ -1,22 +1,25 @@
 'use strict'
-//let easeeAPI=require('./easeeapi')
-let easeeAPI=require('./easeeapitest')
+let easeeAPI=require('./easeeapi')
+let easeeTestAPI=require('./easeeapitest')
 let lockMechanism=require('./devices/lock')
 
 class easeePlatform {
 
   constructor(log, config, api){
-    this.easeeapi=new easeeAPI(this,log)
+    //this.easeeapi=new easeeAPI(this,log)
 		this.lockMechanism=new lockMechanism(this,log)
 
     this.log=log
     this.config=config
+		if (config.test){
+			this.easeeapi=new easeeTestAPI(this,log)}
+		else {
+			this.easeeapi=new easeeAPI(this,log)}
     this.username=config.username
     this.password=config.password
     this.token
 		this.refreshToken
 		this.rate=config.rate
-		//this.id
     this.userId
 		this.accessories=[]
     if(!config.username || !config.password){
@@ -47,7 +50,7 @@ class easeePlatform {
 			this.refreshToken=response.data.refreshToken 
 			this.setTokenRefresh(response.data.expiresIn)
 			//get token
-			this.easeeapi.profile(this.token,this.userId).then(response=>{
+			this.easeeapi.profile(this.token).then(response=>{
 				this.log.info('Found account for %s %s', response.data.firstName, response.data.lastName)
 				this.userId=response.data.userId
 				//get product

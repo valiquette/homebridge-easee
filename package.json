@@ -1,0 +1,31 @@
+{
+  "name": "homebridge-easee",
+  "version": "0.0.1-beta.0",
+  "description": "Easee Charger platform plugin for [HomeBridge](https://github.com/nfarina/homebridge).",
+  "main": "index.js",
+  "dependencies": {
+    "axios": "^0.26.0"
+  },
+  "engines": {
+    "homebridge": "^1.4.0",
+    "node": "^14.18.0 || ^16.13.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/valiquette/homebridge-easee"
+  },
+  "keywords": [
+    "homebridge-plugin",
+    "homekit",
+    "easee"
+  ],
+  "author": "John Valiquette",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/valiquette/homebridge-easee/issues"
+  },
+  "homepage": "https://github.com/valiquette/homebridge-easee#readme"
+}

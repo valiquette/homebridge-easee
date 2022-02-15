@@ -1,0 +1,72 @@
+{
+	"pluginAlias": "easee",
+	"headerDisplay": "Homebridge plugin for Easee Charger",
+	"pluginType": "platform",
+	"singular": true,
+	"schema": {
+		"type": "object",
+		"properties": {
+			"name": {
+				"title": "Accessory Name",
+				"description": "Name for this accessory",
+				"type": "string",
+				"required": true,
+				"placeholder": "Easee",
+				"default": "Easee"
+			},
+			"username": {
+				"title": "Username",
+				"type": "string",
+				"placeholder": "username",
+				"required": true
+			},
+			"password": {
+				"title": "Password",
+				"type": "string",
+				"placeholder": "password",
+				"required": true
+			},
+			"rate": {
+				"title": "Refresh Rate Minutes",
+				"description": "Polling time in minutes.",
+				"type": "integer",
+				"minimum": 5,
+				"maximum": 1440,
+				"required": true,
+				"default": 60
+			}
+		}
+	},
+	"layout": [
+		{
+			"type": "help",
+			"helpvalue": "<h4><b>Required settings<b/></h4>"
+		},
+		{
+			"type": "flex",
+			"flex-flow": "row wrap",
+			"items": [
+				"name"
+			]
+		},
+		{
+			"type": "help",
+			"helpvalue": "<p class='help-block'> <h6><b>Easee account info login<b></h6></p>"
+		},
+		{
+			"type": "flex",
+			"flex-flow": "row wrap",
+			"items": [
+				"username",
+				"password"
+			]
+		},
+		{
+			"type": "flex",
+			"flex-flow": "row wrap",
+			"items": [
+				"rate"
+			]
+		}
+	]
+}

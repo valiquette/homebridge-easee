@@ -1,5 +1,5 @@
 <p align="left">
- <img width="300" src="logo/easee.png" />
+ <img width="300" src="logo/homebridge-easee.png" />
 </p>
 
 # homebridge-easee

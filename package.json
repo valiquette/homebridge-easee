@@ -20,6 +20,7 @@
   "keywords": [
     "homebridge-plugin",
     "homekit",
+		"EV charger",
     "easee"
   ],
   "author": "John Valiquette",

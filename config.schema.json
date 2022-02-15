@@ -16,19 +16,21 @@
 			},
 			"username": {
 				"title": "Username",
+				"description": "Account email address or phone number",
 				"type": "string",
 				"placeholder": "username",
 				"required": true
 			},
 			"password": {
 				"title": "Password",
+				"description": "Account password",
 				"type": "string",
 				"placeholder": "password",
 				"required": true
 			},
 			"rate": {
 				"title": "Refresh Rate Minutes",
-				"description": "Polling time in minutes.",
+				"description": "Polling time to refresh charger state in minutes.",
 				"type": "integer",
 				"minimum": 5,
 				"maximum": 1440,

@@ -1,4 +1,5 @@
 'use strict'
+//let easeeAPI=require('./easeeapi')
 let easeeAPI=require('./easeeapitest')
 let lockMechanism=require('./devices/lock')
 

@@ -29,12 +29,13 @@ lockMechanism.prototype={
     return newPlatformAccessory
   },
 
-  createLockService(device, details){
+  createLockService(device, details, state){
     this.log.debug("create Lock service for %s, serial number %s",device.name, details.serialNumber )
 		let lockService=new Service.LockMechanism(device.name,details.id)
 		lockService
 		.setCharacteristic(Characteristic.SerialNumber, details.serialNumber)
 			.setCharacteristic(Characteristic.StatusFault, Characteristic.StatusFault.NO_FAULT)
+			.setCharacteristic(Characteristic.OutletInUse,state.cableLocked)
 			.setCharacteristic(Characteristic.AccessoryIdentifier, device.id)
     return lockService
   },
@@ -54,66 +55,62 @@ lockMechanism.prototype={
   },
 
 	getLockCurrentState: function (lockService, callback) {
-		//this.log.info('get state')
 		let currentValue=lockService.getCharacteristic(Characteristic.LockCurrentState).value
 		callback(null,currentValue)
 	},
 
 	setLockCurrentState: function (lockService, value, callback) {
-		this.log.info('set state')
-			if(lockService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
-				callback('error')
-			}
-			else{
+		this.log.info('Set State %s',lockService.getCharacteristic(Characteristic.Name).value)
+		if(lockService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
+			callback('error')
+		}
+		else{
 			if (value == true) {
-				this.log.info('locked')
+				this.log.info('%s locked',lockService.getCharacteristic(Characteristic.Name).value)
 				lockService.getCharacteristic(Characteristic.LockCurrentState).updatevalue(Characteristic.LockCurrentState.SECURED)
-				//close routine
-			} else {
-				this.log.info('unlocked')
+			} 
+			else{
+				this.log.info('%s unlocked',lockService.getCharacteristic(Characteristic.Name).value)
 				lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNSECURED)
-				//open routine
 			}
 			callback()
 		}
 	},
 
 	getLockTargetState: function (lockService, callback) {
-		//this.log.info('get target')
 		let currentValue=lockService.getCharacteristic(Characteristic.LockTargetState).value
 		callback(null,currentValue)
 	},
 
 	setLockTargetState: function (lockService, value, callback) {
-		//this.log.info('set target')
 		if(lockService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
 			callback('error')
 		}
 		else{
 			if (value == true) {
-				this.log.info('locking')
+				this.log.info('Locking %s',lockService.getCharacteristic(Characteristic.Name).value)
 				lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.SECURED)
 				let chargerId=lockService.getCharacteristic(Characteristic.SerialNumber).value
 				this.easeeapi.lock(this.platform.token,chargerId,value).then(response=>{
 					if(response.status=="200"){
-						lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(true)
+						//lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
+						lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.SECURED)
 					}
 					//maybe check state, what if not 200
 					//lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(response.data.data.chargerData.locked)
 				})
-				//close routine
 			} else {
-				this.log.info('unlocking')
+				this.log.info('Unlocking %s',lockService.getCharacteristic(Characteristic.Name).value)
 				lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.UNSECURED)
-				lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.SECURED)
 				let chargerId=lockService.getCharacteristic(Characteristic.SerialNumber).value
 				this.easeeapi.lock(this.platform.token,chargerId,value).then(response=>{
 					if(response.status=="200"){
-						lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(false)
+						//lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
+						lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNSECURED)
 					}
+					//maybe check state, what if not 200
 					//lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(response.data.data.chargerData.locked)
 				})
-				//open routine
 			}
 			callback()
 		}

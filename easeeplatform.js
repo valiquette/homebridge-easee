@@ -2,19 +2,21 @@
 let easeeAPI=require('./easeeapi')
 let easeeTestAPI=require('./easeeapitest')
 let lockMechanism=require('./devices/lock')
+let battery=require('./devices/battery')
 
 class easeePlatform {
 
   constructor(log, config, api){
     //this.easeeapi=new easeeAPI(this,log)
-		this.lockMechanism=new lockMechanism(this,log,config)
+		this.lockMechanism=new lockMechanism(this, log, config)
+		this.battery=new battery(this, log, config)
 
     this.log=log
     this.config=config
 		if (config.test){
-			this.easeeapi=new easeeTestAPI(this,log)}
+			this.easeeapi=new easeeTestAPI(this, log)}
 		else {
-			this.easeeapi=new easeeAPI(this,log)}
+			this.easeeapi=new easeeAPI(this, log)}
     this.username=config.username
     this.password=config.password
     this.token
@@ -69,16 +71,19 @@ class easeePlatform {
 										delete this.accessories[uuid]
 									}
 									let lockAccessory=this.lockMechanism.createLockAccessory(charger,chargerDetails,chargerState,uuid)
-									let lockService=this.lockMechanism.createLockService(charger,chargerDetails)
-									this.lockMechanism.configureLockService(lockService,false) //chargerDetails.locked)
+									let lockService=this.lockMechanism.createLockService(charger,chargerDetails,chargerState)
+									this.lockMechanism.configureLockService(lockService, chargerDetails.locked) //response.data.authorizationRequired
 									lockAccessory.addService(lockService)
+									let batteryService=this.battery.createBatteryService(charger,chargerDetails,chargerState)
+									this.battery.configureBatteryService(batteryService)
+									lockAccessory.addService(batteryService)
 									this.accessories[uuid]=lockAccessory                     
 									this.log.info('Adding Lock for %s charger ', charger.name)
 									this.log.debug('Registering platform accessory')
 									this.api.registerPlatformAccessories(PluginName, PlatformName, [lockAccessory])
-									this.setChargerRefresh(lockService,charger.id)
-									this.updateStatus(lockService, 'lock',false) //chargerDetails.statusDescription)
-									this.updateStatus(lockService, 'network',true) //chargerDetails.statusDescription)
+									this.setChargerRefresh(lockService, batteryService, charger.id)
+									this.updateStatus(lockService, batteryService, 'lock', chargerDetails.locked)
+									this.updateStatus(lockService, batteryService, 'network', true) //chargerDetails.statusDescription) or response.data.isOnline
 								}).catch(err=>{this.log.error('Failed to get info for build', err)})
 							}).catch(err=>{this.log.error('Failed to get info for build', err)})
 						})
@@ -102,14 +107,14 @@ class easeePlatform {
 
 		}	
 
-		setChargerRefresh(lockService,id){
+		setChargerRefresh(lockService, batteryService, id){
 			// Refresh charger status
 				setInterval(()=>{		
 					try{		
 						this.easeeapi.getConfig(this.token,id).then(response=>{
 							this.log.debug('refreshed charger %s',id)
-							this.log.debug('Charger Authorization Required %S',response.data.authorizationRequired)
-							this.updateStatus(lockService,"lock",response.data.authorizationRequired)
+							this.log.debug('Charger Authorization Required %s',response.data.authorizationRequired)
+							this.updateStatus(lockService, batteryService, "lock", response.data.authorizationRequired)
 						}).catch(err=>{this.log.error('Failed to refresh charger', err)})
 					}catch(err){this.log.error('Failed to refresh charger', err)}	
 				}, this.rate*60*1000)
@@ -117,27 +122,30 @@ class easeePlatform {
 				setInterval(()=>{		
 					try{		
 						this.easeeapi.state(this.token,id).then(response=>{
-							this.log.debug('refreshed charger %s',id)
-							this.log.debug('Charger Online %S',response.data.isOnline)
-							this.updateStatus(lockService,"network",response.data.isOnline)
-						}).catch(err=>{this.log.error('Failed to refresh charger', err)})
-					}catch(err){this.log.error('Failed to refresh charger', err)}	
+							this.log.debug('refreshed charger %s connection',id)
+							this.log.debug('Charger Online %s',response.data.isOnline)
+							this.updateStatus(lockService, batteryService, "network", response.data.isOnline)
+						}).catch(err=>{this.log.error('Failed to refresh charger connection', err)})
+					}catch(err){this.log.error('Failed to refresh charger connection', err)}	
 				}, this.rate*60*1000)
 			}
 
-		updateStatus(lockService,type,status){
+		updateStatus(lockService, batteryService, type, status){
 			switch (type){
 				case 'lock':
 					switch(status){
 						case false:
-							//lockService.setCharacteristic(Characteristic.StatusFault, Characteristic.StatusFault.NO_FAULT)
-							lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.UNSECURED)
-							lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.UNSECURED)
+							//lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(state.cableLocked)
+							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNSECURED)
+							//lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.UNSECURED)
+							batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(Characteristic.ChargingState.NOT_CHARGING)
 							break
 						case true:
-							//lockService.setCharacteristic(Characteristic.StatusFault, Characteristic.StatusFault.NO_FAULT)
-							lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.SECURED)
-							lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.SECURED)
+							//lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(state.cableLocked)
+							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.SECURED)
+							//lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.SECURED)
+							batteryService.getCharacteristic(Characteristic.BatteryLevel).updateValue(0)//stateOfCharge)
+							batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(Characteristic.ChargingState.CHARGING)
 						break
 						default:
 							this.log.warn('Unknown lock message received: %s',status)

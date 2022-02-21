@@ -256,16 +256,28 @@ easeeAPI.prototype={
 	chargers: async function(token){
 		try {  
 			this.log.debug('Retrieving chargers')
-			let response = await axios({
-					method: 'get',
-					url: endpoint+'chargers',
-					headers: {
-						'Accept': 'application/json',
-						'Content-Type': 'application/json',
-						'Authorization': 'Bearer '+token
-					},
-					responseType: 'json'
-			}).catch(err=>{this.log.error('Error getting chargers %s', err)})
+			let response = {"data":[
+				{
+				"id": "EHXXXXXX",
+				"name": "Autoladegerät 2",
+				"color": 2,
+				"createdOn": "2021-04-12T05:11:13.123206",
+				"updatedOn": "2021-11-22T09:01:07.228822",
+				"backPlate": null,
+				"levelOfAccess": 1,
+				"productCode": 1
+				},
+				{
+				"id": "EHXXXXXX",
+				"name": "Autoladegerät 1",
+				"color": 2,
+				"createdOn": "2021-04-12T05:12:30.864357",
+				"updatedOn": "2021-11-22T09:00:50.355545",
+				"backPlate": null,
+				"levelOfAccess": 1,
+				"productCode": 1
+				}
+				]}
 			this.log.debug('get chargers config response',JSON.stringify(response.data,null,2))
 			return response
 		}catch(err) {this.log.error('Error retrieving chargers %s', err)}
@@ -274,16 +286,20 @@ easeeAPI.prototype={
 	charger: async function(token,chargerId){
 		try {  
 			this.log.debug('Retrieving charger info')
-			let response = await axios({
-					method: 'get',
-					url: endpoint+'charger/'+chargerId,
-					headers: {
-						'Accept': 'application/json',
-						'Content-Type': 'application/json',
-						'Authorization': 'Bearer '+token
-					},
-					responseType: 'json'
-			}).catch(err=>{this.log.error('Error getting charger info %s', err)})
+			let response = {"data":{
+				"id": "EHXXXXXX",
+				"name": "Autoladegerät 1",
+				"color": 2,
+				"createdOn": "2021-04-12T05:12:30.864357",
+				"updatedOn": "2021-11-22T09:00:50.355545",
+				"backPlate": {
+				"id": "816XXXXXXXXXX",
+				"masterBackPlateId": "816XXXXXXXXX",
+				"name": null
+				},
+				"levelOfAccess": 1,
+				"productCode": 1
+				}}
 			this.log.debug('get charger info config response',JSON.stringify(response.data,null,2))
 			return response
 		}catch(err) {this.log.error('Error retrieving charger info %s', err)}
@@ -383,16 +399,33 @@ easeeAPI.prototype={
 	getConfig: async function(token,chargerId){
 		try {  
 			this.log.debug('Retrieving charger config')
-			let response = await axios({
-					method: 'get',
-					url: endpoint+'charger/'+chargerId+'/config',
-					headers: {
-						'Accept': 'application/json',
-						'Content-Type': 'application/json',
-						'Authorization': 'Bearer '+token
-					},
-					responseType: 'json'
-			}).catch(err=>{this.log.error('Error getting charger config %s', err)})
+			let response = {"data":{
+				"isEnabled": true,
+				"lockCablePermanently": true,
+				"authorizationRequired": true,
+				"remoteStartRequired": true,
+				"smartButtonEnabled": true,
+				"wiFiSSID": "string",
+				"detectedPowerGridType": 0,
+				"offlineChargingMode": 0,
+				"circuitMaxCurrentP1": 0,
+				"circuitMaxCurrentP2": 0,
+				"circuitMaxCurrentP3": 0,
+				"enableIdleCurrent": true,
+				"limitToSinglePhaseCharging": true,
+				"phaseMode": 1,
+				"localNodeType": 0,
+				"localAuthorizationRequired": true,
+				"localRadioChannel": 0,
+				"localShortAddress": 0,
+				"localParentAddrOrNumOfNodes": 0,
+				"localPreAuthorizeEnabled": true,
+				"localAuthorizeOfflineEnabled": true,
+				"allowOfflineTxForUnknownId": true,
+				"maxChargerCurrent": 0,
+				"ledStripBrightness": 0,
+				"chargingSchedule": "string"
+			}}
 			this.log.debug('get charger config response',JSON.stringify(response.data,null,2))
 			return response
 		}catch(err) {this.log.error('Error retrieving charger config %s', err)}

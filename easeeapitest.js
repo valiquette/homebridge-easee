@@ -423,7 +423,7 @@ easeeAPI.prototype={
 				"localAuthorizeOfflineEnabled": true,
 				"allowOfflineTxForUnknownId": true,
 				"maxChargerCurrent": 0,
-				"ledStripBrightness": 0,
+				"ledStripBrightness": 80,
 				"chargingSchedule": "string"
 			}}
 			this.log.debug('get charger config response',JSON.stringify(response.data,null,2))
@@ -433,9 +433,31 @@ easeeAPI.prototype={
 
 	lock: async function(token,chargerId,value){
 		let response = {"status":200}
-		this.log.debug('put lock response',response.status)
+		this.log.debug('post lock response',response.status)
 		return response
-}
+	},
+	
+	light: async function(token,chargerId,value){
+		let response = {"status":200}
+		this.log.debug('post light response',response.status)
+		return response
+	},
+
+	command: async function(token,chargerId,command){
+		try {  
+			this.log.debug('%s for %s',command, chargerId)
+			let response = {
+				"status":200,
+				"data":{
+					"device": "IDXXXXX",
+					"commandId": 25,
+					"ticks": 6378024
+				}			
+			}
+			this.log.debug('post %s response',command, JSON.stringify(response.data,null,2))
+			return response
+		}catch(err) {this.log.error('Error %s %s', command, err)}
+	}
 }
 
 module.exports = easeeAPI

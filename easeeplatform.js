@@ -3,6 +3,9 @@ let easeeAPI=require('./easeeapi')
 let easeeTestAPI=require('./easeeapitest')
 let lockMechanism=require('./devices/lock')
 let battery=require('./devices/battery')
+let basicSwitch=require('./devices/switch')
+let light=require('./devices/light')
+
 
 class easeePlatform {
 
@@ -10,6 +13,8 @@ class easeePlatform {
     //this.easeeapi=new easeeAPI(this,log)
 		this.lockMechanism=new lockMechanism(this, log, config)
 		this.battery=new battery(this, log, config)
+		this.basicSwitch=new basicSwitch(this, log, config)
+		this.light=new light(this, log, config)
 
     this.log=log
     this.config=config
@@ -61,29 +66,59 @@ class easeePlatform {
 					//loop each charger
 					response.data[0].circuits.forEach((circuit)=>{
 						circuit.chargers.forEach((charger)=>{
-							this.easeeapi.state(this.token,charger.id).then(response=>{
-								let chargerState=response.data
-								this.easeeapi.chargerDetails(this.token,charger.id).then(response=>{
-									let chargerDetails=response.data
-									let uuid=UUIDGen.generate(charger.id)							
-									if(this.accessories[uuid]){
-										this.api.unregisterPlatformAccessories(PluginName, PlatformName, [this.accessories[uuid]])
-										delete this.accessories[uuid]
-									}
-									let lockAccessory=this.lockMechanism.createLockAccessory(charger,chargerDetails,chargerState,uuid)
-									let lockService=this.lockMechanism.createLockService(charger,chargerDetails,chargerState)
-									this.lockMechanism.configureLockService(lockService, chargerDetails.locked) //response.data.authorizationRequired
-									lockAccessory.addService(lockService)
-									let batteryService=this.battery.createBatteryService(charger,chargerDetails,chargerState)
-									this.battery.configureBatteryService(batteryService)
-									lockAccessory.addService(batteryService)
-									this.accessories[uuid]=lockAccessory                     
-									this.log.info('Adding Lock for %s charger ', charger.name)
-									this.log.debug('Registering platform accessory')
-									this.api.registerPlatformAccessories(PluginName, PlatformName, [lockAccessory])
-									this.setChargerRefresh(lockService, batteryService, charger.id)
-									this.updateStatus(lockService, batteryService, 'lock', chargerDetails.locked)
-									this.updateStatus(lockService, batteryService, 'network', true) //chargerDetails.statusDescription) or response.data.isOnline
+							this.easeeapi.getConfig(this.token,charger.id).then(response=>{
+								let chargerConfig=response.data
+								this.easeeapi.state(this.token,charger.id).then(response=>{
+									let chargerState=response.data
+									this.easeeapi.chargerDetails(this.token,charger.id).then(response=>{
+										let chargerDetails=response.data
+										let uuid=UUIDGen.generate(charger.id)							
+										if(this.accessories[uuid]){
+											this.api.unregisterPlatformAccessories(PluginName, PlatformName, [this.accessories[uuid]])
+											delete this.accessories[uuid]
+										}
+										this.log.info('Adding Lock for %s charger ', charger.name)
+										this.log.debug('Registering platform accessory')
+
+										let lockAccessory=this.lockMechanism.createLockAccessory(charger,chargerDetails,chargerState,uuid)
+										let lockService=this.lockMechanism.createLockService(charger,chargerDetails,chargerState)
+										this.lockMechanism.configureLockService(lockService, chargerConfig.authorizationRequired)
+										lockAccessory.addService(lockService)
+										
+										let batteryService=this.battery.createBatteryService(charger,chargerDetails,chargerState)
+										this.battery.configureBatteryService(batteryService)
+										lockAccessory.getService(Service.LockMechanism).addLinkedService(batteryService)
+										lockAccessory.addService(batteryService)
+
+										let lightService=this.light.createLightService(charger,chargerConfig,'LED',true)
+										this.light.configureLightService(charger, lightService)
+										lockAccessory.getService(Service.LockMechanism).addLinkedService(lightService)
+										lockAccessory.addService(lightService)
+
+										let switchService
+										switchService=this.basicSwitch.createSwitchService(charger,chargerDetails,'Start/Stop')
+										this.basicSwitch.configureSwitchService(charger, switchService)
+										lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
+										lockAccessory.addService(switchService)
+								
+										switchService=this.basicSwitch.createSwitchService(charger,chargerDetails,'Resume/Pause')
+										this.basicSwitch.configureSwitchService(charger, switchService)
+										lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
+										lockAccessory.addService(switchService)
+										
+										switchService=this.basicSwitch.createSwitchService(charger, chargerDetails,'Toggle')
+										this.basicSwitch.configureSwitchService(charger, switchService)
+										lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
+										lockAccessory.addService(switchService)
+
+										this.accessories[uuid]=lockAccessory                     
+										this.log.info('Adding Lock for %s charger ', charger.name)
+										this.log.debug('Registering platform accessory')
+										this.api.registerPlatformAccessories(PluginName, PlatformName, [lockAccessory])
+										this.setChargerRefresh(lockService, batteryService, charger.id)
+										this.updateStatus(lockService, batteryService, 'lock', chargerState.cableLocked)
+										this.updateStatus(lockService, batteryService, 'network', chargerState.isOnline)
+									}).catch(err=>{this.log.error('Failed to get info for build', err)})
 								}).catch(err=>{this.log.error('Failed to get info for build', err)})
 							}).catch(err=>{this.log.error('Failed to get info for build', err)})
 						})

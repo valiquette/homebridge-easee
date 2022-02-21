@@ -215,10 +215,50 @@ easeeAPI.prototype={
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error locking charger config %s', err)})
-			this.log.debug('put lock response',response.status)
+			this.log.debug('post lock response',response.status)
 			return response
 		}catch(err) {this.log.error('Error setting lock state config %s', err)}
 	},
+
+	light: async function(token,chargerId,value){
+		//change charger settings
+		try {  
+			this.log.debug('Setting LED light for %s',chargerId,value)
+			let response = await axios({
+					method: 'post',
+					url: endpoint+'chargers/'+chargerId+'/settings',
+					headers: {
+            'Accept': 'application/json',
+						'Content-Type': 'application/json',
+						'Authorization': 'Bearer '+token
+					},
+					data:{
+						'ledStripBrightness':value
+					},
+					responseType: 'json'
+			}).catch(err=>{this.log.error('Error setting LED lights %s', err)})
+			this.log.debug('post light response',response.status)
+			return response
+		}catch(err) {this.log.error('Error setting light %s', err)}
+	},
+
+	command: async function(token,chargerId,command){
+		try {  
+			this.log.debug('%s for %s',command, chargerId)
+			let response = await axios({
+					method: 'post',
+					url: endpoint+'chargers/'+chargerId+'/commands/'+command,
+					headers: {
+            'Accept': 'application/json',
+						'Content-Type': 'application/json',
+						'Authorization': 'Bearer '+token
+					},
+					responseType: 'json'
+			}).catch(err=>{this.log.error('Error posting %s command  %s', command, err)})
+			this.log.debug('post %s response',command, JSON.stringify(response.data,null,2))
+			return response
+		}catch(err) {this.log.error('Error %s %s', command, err)}
+	}
 }
 
 module.exports = easeeAPI

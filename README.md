@@ -26,7 +26,11 @@ This plugin is being remotly test and verified and may be very buggy.
 		"name": "Easee",
 		"username": "username",
 		"password": "password",
-		"rate":60,
+		"refreshRate": 60,
+		"showStartStop": false,
+		"showPauseResume": true,
+		"showToggle": false,
+		"showLight": false,
 		"_bridge": {
 			"username": "0E:6C:D4:F2:16:EB",
 			"port": 35919

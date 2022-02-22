@@ -28,7 +28,7 @@
 				"placeholder": "password",
 				"required": true
 			},
-			"rate": {
+			"refreshRate": {
 				"title": "Refresh Rate Minutes",
 				"description": "Polling time to refresh charger state in minutes.",
 				"type": "integer",
@@ -36,6 +36,30 @@
 				"maximum": 1440,
 				"required": true,
 				"default": 60
+			},
+			"showStartStop": {
+				"title": "Expose Switch for Start/Stop Charging",
+				"type": "boolean",
+				"required": true,
+				"default": false
+			},
+			"showPauseResume": {
+				"title": "Expose Switch for Pause/Resume Charging",
+				"type": "boolean",
+				"required": true,
+				"default": true
+			},
+			"showToggle": {
+				"title": "Expose Switch for Toggling Charging State",
+				"type": "boolean",
+				"required": true,
+				"default": false
+			},
+			"showLight": {
+				"title": "Expose Switch to set LED Brightness",
+				"type": "boolean",
+				"required": true,
+				"default": false
 			}
 		}
 	},
@@ -67,7 +91,17 @@
 			"type": "flex",
 			"flex-flow": "row wrap",
 			"items": [
-				"rate"
+				"refreshRate"
+			]
+		},
+		{
+			"type": "flex",
+			"flex-flow": "row wrap",
+			"items": [
+				"showLight",
+				"showToggle",
+				"showStartStop",
+				"showPauseResume"
 			]
 		}
 	]

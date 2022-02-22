@@ -14,7 +14,8 @@ easeeAPI.prototype={
 	login: async function(userName,password){
 		try {  
 			this.log.debug('Retrieving token')
-			let response = {"data":{
+			let response = {"status":200,
+			"data":{
 				"accessToken": "string",
 				"expiresIn": 86400,
 				"accessClaims": [
@@ -23,7 +24,7 @@ easeeAPI.prototype={
 				"tokenType": "string",
 				"refreshToken": "refreshstring"
 			}}
-			this.log.debug('login response',JSON.stringify(response.data,null,2))
+			if(response.status=="200"){this.log.debug('login response',JSON.stringify(response.data,null,2))}
 			return  response
 		}catch(err) {this.log.error('Error retrieving token %s', err)}
 	},
@@ -31,7 +32,8 @@ easeeAPI.prototype={
 	refreshToken: async function(accessToken,refreshToken){
 		try {  
 			this.log.debug('Refreshing token')
-			let response = {"data":{
+			let response = {"status":200,
+			"data":{
 				"accessToken": "string",
 				"expiresIn": 86400,
 				"accessClaims": [
@@ -40,7 +42,7 @@ easeeAPI.prototype={
 				"tokenType": "string",
 				"refreshToken": "refreshstring"
 			}}
-			this.log.debug('refresh response',JSON.stringify(response.data,null,2))
+			if(response.status=="200"){this.log.debug('refresh response',JSON.stringify(response.data,null,2))}
 			return  response
 		}catch(err) {this.log.error('Error refreshing token %s', err)}
 	},
@@ -48,7 +50,8 @@ easeeAPI.prototype={
 	profile: async function(token){
 		try {  
 			this.log.debug('Retrieving user info')
-			let response = {"data":{
+			let response = {"status":200,
+			"data":{
 				"userId": 0,
 				"eMail": "string",
 				"phoneNo": "string",
@@ -66,7 +69,7 @@ easeeAPI.prototype={
 				"isActive": true,
 				"isBetaTester": true
 			}}
-			this.log.debug('get user response',JSON.stringify(response.data,null,2))
+			if(response.status=="200"){this.log.debug('get user response',JSON.stringify(response.data,null,2))}
 			return response //userID
 		}catch(err) {this.log.error('Error retrieving user ID %s', err)}
 	},
@@ -75,7 +78,8 @@ easeeAPI.prototype={
 		//is userID needed
 		try {  
 				this.log.debug('Retrieving products info')
-				let response = {"data":[
+				let response = {"status":200,
+				"data":[
 					{
 					"userRole": 1,
 					"allowedSiteActions": [
@@ -151,7 +155,7 @@ easeeAPI.prototype={
 					}
 					]
 				}
-				this.log.debug('get products data response',JSON.stringify(response.data,null,2))
+				if(response.status=="200"){this.log.debug('get products data response',JSON.stringify(response.data,null,2))}
 				return response
 			}catch(err) {this.log.error('Error retrieving products %s', err)}
 		},
@@ -159,7 +163,8 @@ easeeAPI.prototype={
 	site: async function(token,chargerId){
 		try {  
 			this.log.debug('Retrieving site info')
-			let response = {"data":{
+			let response = {"status":200,
+			"data":{
 				"partnerId": 20,
 				"ownerPartnerId": null,
 				"useDynamicMaster": false,
@@ -248,7 +253,7 @@ easeeAPI.prototype={
 				"altitude": null
 				}
 				}}
-				this.log.debug('get site data response',JSON.stringify(response.data,null,2))
+				if(response.status=="200"){this.log.debug('get site data response',JSON.stringify(response.data,null,2))}
 				return response
 			}catch(err) {this.log.error('Error site products %s', err)}
 		},	
@@ -256,7 +261,8 @@ easeeAPI.prototype={
 	chargers: async function(token){
 		try {  
 			this.log.debug('Retrieving chargers')
-			let response = {"data":[
+			let response = {"status":200,
+			"data":[
 				{
 				"id": "EHXXXXXX",
 				"name": "Autoladegerät 2",
@@ -278,7 +284,7 @@ easeeAPI.prototype={
 				"productCode": 1
 				}
 				]}
-			this.log.debug('get chargers config response',JSON.stringify(response.data,null,2))
+			if(response.status=="200"){this.log.debug('get chargers config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving chargers %s', err)}
 	},
@@ -286,7 +292,8 @@ easeeAPI.prototype={
 	charger: async function(token,chargerId){
 		try {  
 			this.log.debug('Retrieving charger info')
-			let response = {"data":{
+			let response = {"status":200,
+			"data":{
 				"id": "EHXXXXXX",
 				"name": "Autoladegerät 1",
 				"color": 2,
@@ -300,7 +307,7 @@ easeeAPI.prototype={
 				"levelOfAccess": 1,
 				"productCode": 1
 				}}
-			this.log.debug('get charger info config response',JSON.stringify(response.data,null,2))
+			if(response.status=="200"){this.log.debug('get charger info config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving charger info %s', err)}
 	},
@@ -308,7 +315,8 @@ easeeAPI.prototype={
 	chargerDetails: async function(token,chargerId){
 		try {  
 			this.log.debug('Retrieving charger details')
-			let response = {"data":{
+			let response = {"status":200,
+			"data":{
 				"serialNumber": "EH1234",
 				"pinCode": "4XXX",
 				"product": "Easee Home",
@@ -323,7 +331,7 @@ easeeAPI.prototype={
 				"smallImage": null
 				}
 		}}
-			this.log.debug('get charger details config response',JSON.stringify(response.data,null,2))
+			if(response.status=="200"){this.log.debug('get charger details config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving charger details %s', err)}
 	},
@@ -331,7 +339,8 @@ easeeAPI.prototype={
 	state: async function(token,chargerId){
 		try {  
 			this.log.debug('Retrieving charger state')
-			let response = {"data":{
+			let response = {"status":200,
+			"data":{
 				"smartCharging": false,
 				"cableLocked": true,
 				"chargerOpMode": 1,
@@ -391,7 +400,7 @@ easeeAPI.prototype={
 				"deratedCurrent": 0,
 				"deratingActive": false
 				}}
-			this.log.debug('get charger state config response',JSON.stringify(response.data,null,2))
+			if(response.status=="200"){this.log.debug('get charger state config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving charger state %s', err)}
 	},
@@ -399,7 +408,8 @@ easeeAPI.prototype={
 	getConfig: async function(token,chargerId){
 		try {  
 			this.log.debug('Retrieving charger config')
-			let response = {"data":{
+			let response = {"status":200,
+			"data":{
 				"isEnabled": true,
 				"lockCablePermanently": true,
 				"authorizationRequired": true,
@@ -426,7 +436,7 @@ easeeAPI.prototype={
 				"ledStripBrightness": 80,
 				"chargingSchedule": "string"
 			}}
-			this.log.debug('get charger config response',JSON.stringify(response.data,null,2))
+			if(response.status=="200"){this.log.debug('get charger config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving charger config %s', err)}
 	},
@@ -454,7 +464,7 @@ easeeAPI.prototype={
 					"ticks": 6378024
 				}			
 			}
-			this.log.debug('post %s response',command, JSON.stringify(response.data,null,2))
+			if(response.status=="200"){this.log.debug('post %s response',command, JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error %s %s', command, err)}
 	}

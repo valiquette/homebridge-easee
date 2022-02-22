@@ -26,7 +26,11 @@ class easeePlatform {
     this.password=config.password
     this.token
 		this.refreshToken
-		this.rate=config.rate
+		this.refreshRate=config.refreshRate||30
+		this.showStartStop=config.showStartStop
+		this.showPauseResume=config.showPauseResume
+		this.showToggle=config.showToggle
+		this.showLight=config.showLight
     this.userId
 		this.accessories=[]
     if(!config.username || !config.password){
@@ -89,35 +93,38 @@ class easeePlatform {
 										this.battery.configureBatteryService(batteryService)
 										lockAccessory.getService(Service.LockMechanism).addLinkedService(batteryService)
 										lockAccessory.addService(batteryService)
-
-										let lightService=this.light.createLightService(charger,chargerConfig,'LED',true)
-										this.light.configureLightService(charger, lightService)
-										lockAccessory.getService(Service.LockMechanism).addLinkedService(lightService)
-										lockAccessory.addService(lightService)
-
+										//extras
 										let switchService
-										switchService=this.basicSwitch.createSwitchService(charger,chargerDetails,'Start/Stop')
-										this.basicSwitch.configureSwitchService(charger, switchService)
-										lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
-										lockAccessory.addService(switchService)
-								
-										switchService=this.basicSwitch.createSwitchService(charger,chargerDetails,'Resume/Pause')
-										this.basicSwitch.configureSwitchService(charger, switchService)
-										lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
-										lockAccessory.addService(switchService)
-										
-										switchService=this.basicSwitch.createSwitchService(charger, chargerDetails,'Toggle')
-										this.basicSwitch.configureSwitchService(charger, switchService)
-										lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
-										lockAccessory.addService(switchService)
-
+										if(this.showLight){
+											let lightService=this.light.createLightService(charger,chargerConfig,'LED')
+											this.light.configureLightService(charger, lightService)
+											lockAccessory.getService(Service.LockMechanism).addLinkedService(lightService)
+											lockAccessory.addService(lightService)
+										}
+										if(this.showStartStop){
+											switchService=this.basicSwitch.createSwitchService(charger,chargerDetails,'Start/Stop')
+											this.basicSwitch.configureSwitchService(charger, switchService)
+											lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
+											lockAccessory.addService(switchService)
+										}
+										if(this.showPauseResume){
+											switchService=this.basicSwitch.createSwitchService(charger,chargerDetails,'Pause/Resume')
+											this.basicSwitch.configureSwitchService(charger, switchService)
+											lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
+											lockAccessory.addService(switchService)
+										}
+										if(this.showToggle){
+											switchService=this.basicSwitch.createSwitchService(charger, chargerDetails,'Toggle')
+											this.basicSwitch.configureSwitchService(charger, switchService)
+											lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
+											lockAccessory.addService(switchService)
+										}
 										this.accessories[uuid]=lockAccessory                     
 										this.log.info('Adding Lock for %s charger ', charger.name)
 										this.log.debug('Registering platform accessory')
 										this.api.registerPlatformAccessories(PluginName, PlatformName, [lockAccessory])
 										this.setChargerRefresh(lockService, batteryService, charger.id)
-										this.updateStatus(lockService, batteryService, 'lock', chargerState.cableLocked)
-										this.updateStatus(lockService, batteryService, 'network', chargerState.isOnline)
+										this.updateStatus(lockService, batteryService, chargerState )
 									}).catch(err=>{this.log.error('Failed to get info for build', err)})
 								}).catch(err=>{this.log.error('Failed to get info for build', err)})
 							}).catch(err=>{this.log.error('Failed to get info for build', err)})
@@ -143,64 +150,97 @@ class easeePlatform {
 		}	
 
 		setChargerRefresh(lockService, batteryService, id){
-			// Refresh charger status
-				setInterval(()=>{		
-					try{		
-						this.easeeapi.getConfig(this.token,id).then(response=>{
-							this.log.debug('refreshed charger %s',id)
-							this.log.debug('Charger Authorization Required %s',response.data.authorizationRequired)
-							this.updateStatus(lockService, batteryService, "lock", response.data.authorizationRequired)
-						}).catch(err=>{this.log.error('Failed to refresh charger', err)})
-					}catch(err){this.log.error('Failed to refresh charger', err)}	
-				}, this.rate*60*1000)
-				
+			// Refresh charger status	
 				setInterval(()=>{		
 					try{		
 						this.easeeapi.state(this.token,id).then(response=>{
 							this.log.debug('refreshed charger %s connection',id)
 							this.log.debug('Charger Online %s',response.data.isOnline)
-							this.updateStatus(lockService, batteryService, "network", response.data.isOnline)
+							this.updateStatus(lockService, batteryService, response.data)
 						}).catch(err=>{this.log.error('Failed to refresh charger connection', err)})
 					}catch(err){this.log.error('Failed to refresh charger connection', err)}	
-				}, this.rate*60*1000)
+				}, this.refreshRate*60*1000)
 			}
 
-		updateStatus(lockService, batteryService, type, status){
-			switch (type){
-				case 'lock':
-					switch(status){
-						case false:
-							//lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(state.cableLocked)
-							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNSECURED)
-							//lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.UNSECURED)
-							batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(Characteristic.ChargingState.NOT_CHARGING)
-							break
-						case true:
-							//lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(state.cableLocked)
-							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.SECURED)
-							//lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.SECURED)
-							batteryService.getCharacteristic(Characteristic.BatteryLevel).updateValue(0)//stateOfCharge)
-							batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(Characteristic.ChargingState.CHARGING)
-						break
-						default:
-							this.log.warn('Unknown lock message received: %s',status)
-						break	
+		updateStatus(lockService, batteryService, state){
+			/*
+			chargerOpMode
+			0: "OFFLINE"
+			1: "DISCONNECTED"
+			2: "AWAITING_START"
+			3: "CHARGING"
+			4: "COMPLETED"
+			5: "ERROR"
+			6: "READY_TO_CHARGE"
+			reasonForNoCurrent
+			0: "No reason, charging or ready to charge",
+			1: "Charger paused",
+			2: "Charger paused",
+			3: "Charger paused",
+			4: "Charger paused",
+			5: "Charger paused",
+			6: "Charger paused",
+			9: "Error no current",
+			50: "Secondary unit not requesting current or no car connected",
+			51: "Charger paused",
+			52: "Charger paused",
+			53: "Charger disabled",
+			54: "Waiting for schedule/auth",
+			55: "Pending auth"
+			*/
+			switch (state.chargerOpMode){
+				case 0: {//offline
+					this.log.info("%s offline",lockService.getCharacteristic(Characteristic.Name).value)
+					if(state.isOnline){
+						lockService.setCharacteristic(Characteristic.StatusFault, Characteristic.StatusFault.NO_FAULT)
 					}
-				break	
-				case 'network':
-					switch(status){
-						case true:
-							lockService.setCharacteristic(Characteristic.StatusFault, Characteristic.StatusFault.NO_FAULT)
-							break
-						case false:
+					else{
 						this.log.warn('%s disconnected at %s! This will show as non-responding in Homekit until the connection is restored.',chargerData.name, new Date(chargerData.lastConnection).toLocaleString())
 						lockService.setCharacteristic(Characteristic.StatusFault, Characteristic.StatusFault.GENERAL_FAULT)
-						break
-						default:
-							this.log.warn('Unknown network message received: %s',status)
-						break	
 					}
-				break
+					break
+				}
+				case 1:{//disconnected
+					this.log.info("%s disconnected",lockService.getCharacteristic(Characteristic.Name).value)
+					lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(state.cableLocked)
+					lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.SECURED)
+					//lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.SECURED)
+					batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(Characteristic.ChargingState.NOT_CHARGING)
+					break
+				}
+				case 2:{//awating start
+					this.log.info("waiting to start")
+					lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(state.cableLocked)
+					batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(Characteristic.ChargingState.NOT_CHARGING)
+					break
+				}
+				case 3:{//charging
+					this.log.info("charging")
+					lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(state.cableLocked)
+					lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNSECURED)
+					//lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.UNSECURED)
+					batteryService.getCharacteristic(Characteristic.BatteryLevel).updateValue(0)//stateOfCharge)
+					batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(Characteristic.ChargingState.CHARGING)
+					break
+				}
+				case 4:{//complete
+					this.log.info("complete")
+					lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(state.cableLocked)
+					lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNSECURED)
+					//lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.UNSECURED)
+					batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(Characteristic.ChargingState.NOT_CHARGING)
+					break
+				}
+				case 5:{//error
+					this.log.info("error")
+					break
+				}
+				case 6:{//ready to charge
+					this.log.info("ready to charge")
+					lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(state.cableLocked)
+					batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(Characteristic.ChargingState.NOT_CHARGING)
+					break
+				}
 				default:
 					this.log.warn('Unknown message received: %s',status)
 				break	

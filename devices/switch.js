@@ -33,6 +33,8 @@ basicSwitch.prototype={
   },
   setSwitchValue(device, switchService, value, callback){
     this.log.debug('toggle switch state %s',switchService.getCharacteristic(Characteristic.Name).value)
+		//let chargerId=switchService.getCharacteristic(Characteristic.SerialNumber).value
+		//this.log.warn(chargerId)
     switch(switchService.getCharacteristic(Characteristic.Name).value){
       case 'Start/Stop': 
         if(switchService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
@@ -40,14 +42,14 @@ basicSwitch.prototype={
         }
         else{
           if(value){
-            this.easeeapi.command(this.platform.token,device,'start_charging').then(response=>{
+            this.easeeapi.command(this.platform.token,device.id,'start_charging').then(response=>{
 							if(response.status=="200"){
 								switchService.getCharacteristic(Characteristic.On).updateValue(true)
 							}
 						})	
           } 
           else {
-						this.easeeapi.command(this.platform.token,device,'stop_charging').then(response=>{
+						this.easeeapi.command(this.platform.token,device.id,'stop_charging').then(response=>{
 							if(response.status=="200"){
 								switchService.getCharacteristic(Characteristic.On).updateValue(false)
 							}
@@ -56,20 +58,20 @@ basicSwitch.prototype={
           callback()
         } 
       	break
-      case 'Resume/Pause': 
+      case 'Pause/Resume': 
         if(switchService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
           callback('error')
         }
         else{
           if(value){
-            this.easeeapi.command(this.platform.token,device,'resume_charging').then(response=>{
+            this.easeeapi.command(this.platform.token,device.id,'resume_charging').then(response=>{
 							if(response.status=="200"){
 								switchService.getCharacteristic(Characteristic.On).updateValue(true)
 							}
 						})	
           } 
           else {
-            this.easeeapi.command(this.platform.token,device,'pause_charging').then(response=>{
+            this.easeeapi.command(this.platform.token,device.id,'pause_charging').then(response=>{
 							if(response.status=="200"){
 								switchService.getCharacteristic(Characteristic.On).updateValue(false)
 							}
@@ -84,14 +86,14 @@ basicSwitch.prototype={
 			}
 			else{
 				if(value){
-					this.easeeapi.command(this.platform.token,device,'toggle_charging').then(response=>{
+					this.easeeapi.command(this.platform.token,device.id,'toggle_charging').then(response=>{
 						if(response.status=="200"){
 							switchService.getCharacteristic(Characteristic.On).updateValue(true)
 						}
 					})	
 				} 
 				else {
-					this.easeeapi.command(this.platform.token,device,'toggle_charging').then(response=>{
+					this.easeeapi.command(this.platform.token,device.id,'toggle_charging').then(response=>{
 						if(response.status=="200"){
 							switchService.getCharacteristic(Characteristic.On).updateValue(false)
 						}
@@ -104,7 +106,7 @@ basicSwitch.prototype={
   },
 
 	getSwitchValue(switchService, callback){
-		this.log.debug("%s=%s", switchService.getCharacteristic(Characteristic.Name).value,switchService.getCharacteristic(Characteristic.On).value)
+		//this.log.debug("%s=%s", switchService.getCharacteristic(Characteristic.Name).value,switchService.getCharacteristic(Characteristic.On).value)
 		if(switchService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
 			callback('error')
 		}

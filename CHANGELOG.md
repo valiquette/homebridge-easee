@@ -1,8 +1,12 @@
 # Changes
 
+## 1.0.4
+Fix 
+- Fixed bug with resuming charge
+
 ## 1.0.3
 Fix 
-- Fixed a numebr of bugs
+- Fixed a numeber of bugs
 
 ## 1.0.2-beta.0
 Update 

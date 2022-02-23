@@ -1,5 +1,9 @@
 # Changes
 
+## 1.0.3
+Fix 
+- Fixed a numebr of bugs
+
 ## 1.0.2-beta.0
 Update 
 - Experimental switches

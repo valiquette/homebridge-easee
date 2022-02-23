@@ -14,95 +14,165 @@ function basicSwitch (platform,log,config){
 
 basicSwitch.prototype={
 
-  createSwitchService(device,details,type){
+  createSwitchService(device, config, state, type){
     this.log.debug('adding new switch')
 		let switchService=new Service.Switch(type, type)
+		let switchOn=false
+		if(state.chargerOpMode==3){switchOn=true}
     switchService 
-      .setCharacteristic(Characteristic.On, false)
+      .setCharacteristic(Characteristic.On, switchOn)
       .setCharacteristic(Characteristic.Name, type)
-      .setCharacteristic(Characteristic.StatusFault, false )//!device.is_connected)
+      .setCharacteristic(Characteristic.StatusFault,!state.isOnline)
     return switchService
   },
 
   configureSwitchService(device, switchService){
-    this.log.info("Configured switch for %s" ,switchService.getCharacteristic(Characteristic.Name).value)
+    this.log.info("Configured %s switch for %s" , switchService.getCharacteristic(Characteristic.Name).value, device.name,)
     switchService
       .getCharacteristic(Characteristic.On)
       .on('get', this.getSwitchValue.bind(this, switchService))
       .on('set', this.setSwitchValue.bind(this, device, switchService))
   },
   setSwitchValue(device, switchService, value, callback){
-    this.log.debug('toggle switch state %s',switchService.getCharacteristic(Characteristic.Name).value)
-		//let chargerId=switchService.getCharacteristic(Characteristic.SerialNumber).value
-		//this.log.warn(chargerId)
-    switch(switchService.getCharacteristic(Characteristic.Name).value){
-      case 'Start/Stop': 
-        if(switchService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
-          callback('error')
-        }
-        else{
-          if(value){
-            this.easeeapi.command(this.platform.token,device.id,'start_charging').then(response=>{
-							if(response.status=="200"){
-								switchService.getCharacteristic(Characteristic.On).updateValue(true)
+		this.easeeapi.state(this.platform.token,device.id).then(state=>{
+			this.log.debug('check current state',state.data.chargerOpMode)
+			if(state.data.chargerOpMode==3 || state.data.chargerOpMode==6){
+				this.log.debug('toggle switch state %s',switchService.getCharacteristic(Characteristic.Name).value)
+				switch(switchService.getCharacteristic(Characteristic.Name).value){
+					case 'Start/Stop': 
+						if(switchService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
+							callback('error')
+						}
+						else{
+							if(value){
+								this.easeeapi.command(this.platform.token,device.id,'start_charging').then(response=>{
+									switch(response.status){
+										case 200:
+											switchService.getCharacteristic(Characteristic.On).updateValue(value)
+											break
+										case 202:
+											switchService.getCharacteristic(Characteristic.On).updateValue(value)
+											break	
+										case 400:
+											switchService.getCharacteristic(Characteristic.On).updateValue(!value)
+											this.log.info('Failed to start charging %s',response.data.title)
+											this.log.debug(response.data)
+											break
+										default:
+											switchService.getCharacteristic(Characteristic.On).updateValue(!value)
+											this.log.debug(response.data)
+											break	
+										}
+								})	
+							} 
+							else {
+								this.easeeapi.command(this.platform.token,device.id,'stop_charging').then(response=>{
+									switch(response.status){
+										case 200:
+											switchService.getCharacteristic(Characteristic.On).updateValue(value)
+											break
+										case 202:
+											switchService.getCharacteristic(Characteristic.On).updateValue(value)
+											break	
+										case 400:
+											switchService.getCharacteristic(Characteristic.On).updateValue(!value)
+											this.log.info('Failed to stop charging %s',response.data.title)
+											this.log.debug(response.data)
+											break
+										default:
+											switchService.getCharacteristic(Characteristic.On).updateValue(!value)
+											this.log.debug(response.data)
+											break	
+										}
+								})	
 							}
-						})	
-          } 
-          else {
-						this.easeeapi.command(this.platform.token,device.id,'stop_charging').then(response=>{
-							if(response.status=="200"){
-								switchService.getCharacteristic(Characteristic.On).updateValue(false)
+							callback()
+						} 
+						break
+					case 'Pause/Resume': 
+						if(switchService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
+							callback('error')
+						}
+						else{
+							if(value){
+								this.easeeapi.command(this.platform.token,device.id,'resume_charging').then(response=>{
+									switch(response.status){
+										case 200:
+											switchService.getCharacteristic(Characteristic.On).updateValue(value)
+											break
+										case 202:
+											switchService.getCharacteristic(Characteristic.On).updateValue(value)
+											break	
+										case 400:
+											switchService.getCharacteristic(Characteristic.On).updateValue(!value)
+											this.log.info('Failed to resume charging %s',response.data.title)
+											this.log.debug(response.data)
+											break
+										default:
+											switchService.getCharacteristic(Characteristic.On).updateValue(!value)
+											this.log.debug(response.data)
+											break	
+										}
+								})	
+							} 
+							else {
+								this.easeeapi.command(this.platform.token,device.id,'pause_charging').then(response=>{
+									switch(response.status){
+										case 200:
+											switchService.getCharacteristic(Characteristic.On).updateValue(value)
+											break
+										case 202:
+											switchService.getCharacteristic(Characteristic.On).updateValue(value)
+											break	
+										case 400:
+											switchService.getCharacteristic(Characteristic.On).updateValue(!value)
+											this.log.info('Failed to pause charging %s',response.data.title)
+											this.log.debug(response.data)
+											break
+										default:
+											switchService.getCharacteristic(Characteristic.On).updateValue(!value)
+											this.log.debug(response.data)
+											break	
+										}
+								})	
 							}
-						})	
-          }
-          callback()
-        } 
-      	break
-      case 'Pause/Resume': 
-        if(switchService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
-          callback('error')
-        }
-        else{
-          if(value){
-            this.easeeapi.command(this.platform.token,device.id,'resume_charging').then(response=>{
-							if(response.status=="200"){
-								switchService.getCharacteristic(Characteristic.On).updateValue(true)
-							}
-						})	
-          } 
-          else {
-            this.easeeapi.command(this.platform.token,device.id,'pause_charging').then(response=>{
-							if(response.status=="200"){
-								switchService.getCharacteristic(Characteristic.On).updateValue(false)
-							}
-						})	
-          }
-          callback()
-        }
-				break
-			case 'Toggle': 
-			if(switchService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
-				callback('error')
+							callback()
+						}
+						break
+					case 'Toggle': 
+						if(switchService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
+							callback('error')
+						}
+						else{
+							this.easeeapi.command(this.platform.token,device.id,'toggle_charging').then(response=>{
+							switch(response.status){
+								case 200:
+									switchService.getCharacteristic(Characteristic.On).updateValue(value)
+									break
+								case 202:
+									switchService.getCharacteristic(Characteristic.On).updateValue(value)
+									break	
+								case 400:
+									switchService.getCharacteristic(Characteristic.On).updateValue(!value)
+									this.log.info('Failed to toggle charging %s',response.data.title)
+									this.log.debug(response.data)
+									break
+								default:
+									switchService.getCharacteristic(Characteristic.On).updateValue(!value)
+									this.log.debug(response.data)
+									break	
+								}
+							})	
+						callback()
+						}
+						break
+				}
 			}
 			else{
-				if(value){
-					this.easeeapi.command(this.platform.token,device.id,'toggle_charging').then(response=>{
-						if(response.status=="200"){
-							switchService.getCharacteristic(Characteristic.On).updateValue(true)
-						}
-					})	
-				} 
-				else {
-					this.easeeapi.command(this.platform.token,device.id,'toggle_charging').then(response=>{
-						if(response.status=="200"){
-							switchService.getCharacteristic(Characteristic.On).updateValue(false)
-						}
-					})	
-				}
-				callback()
-			}
-				break
-    }
+				this.log.info('Unable to start at this time')
+				switchService.getCharacteristic(Characteristic.On).updateValue(!value)
+			}	
+		})
   },
 
 	getSwitchValue(switchService, callback){

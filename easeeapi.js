@@ -92,7 +92,7 @@ easeeAPI.prototype={
 
 	site: async function(token,chargerId){
 		try {  
-				this.log.debug('Retrieving site info')
+				this.log.debug('Retrieving site info %s',chargerId)
 				let response = await axios({
 						method: 'get',
 						url: endpoint+'chargers/'+chargerId+site,
@@ -128,7 +128,7 @@ easeeAPI.prototype={
 
 	charger: async function(token,chargerId){
 		try {  
-			this.log.debug('Retrieving charger info')
+			this.log.debug('Retrieving charger info %s',chargerId)
 			let response = await axios({
 					method: 'get',
 					url: endpoint+'chargers/'+chargerId,
@@ -146,7 +146,7 @@ easeeAPI.prototype={
 
 	chargerDetails: async function(token,chargerId){
 		try {  
-			this.log.debug('Retrieving charger details')
+			this.log.debug('Retrieving charger details %s',chargerId)
 			let response = await axios({
 					method: 'get',
 					url: endpoint+'chargers/'+chargerId+'/details',
@@ -164,7 +164,7 @@ easeeAPI.prototype={
 
 	state: async function(token,chargerId){
 		try {  
-			this.log.debug('Retrieving charger state')
+			this.log.debug('Retrieving charger state %s',chargerId)
 			let response = await axios({
 					method: 'get',
 					url: endpoint+'chargers/'+chargerId+'/state',
@@ -182,7 +182,7 @@ easeeAPI.prototype={
 
 	getConfig: async function(token,chargerId){
 		try {  
-			this.log.debug('Retrieving charger config')
+			this.log.debug('Retrieving charger config %s',chargerId)
 			let response = await axios({
 					method: 'get',
 					url: endpoint+'chargers/'+chargerId+'/config',
@@ -200,64 +200,70 @@ easeeAPI.prototype={
 
 	lock: async function(token,chargerId,value){
 		//change charger settings
-		try {  
-			this.log.debug('Setting charger lock state for %s',chargerId,value)
-			let response = await axios({
-					method: 'post',
-					url: endpoint+'chargers/'+chargerId+'/settings',
-					headers: {
-            'Accept': 'application/json',
-						'Content-Type': 'application/json',
-						'Authorization': 'Bearer '+token
-					},
-					data:{
-						'enabled':value
-					},
-					responseType: 'json'
-			}).catch(err=>{this.log.error('Error locking charger config %s', JSON.stringify(err.config,null,2))})
-			if(response){this.log.debug('post lock response',response.status)}
-			return response
-		}catch(err) {this.log.error('Error setting lock state config %s', err)}
+		this.log.debug('Setting charger lock state for %s to %s', chargerId, value)
+		let response = await axios({
+				method: 'post',
+				url: endpoint+'chargers/'+chargerId+'/settings',
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json',
+					'Authorization': 'Bearer '+token
+				},
+				data:{
+					'authorizationRequired':value
+				},
+				responseType: 'json'
+			}).catch(err=>{
+				this.log.debug('Error posting lock command  %s', err.message)
+				this.log.debug('Error posting lock command  %s', err.response.config.header, err.response.config.method, err.response.config.url)
+				return err.response
+			})
+		if(response==200 || response==202){this.log.debug('post lock response',JSON.stringify(response.data,null,2))}
+		return response
 	},
 
 	light: async function(token,chargerId,value){
 		//change charger settings
-		try {  
-			this.log.debug('Setting LED light for %s',chargerId,value)
-			let response = await axios({
-					method: 'post',
-					url: endpoint+'chargers/'+chargerId+'/settings',
-					headers: {
-            'Accept': 'application/json',
-						'Content-Type': 'application/json',
-						'Authorization': 'Bearer '+token
-					},
-					data:{
-						'ledStripBrightness':value
-					},
-					responseType: 'json'
-			}).catch(err=>{this.log.error('Error setting LED lights %s', JSON.stringify(err.config,null,2))})
-			if(response){this.log.debug('post light response',response.status)}
-			return response
-		}catch(err) {this.log.error('Error setting light %s', err)}
+		this.log.debug('Setting LED light for %s to %s',chargerId,value)
+		let response = await axios({
+				method: 'post',
+				url: endpoint+'chargers/'+chargerId+'/settings',
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json',
+					'Authorization': 'Bearer '+token
+				},
+				data:{
+					'ledStripBrightness':value
+				},
+				responseType: 'json'
+			}).catch(err=>{
+				this.log.debug('Error posting light command  %s', err.message)
+				this.log.debug('Error posting light command  %s', err.response.config.header, err.response.config.method, err.response.config.url)
+				return err.response
+			})
+		if(response==200 || response==202){this.log.debug('post light response',response.status)}
+		return response
 	},
 
-	command: async function(token,chargerId,command){
-		try {  
-			this.log.debug('%s for %s',command, chargerId)
-			let response = await axios({
-					method: 'post',
-					url: endpoint+'chargers/'+chargerId+'/commands/'+command,
-					headers: {
-            'Accept': 'application/json',
-						'Content-Type': 'application/json',
-						'Authorization': 'Bearer '+token
-					},
-					responseType: 'json'
-			}).catch(err=>{this.log.error('Error posting %s command  %s', command, JSON.stringify(err.config,null,2))})
-			if(response){this.log.debug('post %s response',command, JSON.stringify(response.data,null,2))}
-			return response
-		}catch(err) {this.log.error('Error %s %s', command, err)}
+	command: async function(token,chargerId,command){ 
+		this.log.debug('%s for %s',command, chargerId)
+		let response = await axios({
+				method: 'post',
+				url: endpoint+'chargers/'+chargerId+'/commands/'+command,
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json',
+					'Authorization': 'Bearer '+token
+				},
+				responseType: 'json'
+		}).catch(err=>{
+			this.log.debug('Error posting %s command  %s', command, err.message)
+			this.log.debug('Error posting %s command  %s', command, err.response.config.header, err.response.config.method, err.response.config.url)
+			return err.response
+		})
+		if(response==200 || response==202){this.log.debug('post %s response',command, JSON.stringify(response,null,2))}
+		return response
 	}
 }
 

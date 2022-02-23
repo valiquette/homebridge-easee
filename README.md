@@ -11,7 +11,7 @@
 
 ## Notes on testing
 
-This plugin is being remotly test and verified and may be very buggy.
+This plugin is being developed and verified and may be very buggy.
 
 ## Installation
 1. Install this plugin using: npm install -g homebridge-easee

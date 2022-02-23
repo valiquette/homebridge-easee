@@ -14,19 +14,21 @@ function light (platform,log,config){
 
 light.prototype={
 
-  createLightService(device,details,type){
+  createLightService(device, config, state, type){
     this.log.debug('adding new switch')
     let lightService=new Service.Lightbulb(type, type) 
+		let lightOn=false
+		if(config.ledStripBrightness>0){lightOn=true}
     lightService 
-      .setCharacteristic(Characteristic.On, false)
+      .setCharacteristic(Characteristic.On, lightOn)
       .setCharacteristic(Characteristic.Name, type)
-      .setCharacteristic(Characteristic.StatusFault, false) // !device.is_connected)
-      .setCharacteristic(Characteristic.Brightness, details.ledStripBrightness)
+      .setCharacteristic(Characteristic.StatusFault, !state.isOnline)
+      .setCharacteristic(Characteristic.Brightness, config.ledStripBrightness)
     return lightService
   },
 
   configureLightService(device, lightService){
-    this.log.info("Configured light for %s" ,lightService.getCharacteristic(Characteristic.Name).value)
+    this.log.info("Configured %s light for %s" ,lightService.getCharacteristic(Characteristic.Name).value, device.name,)
     lightService
       .getCharacteristic(Characteristic.On)
       .on('get', this.getLightValue.bind(this, lightService))
@@ -46,24 +48,14 @@ light.prototype={
 			callback('error')
 		}
 		else{
-			if(value){
-				/*
-				lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
-				this.easeeapi.light(this.platform.token,device.id,value).then(response=>{
-					if(response.status=="200"){
-						lightService.getCharacteristic(Characteristic.Brightness).updateValue(100)
-					}
-				})
-				*/	
-			} 
-			else{
-				lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
-				this.easeeapi.light(this.platform.token,device.id,value).then(response=>{
-					if(response.status=="200"){
-						lightService.getCharacteristic(Characteristic.Brightness).updateValue(0)
-					}
-				})	
-			} 
+			/*
+			lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
+			this.easeeapi.light(this.platform.token,device.id,value).then(response=>{
+				if(response.status=="200"){
+					lightService.getCharacteristic(Characteristic.Brightness).updateValue(100)
+				}
+			})
+			*/	
 			callback()
 		} 
   },
@@ -74,22 +66,26 @@ light.prototype={
 			callback('error')
 		}
 		else{
-			if(value){
-				lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
-				this.easeeapi.light(this.platform.token,device.id,value).then(response=>{
-					if(response.status=="200"){
+			lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
+			this.easeeapi.light(this.platform.token,device.id,value).then(response=>{
+				switch(response.status){
+					case 200:
 						lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
+						break
+					case 202:
+						lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
+						break	
+					case 400:
+						lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
+						this.log.info('Failed to start charging %s',response.data.title)
+						this.log.debug(response.data)
+						break
+					default:
+						lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
+						this.log.debug(response.data)
+						break	
 					}
 				})	
-			} 
-			else{
-				lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
-				this.easeeapi.light(this.platform.token,device.id,value).then(response=>{
-					if(response.status=="200"){
-						lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
-					}
-				})	
-			}
 			callback()
 		} 
   },

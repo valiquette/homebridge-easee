@@ -14,7 +14,7 @@ function lockMechanism (platform,log,config){
 
 lockMechanism.prototype={
 
-  createLockAccessory(device,details,state,uuid){
+  createLockAccessory(device, details, state, uuid){
     this.log.debug('Create Lock Accessory %s',device.name)
     let newPlatformAccessory=new PlatformAccessory(device.name, uuid)
     newPlatformAccessory.getService(Service.AccessoryInformation)
@@ -24,7 +24,7 @@ lockMechanism.prototype={
       .setCharacteristic(Characteristic.Model, details.product)
       .setCharacteristic(Characteristic.Identify, true)
       .setCharacteristic(Characteristic.FirmwareRevision, state.chargerFirmware.toString())
-      .setCharacteristic(Characteristic.HardwareRevision, "part_number")
+      .setCharacteristic(Characteristic.HardwareRevision, device.backPlate.masterBackPlateId)
       .setCharacteristic(Characteristic.SoftwareRevision, packageJson.version)
     return newPlatformAccessory
   },
@@ -34,17 +34,17 @@ lockMechanism.prototype={
 		let lockService=new Service.LockMechanism(device.name,details.id)
 		lockService
 		.setCharacteristic(Characteristic.SerialNumber, details.serialNumber)
-			.setCharacteristic(Characteristic.StatusFault, Characteristic.StatusFault.NO_FAULT)
-			.setCharacteristic(Characteristic.OutletInUse,state.cableLocked)
+			.setCharacteristic(Characteristic.StatusFault, !state.isOnline)
+			.setCharacteristic(Characteristic.OutletInUse, state.cableLocked)
 			.setCharacteristic(Characteristic.AccessoryIdentifier, device.id)
     return lockService
   },
 
-  configureLockService(lockService,currentState){
-    this.log.debug("configured Lock for %s",lockService.getCharacteristic(Characteristic.Name).value)
+  configureLockService(lockService,config){
+    this.log.info("Configured Lock for %s",lockService.getCharacteristic(Characteristic.Name).value)
     lockService
-			.setCharacteristic(Characteristic.LockCurrentState, currentState)
-			.setCharacteristic(Characteristic.LockTargetState, currentState)
+			.setCharacteristic(Characteristic.LockCurrentState, config.authorizationRequired)
+			.setCharacteristic(Characteristic.LockTargetState, config.authorizationRequired)
 		lockService
 			.getCharacteristic(Characteristic.LockTargetState)
 			.on('get', this.getLockTargetState.bind(this, lockService))
@@ -87,29 +87,52 @@ lockMechanism.prototype={
 			callback('error')
 		}
 		else{
-			if (value == true) {
+			if(value){
 				this.log.info('Locking %s',lockService.getCharacteristic(Characteristic.Name).value)
 				lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.SECURED)
 				let chargerId=lockService.getCharacteristic(Characteristic.SerialNumber).value
 				this.easeeapi.lock(this.platform.token,chargerId,value).then(response=>{
-					if(response.status=="200"){
-						//lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
-						lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.SECURED)
-					}
-					//maybe check state, what if not 200
-					//lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(response.data.data.chargerData.locked)
+					switch(response.status){
+						case 200:
+							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
+							break
+						case 202:
+							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
+							break	
+						case 400:
+							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
+							this.log.info('Failed to start charging %s',response.data.title)
+							this.log.debug(response.data)
+							break
+						default:
+							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
+							this.log.debug(response.data)
+							break	
+						}
 				})
-			} else {
+			} 
+			else{
 				this.log.info('Unlocking %s',lockService.getCharacteristic(Characteristic.Name).value)
 				lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.UNSECURED)
 				let chargerId=lockService.getCharacteristic(Characteristic.SerialNumber).value
 				this.easeeapi.lock(this.platform.token,chargerId,value).then(response=>{
-					if(response.status=="200"){
-						//lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
-						lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNSECURED)
-					}
-					//maybe check state, what if not 200
-					//lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(response.data.data.chargerData.locked)
+					switch(response.status){
+						case 200:
+							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
+							break
+						case 202:
+							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
+							break	
+						case 400:
+							switchService.getCharacteristic(Characteristic.On).updateValue(!value)
+							this.log.info('Failed to start charging %s',response.data.title)
+							this.log.debug(response.data)
+							break
+						default:
+							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
+							this.log.debug(response.data)
+							break	
+						}
 				})
 			}
 			callback()

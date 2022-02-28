@@ -1,8 +1,11 @@
 // Public API info https://developer.easee.cloud/docs
 
 let axios = require('axios')
+let signalr = require('@microsoft/signalr')
  
-let endpoint = 'https://api.easee.cloud/api/'
+let endpoint = 'https://api.easee.cloud/api'
+//let streamingEndpoint = 'https://api.beta.easee.cloud'
+let streamingEndpoint = 'https://api.easee.cloud' 
 
 function easeeAPI (platform,log){
 	this.log=log
@@ -16,7 +19,7 @@ easeeAPI.prototype={
 			this.log.debug('Retrieving token')
 			let response = await axios({
 				method: 'post',
-				url: endpoint + 'accounts/login',
+				url: `${endpoint}/accounts/login`,
 				headers: {
 					'Accept': 'application/json',
 					'Content-Type': 'application/json'
@@ -31,13 +34,13 @@ easeeAPI.prototype={
 			return  response
 		}catch(err) {this.log.error('Error retrieving token %s', err)}
 	},
-
+	
 	refreshToken: async function(accessToken,refreshToken){
 		try {  
 			this.log.debug('Refreshing token')
 			let response = await axios({
 				method: 'post',
-				url: endpoint + 'accounts/refresh_token',
+				url: `${endpoint}/accounts/refresh_token`,
 				headers: {
 					'Accept': 'application/json',
 					'Content-Type': 'application/json'
@@ -47,7 +50,7 @@ easeeAPI.prototype={
 					'refreshToken':refreshToken
 				},
 				responseType: 'json'
-			}).catch(err=>{this.log.error('Error refresing token %s', JSON.stringify(err.config,null,2))})
+			}).catch(err=>{this.log.error('Error %s-%s refresing token %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
 			if(response){this.log.debug('refresh response',JSON.stringify(response.data,null,2))}
 			return  response
 		}catch(err) {this.log.error('Error refreshing token %s', err)}
@@ -58,14 +61,14 @@ easeeAPI.prototype={
 			this.log.debug('Retrieving user profile')
 			let response = await axios({
 				method: 'get',
-				url: endpoint+'accounts/profile',
+				url: `${endpoint}/accounts/profile`,
 				headers: {
 					'Accept': 'application/json',
 					'Content-Type': 'application/json',
 					'Authorization': 'Bearer '+token
 				},
 				responseType: 'json'
-			}).catch(err=>{this.log.error('Error getting user profile %s', JSON.stringify(err.config,null,2))})
+			}).catch(err=>{this.log.error('Error %s-%s getting user profile %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
 			if(response){this.log.debug('get user response',JSON.stringify(response.data,null,2))}		
 			return response
 		}catch(err) {this.log.error('Error retrieving user profile %s', err)}
@@ -77,14 +80,14 @@ easeeAPI.prototype={
 				this.log.debug('Retrieving products info')
 				let response = await axios({
 						method: 'get',
-						url: endpoint+'accounts/products',
+						url: `${endpoint}/accounts/products`,
 						headers: {
               'Accept': 'application/json',
 							'Content-Type': 'application/json',
 							'Authorization': 'Bearer '+token
 						},
 						responseType: 'json'
-				}).catch(err=>{this.log.error('Error getting products %s', JSON.stringify(err.config,null,2))})
+				}).catch(err=>{this.log.error('Error %s-%s getting products %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
 				if(response){	this.log.debug('get products data response',JSON.stringify(response.data,null,2))}	
 				return response
 			}catch(err) {this.log.error('Error retrieving products %s', err)}
@@ -95,14 +98,14 @@ easeeAPI.prototype={
 				this.log.debug('Retrieving site info %s',chargerId)
 				let response = await axios({
 						method: 'get',
-						url: endpoint+'chargers/'+chargerId+site,
+						url: `${endpoint}/chargers/${chargerId}/${site}`,
 						headers: {
 							'Accept': 'application/json',
 							'Content-Type': 'application/json',
 							'Authorization': 'Bearer '+token
 						},
 						responseType: 'json'
-				}).catch(err=>{this.log.error('Error getting site %s', JSON.stringify(err.config,null,2))})
+				}).catch(err=>{this.log.error('Error getting site %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
 				if(response){this.log.debug('get site data response',JSON.stringify(response.data,null,2))}
 				return response
 			}catch(err) {this.log.error('Error site products %s', err)}
@@ -113,14 +116,14 @@ easeeAPI.prototype={
 			this.log.debug('Retrieving chargers')
 			let response = await axios({
 					method: 'get',
-					url: endpoint+'chargers',
+					url: `${endpoint}/chargers`,
 					headers: {
 						'Accept': 'application/json',
 						'Content-Type': 'application/json',
 						'Authorization': 'Bearer '+token
 					},
 					responseType: 'json'
-			}).catch(err=>{this.log.error('Error getting chargers %s', JSON.stringify(err.config,null,2))})
+			}).catch(err=>{this.log.error('Error %s-%s getting chargers %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
 			if(response){	this.log.debug('get chargers config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving chargers %s', err)}
@@ -131,14 +134,14 @@ easeeAPI.prototype={
 			this.log.debug('Retrieving charger info %s',chargerId)
 			let response = await axios({
 					method: 'get',
-					url: endpoint+'chargers/'+chargerId,
+					url: `${endpoint}/chargers/${chargerId}`,
 					headers: {
 						'Accept': 'application/json',
 						'Content-Type': 'application/json',
 						'Authorization': 'Bearer '+token
 					},
 					responseType: 'json'
-			}).catch(err=>{this.log.error('Error getting charger info %s', JSON.stringify(err.config,null,2))})
+			}).catch(err=>{this.log.error('Error %s-%s getting charger info %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
 			if(response){this.log.debug('get charger info config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving charger info %s', err)}
@@ -149,14 +152,14 @@ easeeAPI.prototype={
 			this.log.debug('Retrieving charger details %s',chargerId)
 			let response = await axios({
 					method: 'get',
-					url: endpoint+'chargers/'+chargerId+'/details',
+					url: `${endpoint}/chargers/${chargerId}/details`,
 					headers: {
 						'Accept': 'application/json',
 						'Content-Type': 'application/json',
 						'Authorization': 'Bearer '+token
 					},
 					responseType: 'json'
-			}).catch(err=>{this.log.error('Error getting charger details %s', JSON.stringify(err.config,null,2))})
+			}).catch(err=>{this.log.error('Error %s-%s getting charger details %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
 			if(response){this.log.debug('get charger details config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving charger details %s', err)}
@@ -167,14 +170,14 @@ easeeAPI.prototype={
 			this.log.debug('Retrieving charger state %s',chargerId)
 			let response = await axios({
 					method: 'get',
-					url: endpoint+'chargers/'+chargerId+'/state',
+					url: `${endpoint}/chargers/${chargerId}/state`,
 					headers: {
 						'Accept': 'application/json',
 						'Content-Type': 'application/json',
 						'Authorization': 'Bearer '+token
 					},
 					responseType: 'json'
-			}).catch(err=>{this.log.error('Error getting charger state %s', JSON.stringify(err.config,null,2))})
+			}).catch(err=>{this.log.error('Error %s-%s getting charger state %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
 			if(response){this.log.debug('get charger state config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving charger state %s', err)}
@@ -185,14 +188,14 @@ easeeAPI.prototype={
 			this.log.debug('Retrieving charger config %s',chargerId)
 			let response = await axios({
 					method: 'get',
-					url: endpoint+'chargers/'+chargerId+'/config',
+					url: `${endpoint}/chargers/${chargerId}/config`,
 					headers: {
 						'Accept': 'application/json',
 						'Content-Type': 'application/json',
 						'Authorization': 'Bearer '+token
 					},
 					responseType: 'json'
-			}).catch(err=>{this.log.error('Error getting charger config %s', JSON.stringify(err.config,null,2))})
+			}).catch(err=>{this.log.error('Error %s-%s getting charger config %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
 			if(response){	this.log.debug('get charger config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving charger config %s', err)}
@@ -203,7 +206,7 @@ easeeAPI.prototype={
 		this.log.debug('Setting charger lock state for %s to %s', chargerId, value)
 		let response = await axios({
 				method: 'post',
-				url: endpoint+'chargers/'+chargerId+'/settings',
+				url: `${endpoint}/chargers/${chargerId}/settings`,
 				headers: {
 					'Accept': 'application/json',
 					'Content-Type': 'application/json',
@@ -227,7 +230,7 @@ easeeAPI.prototype={
 		this.log.debug('Setting LED light for %s to %s',chargerId,value)
 		let response = await axios({
 				method: 'post',
-				url: endpoint+'chargers/'+chargerId+'/settings',
+				url: `${endpoint}/chargers/${chargerId}/settings`,
 				headers: {
 					'Accept': 'application/json',
 					'Content-Type': 'application/json',
@@ -250,7 +253,7 @@ easeeAPI.prototype={
 		this.log.debug('%s for %s',command, chargerId)
 		let response = await axios({
 				method: 'post',
-				url: endpoint+'chargers/'+chargerId+'/commands/'+command,
+				url: `${endpoint}/chargers/${chargerId}/commands/${command}`,
 				headers: {
 					'Accept': 'application/json',
 					'Content-Type': 'application/json',
@@ -264,7 +267,62 @@ easeeAPI.prototype={
 		})
 		if(response==200 || response==202){this.log.debug('post %s response',command, JSON.stringify(response,null,2))}
 		return response
+	},
+
+	getObservations: async function(token){
+		try {  
+			this.log.debug('Retrieving observations')
+			let response = await axios({
+					method: 'get',
+					url: `${endpoint}/resources/observation_properties`,
+					headers: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/json',
+						'Authorization': 'Bearer '+token
+					},
+					responseType: 'json'
+			}).catch(err=>{this.log.error('Error %s-%s observations %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
+			//if(response){	this.log.debug('get observations response',JSON.stringify(response.data,null,2))}
+			return response
+		}catch(err) {this.log.error('Error retrieving observations %s', err)}
+	},
+
+	signalR: async function(token,chargerId){ 
+		let connection = new signalr.HubConnectionBuilder()
+				.withUrl(`${streamingEndpoint}/hubs/chargers`, {
+					accessTokenFactory: () => token
+				}).build()
+
+		connection.onclose(() => {
+				this.log.warn("Connection close...")
+		})
+
+		connection.onreconnected(() => {
+				connection.invoke('SubscribeWithCurrentState', chargerId, true)
+				this.log.info("Reconnected...")
+		})
+
+		connection.onreconnecting(() => {
+				this.log.info("Reconnecting...")
+		})
+
+		connection.on('ProductUpdate', (update) => {
+				this.log.debug(JSON.stringify(update, null, null))
+				this.platform.updateService(update)
+		})
+
+		connection.on('CommandResponse', (update) => {
+				this.log.info(JSON.stringify(update, null, null))
+				this.platform.updateService(update)
+		})
+
+		connection.start().then(() => {
+			connection.invoke('SubscribeWithCurrentState', chargerId, true)
+			this.log.info('Starting connection')
+		}).catch((err) => {this.log.error('Error while starting connection: ', err)})
+		
 	}
+	
 }
 
-module.exports = easeeAPI
+module.exports = easeeAPI                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        

@@ -1,6 +1,12 @@
 # Changes
 
-## 1.0.4
+## 1.1.o
+Update 
+- Updates now using SignlR
+- Removed Polling requirement
+- Expose more loging info for development
+
+## 1.0.5
 Fix 
 - Fixed bug with resuming charge
 

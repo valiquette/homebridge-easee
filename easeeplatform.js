@@ -5,7 +5,7 @@ let lockMechanism=require('./devices/lock')
 let battery=require('./devices/battery')
 let basicSwitch=require('./devices/switch')
 let light=require('./devices/light')
-
+let enumeration=require('./enumerations')
 
 class easeePlatform {
 
@@ -15,6 +15,7 @@ class easeePlatform {
 		this.battery=new battery(this, log, config)
 		this.basicSwitch=new basicSwitch(this, log, config)
 		this.light=new light(this, log, config)
+		this.enumeration=enumeration
 
     this.log=log
     this.config=config
@@ -26,12 +27,10 @@ class easeePlatform {
     this.password=config.password
     this.token
 		this.refreshToken
-		this.refreshRate=config.refreshRate||30
-		this.showStartStop=config.showStartStop
-		this.showPauseResume=config.showPauseResume
-		this.showToggle=config.showToggle
+		this.showControls=config.showControls
 		this.showLight=config.showLight
     this.userId
+		this.observations={}
 		this.accessories=[]
     if(!config.username || !config.password){
       this.log.error('Valid username and password are required in order to communicate with easee, please check the plugin config')
@@ -46,217 +45,285 @@ class easeePlatform {
       }
     }
 
-  identify (){
-    this.log.info('Identify easee!')
-  }
+		identify (){
+			this.log.info('Identify easee!')
+		}
 
-  getDevices(){
-    this.log.debug('Fetching Build info...')
-    this.log.info('Getting Account info...')
-    // login to the API and get the token
-		this.easeeapi.login(this.username,this.password).then(response=>{
-			this.log.debug('Found Token %s',response.data.accessToken)
-			this.log.debug('Found Token %s',response.data.refreshToken)
-			this.token=response.data.accessToken 
-			this.refreshToken=response.data.refreshToken 
-			this.setTokenRefresh(response.data.expiresIn)
-			//get token
-			this.easeeapi.profile(this.token).then(response=>{
-				this.log.info('Found account for %s %s', response.data.firstName, response.data.lastName)
-				this.userId=response.data.userId
-				//get product
-				this.easeeapi.products(this.token,this.userId).then(response=>{
-					this.log.info('Found products at %s %s', response.data[0].address.street,response.data[0].name)
-					//loop each charger
-					response.data[0].circuits.forEach((circuit)=>{
-						circuit.chargers.forEach((charger)=>{
-							this.log.info('Found charger %s with ID-%s ', charger.name, charger.id)
-							this.easeeapi.getConfig(this.token,charger.id).then(response=>{
-								let chargerConfig=response.data
-								this.easeeapi.state(this.token,charger.id).then(response=>{
-									let chargerState=response.data
-									this.easeeapi.chargerDetails(this.token,charger.id).then(response=>{
-										let chargerDetails=response.data
-										let uuid=UUIDGen.generate(charger.id)							
-										if(this.accessories[uuid]){
-											this.api.unregisterPlatformAccessories(PluginName, PlatformName, [this.accessories[uuid]])
-											delete this.accessories[uuid]
-										}
-										this.log.info('Adding Lock for %s charger ', charger.name)
-										this.log.debug('Registering platform accessory')
+		getDevices(){
+			this.log.debug('Fetching Build info...')
+			this.log.info('Getting Account info...')
+			// login to the API and get the token
+			this.easeeapi.login(this.username,this.password).then(response=>{
+				this.log.debug('Found Token %s',response.data.accessToken)
+				this.log.debug('Found Token %s',response.data.refreshToken)
+				this.token=response.data.accessToken 
+				this.refreshToken=response.data.refreshToken 
+				this.setTokenRefresh(response.data.expiresIn)
+				//get token
+				this.easeeapi.getObservations(this.token).then(response=>{this.observations.items=response.data}) //get list
+				this.easeeapi.profile(this.token).then(response=>{
+					this.log.info('Found account for %s %s', response.data.firstName, response.data.lastName)
+					this.userId=response.data.userId
+					//get product
+					this.easeeapi.products(this.token,this.userId).then(response=>{
+						this.log.info('Found products at %s %s', response.data[0].address.street,response.data[0].name)
+						//loop each charger
+						response.data[0].circuits.forEach((circuit)=>{
+							circuit.chargers.forEach((charger)=>{
+								this.log.info('Found charger %s with ID-%s ', charger.name, charger.id)
+								this.easeeapi.getConfig(this.token,charger.id).then(response=>{
+									let chargerConfig=response.data
+									this.easeeapi.state(this.token,charger.id).then(response=>{
+										let chargerState=response.data
+										this.easeeapi.chargerDetails(this.token,charger.id).then(response=>{
+											let chargerDetails=response.data
+											let uuid=UUIDGen.generate(charger.id)							
+											if(this.accessories[uuid]){
+												this.api.unregisterPlatformAccessories(PluginName, PlatformName, [this.accessories[uuid]])
+												delete this.accessories[uuid]
+											}
+											this.log.info('Adding Lock for %s charger ', charger.name)
+											this.log.debug('Registering platform accessory')
 
-										let lockAccessory=this.lockMechanism.createLockAccessory(charger,chargerDetails,chargerState,uuid)
-										let lockService=this.lockMechanism.createLockService(charger,chargerDetails,chargerState)
-										this.lockMechanism.configureLockService(lockService, chargerConfig)
-										lockAccessory.addService(lockService)
-										
-										let batteryService=this.battery.createBatteryService(charger,chargerDetails,chargerState)
-										this.battery.configureBatteryService(batteryService)
-										lockAccessory.getService(Service.LockMechanism).addLinkedService(batteryService)
-										lockAccessory.addService(batteryService)
-										//extras
-										let switchService
-										if(this.showLight){
-											let lightService=this.light.createLightService(charger,chargerConfig,chargerState,'LED')
-											this.light.configureLightService(charger, lightService)
-											lockAccessory.getService(Service.LockMechanism).addLinkedService(lightService)
-											lockAccessory.addService(lightService)
-										}
-										if(this.showStartStop){
-											switchService=this.basicSwitch.createSwitchService(charger,chargerConfig,chargerState,'Start/Stop')
-											this.basicSwitch.configureSwitchService(charger, switchService)
-											lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
-											lockAccessory.addService(switchService)
-										}
-										if(this.showPauseResume){
-											switchService=this.basicSwitch.createSwitchService(charger,chargerConfig,chargerState,'Pause/Resume')
-											this.basicSwitch.configureSwitchService(charger, switchService)
-											lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
-											lockAccessory.addService(switchService)
-										}
-										if(this.showToggle){
-											switchService=this.basicSwitch.createSwitchService(charger,chargerConfig,chargerState,'Toggle')
-											this.basicSwitch.configureSwitchService(charger, switchService)
-											lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
-											lockAccessory.addService(switchService)
-										}
-										this.accessories[uuid]=lockAccessory                     
-										this.log.info('Adding Charger Lock for %s', charger.name)
-										this.log.debug('Registering platform accessory')
-										this.api.registerPlatformAccessories(PluginName, PlatformName, [lockAccessory])
-										this.setChargerRefresh(lockService, batteryService, charger.id)
-										this.updateStatus(lockService, batteryService, chargerState, chargerConfig )
+											let lockAccessory=this.lockMechanism.createLockAccessory(charger,chargerDetails,chargerState,uuid)
+											let lockService=this.lockMechanism.createLockService(charger,chargerDetails,chargerState)
+											this.lockMechanism.configureLockService(lockService, chargerConfig)
+											lockAccessory.addService(lockService)
+											
+											let batteryService=this.battery.createBatteryService(charger)
+											this.battery.configureBatteryService(batteryService)
+											lockAccessory.getService(Service.LockMechanism).addLinkedService(batteryService)
+											lockAccessory.addService(batteryService)
+											//extras
+											let switchService
+											if(this.showLight){
+												let lightService=this.light.createLightService(charger, chargerConfig, chargerState,'LED')
+												this.light.configureLightService(charger, lightService)
+												lockAccessory.getService(Service.LockMechanism).addLinkedService(lightService)
+												lockAccessory.addService(lightService)
+											}
+											if(this.showControls==1){
+												switchService=this.basicSwitch.createSwitchService(charger, chargerState,'Toggle')
+												this.basicSwitch.configureSwitchService(charger, switchService)
+												lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
+												lockAccessory.addService(switchService)
+											}
+											if(this.showControls==2){
+												switchService=this.basicSwitch.createSwitchService(charger, chargerState,'Start/Stop')
+												this.basicSwitch.configureSwitchService(charger, switchService)
+												lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
+												lockAccessory.addService(switchService)
+											}
+											if(this.showControls==3){
+												switchService=this.basicSwitch.createSwitchService(charger,chargerState,'Pause/Resume')
+												this.basicSwitch.configureSwitchService(charger, switchService)
+												lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
+												lockAccessory.addService(switchService)
+											}
+											this.accessories[uuid]=lockAccessory                   
+											this.log.info('Adding Charger Lock for %s', charger.name)
+											this.log.debug('Registering platform accessory')
+											this.api.registerPlatformAccessories(PluginName, PlatformName, [lockAccessory])
+											this.easeeapi.signalR(this.token,charger.id)
+										}).catch(err=>{this.log.error('Failed to get info for build', err)})
 									}).catch(err=>{this.log.error('Failed to get info for build', err)})
 								}).catch(err=>{this.log.error('Failed to get info for build', err)})
-							}).catch(err=>{this.log.error('Failed to get info for build', err)})
+							})
 						})
-					})
+					}).catch(err=>{this.log.error('Failed to get info for build', err)})
 				}).catch(err=>{this.log.error('Failed to get info for build', err)})
 			}).catch(err=>{this.log.error('Failed to get info for build', err)})
-		}).catch(err=>{this.log.error('Failed to get info for build', err)})
-	}
+		}
 
-	setTokenRefresh(ttl){
-		setInterval(()=>{		
-			try{		
-				this.easeeapi.refreshToken(this.token,this.refreshToken).then(response=>{
-					this.log.debug('refreshed token %s',response.data.acessToken)
-					this.token=response.data.acessToken 
-					this.refreshToken=response.data.refreshToken 
-					this.log.info('Token has been refreshed')
-				}).catch(err=>{this.log.error('Failed signin to refresh token', err)})
-			}catch(err){this.log.error('Failed to refresh token', err)}	
-		},ttl*1000)
+		//**
+		//** REQUIRED - Homebridge will call the "configureAccessory" method once for every cached accessory restored
+		//**
+		configureAccessory(accessory){
+			// Added cached devices to the accessories arrary
+			this.log.debug('Found cached accessory %s', accessory.displayName);
+			this.accessories[accessory.UUID]=accessory;
+		}
 
-		}	
+		setTokenRefresh(ttl){
+			setInterval(()=>{		
+				try{		
+					this.easeeapi.refreshToken(this.token,this.refreshToken).then(response=>{
+						this.log.debug('refreshed token %s',response.data.acessToken)
+						this.token=response.data.acessToken 
+						this.refreshToken=response.data.refreshToken 
+						this.log.info('Token has been refreshed')
+					}).catch(err=>{this.log.error('Failed signin to refresh token', err)})
+				}catch(err){this.log.error('Failed to refresh token', err)}	
+			},(ttl-3600)*1000/3) //refresh 1 hour before expire, /3 is dev
 
-		setChargerRefresh(lockService, batteryService, id){
-			// Refresh charger status	
-				setInterval(()=>{		
-					try{		
-						this.easeeapi.state(this.token, id).then(state=>{
-							this.easeeapi.getConfig(this.token, id).then(config=>{
-								this.log.debug('refreshed charger %s connection', id)
-								this.updateStatus(lockService, batteryService, state.data, config.data)
-							}).catch(err=>{this.log.error('Failed to refresh charger connection', err)})
-						}).catch(err=>{this.log.error('Failed to refresh charger connection', err)})
-						}catch(err){this.log.error('Failed to refresh charger connection', err)}	
-				}, this.refreshRate*60*1000)
+			}	
+
+			updateService(message){
+				//this.log.warn(message)
+				//this.log.info(JSON.stringify(message, null, null))
+				//this.log.info(message.mid,message.id,message.value)
+				let messageText=this.observations.items.filter(result=>result.observationId == message.id)[0].name
+
+				this.log.info(message.mid,messageText,message.value)	
+
+				let uuid=UUIDGen.generate(message.mid)	
+				let lockAccessory=this.accessories[uuid]
+				let activeService			
+				let lockService
+				let batteryService
+				let value
+				let valueText
+
+				switch(message.dataType){
+					case 1: {value=parseInt(message.value); break}
+					case 2: {if(parseInt(message.value)){
+							value=true
+						}
+						else{
+							value=false
+					}; break}
+					case 3: {value=parseFloat(message.value); break}
+					case 4: {value=parseInt(message.value); break}
+					case 5: {value=(message.value); break}
+					case 6: {value=(message.value); break}
+					case 7: {value=(message.value); break}
+				}
+
+				switch(message.id){
+					case 11://ChargerOfflineReason
+					this.log.info('%s offline reason %s', message.mid, value)
+					break
+					case 40://config_ledStripBrightness
+						this.log.info('%s %s changed to %s', message.mid, messageText, value)
+						activeService=lockAccessory.getServiceById(Service.Lightbulb, message.mid)
+						activeService.getCharacteristic(Characteristic.Brightness).updateValue(value)
+						this.log.debug('%s light brightness updated',activeService.getCharacteristic(Characteristic.Name).value)
+						break
+					case 42://config_authorizationRequired
+						this.log.info('%s %s changed to %s', message.mid, messageText, value)
+						activeService=lockAccessory.getServiceById(Service.LockMechanism, message.mid)
+						activeService.getCharacteristic(Characteristic.LockTargetState).updateValue(value)
+						activeService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
+						this.log.debug('%s authorization updated',activeService.getCharacteristic(Characteristic.Name).value)
+						break
+						case 46://state_ledMode
+						valueText=this.enumeration.data.ChargerLEDModeType[message.value]
+						this.log.info('%s %s to %s', message.mid, messageText, valueText)
+						this.log.debug('%s light mode changed',activeService.getCharacteristic(Characteristic.Name).value)
+						break
+					case 47://config_maxChargerCurrent
+						this.log.info('%s %s to %s', message.mid,messageText, value)
+						break
+					case 48://state_dynamicChargerCurrent
+						this.log.info('%s %s changed to %s', message.mid, messageText, value)
+						if(value>0){
+							//activeService=lockAccessory.getServiceById(Service.Battery, message.mid)
+							//activeService.getCharacteristic(Characteristic.ChargingState).updateValue(!activeService.getCharacteristic(Characteristic.ChargingState).value)
+							activeService=lockAccessory.getServiceById(Service.Switch, message.mid)
+							activeService.getCharacteristic(Characteristic.On).updateValue(!activeService.getCharacteristic(Characteristic.On).value)
+						}
+						else{
+							activeService=lockAccessory.getServiceById(Service.Switch, message.mid)
+							activeService.getCharacteristic(Characteristic.On).updateValue(false)
+						}
+						break
+					case 76://NumberOfCarsConnected
+						this.log.info('%s cars connected %s', message.mid, value)
+						break
+					case 77://NumberOfCarsCharging 
+					this.log.info('%s cars charging %s', message.mid, value)
+						break
+					case 78://NumberOfCarsInQueue
+					this.log.info('%s cars queued %s', message.mid, value)
+						break
+					case 79://NumberOfCarsFullyCharged
+					this.log.info('%s cars connected %s', message.mid, value)
+						break
+					case 96://state_reasonForNoCurrent
+					valueText=this.enumeration.data.ReasonForNoCurrent[message.value]
+					this.log.info('%s %s to %s', message.mid, messageText, valueText)
+							break	
+					case 103://state_cableLocked
+						this.log.info('%s cable lock state to %s', message.mid, value)
+						activeService=lockAccessory.getServiceById(Service.LockMechanism, message.mid)
+						activeService.getCharacteristic(Characteristic.OutletInUse).updateValue(value)
+						this.log.debug('%s cable lock updated',activeService.getCharacteristic(Characteristic.Name).value)					
+						break
+						case 109://state_chargerOpMode
+						valueText=this.enumeration.data.ChargerLEDModeType[message.value]
+						this.log.info('%s %s updated to %s', message.mid, messageText, valueText)
+						lockService=lockAccessory.getServiceById(Service.Switch, message.mid)
+						batteryService=lockAccessory.getServiceById(Service.Battery, message.mid)
+						switch (value){
+							case 0: {//offline
+								this.log.info("%s offline",lockService.getCharacteristic(Characteristic.Name).value)
+								if(state.isOnline){
+									lockService.setCharacteristic(Characteristic.StatusFault, Characteristic.StatusFault.NO_FAULT)
+								}
+								else{
+									this.log.warn('%s disconnected at %s! This will show as non-responding in Homekit until the connection is restored.',chargerData.name, new Date(chargerData.lastConnection).toLocaleString())
+									lockService.setCharacteristic(Characteristic.StatusFault, Characteristic.StatusFault.GENERAL_FAULT)
+								}
+								break
+							}
+							case 1:{//disconnected
+								this.log.info("%s disconnected",lockService.getCharacteristic(Characteristic.Name).value)
+								//lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(true)
+								//lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(false)
+								//lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(false)
+								lockService.getCharacteristic(Characteristic.On).updateValue(false)
+								batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(false)
+								break
+							}
+							case 2:{//awating start
+								this.log.info("%s waiting to start",lockService.getCharacteristic(Characteristic.Name).value)
+								//lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(true)
+								lockService.getCharacteristic(Characteristic.On).updateValue(false)
+								batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(false)
+								break
+							}
+							case 3:{//charging
+								this.log.info("%s charging",lockService.getCharacteristic(Characteristic.Name).value)
+								//lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(state.cableLocked)
+								//lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(config.authorizationRequired)
+								//lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(config.authorizationRequired)
+								//batteryService.getCharacteristic(Characteristic.BatteryLevel).updateValue(0)//stateOfCharge)
+								lockService.getCharacteristic(Characteristic.On).updateValue(true)
+								batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(true)
+								break
+							}
+							case 4:{//complete
+								this.log.info("%s complete",lockService.getCharacteristic(Characteristic.Name).value)
+								//lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(state.cableLocked)
+								//lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(config.authorizationRequired)
+								//lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(config.authorizationRequired)
+								lockService.getCharacteristic(Characteristic.On).updateValue(false)
+								batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(false)
+								break
+							}
+							case 5:{//error
+								this.log.info("%s error",lockService.getCharacteristic(Characteristic.Name).value)
+								break
+							}
+							case 6:{//ready to charge
+								this.log.info("%s ready to charge",lockService.getCharacteristic(Characteristic.Name).value)
+								//lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(true)
+								lockService.getCharacteristic(Characteristic.On).updateValue(false)
+								batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(false)
+								break
+							}
+							default:{
+								this.log.warn('%s Unknown message received: %s',lockService.getCharacteristic(Characteristic.Name).value, message.value)
+							break	
+							}
+						}
+						break
+						case 114:{//state_outputCurrent
+						this.log.info('%s output current state %s', message.mid, value)
+							break
+						}
 			}
-
-		updateStatus(lockService, batteryService, state, config){
-			/*
-			chargerOpMode
-			0: "OFFLINE"
-			1: "DISCONNECTED"
-			2: "AWAITING_START"
-			3: "CHARGING"
-			4: "COMPLETED"
-			5: "ERROR"
-			6: "READY_TO_CHARGE"
-			reasonForNoCurrent
-			0: "No reason, charging or ready to charge",
-			1: "Charger paused",
-			2: "Charger paused",
-			3: "Charger paused",
-			4: "Charger paused",
-			5: "Charger paused",
-			6: "Charger paused",
-			9: "Error no current",
-			50: "Secondary unit not requesting current or no car connected",
-			51: "Charger paused",
-			52: "Charger paused",
-			53: "Charger disabled",
-			54: "Waiting for schedule/auth",
-			55: "Pending auth"
-			*/
-			switch (state.chargerOpMode){
-				case 0: {//offline
-					this.log.info("%s offline",lockService.getCharacteristic(Characteristic.Name).value)
-					if(state.isOnline){
-						lockService.setCharacteristic(Characteristic.StatusFault, Characteristic.StatusFault.NO_FAULT)
-					}
-					else{
-						this.log.warn('%s disconnected at %s! This will show as non-responding in Homekit until the connection is restored.',chargerData.name, new Date(chargerData.lastConnection).toLocaleString())
-						lockService.setCharacteristic(Characteristic.StatusFault, Characteristic.StatusFault.GENERAL_FAULT)
-					}
-					break
-				}
-				case 1:{//disconnected
-					this.log.info("%s disconnected",lockService.getCharacteristic(Characteristic.Name).value)
-					lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(state.cableLocked)
-					lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(config.authorizationRequired)
-					lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(config.authorizationRequired)
-					batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(Characteristic.ChargingState.NOT_CHARGING)
-					break
-				}
-				case 2:{//awating start
-					this.log.info("%s waiting to start",lockService.getCharacteristic(Characteristic.Name).value)
-					lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(state.cableLocked)
-					batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(Characteristic.ChargingState.NOT_CHARGING)
-					break
-				}
-				case 3:{//charging
-					this.log.info("%s charging",lockService.getCharacteristic(Characteristic.Name).value)
-					lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(state.cableLocked)
-					lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(config.authorizationRequired)
-					lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(config.authorizationRequired)
-					batteryService.getCharacteristic(Characteristic.BatteryLevel).updateValue(0)//stateOfCharge)
-					batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(Characteristic.ChargingState.CHARGING)
-					break
-				}
-				case 4:{//complete
-					this.log.info("%s complete",lockService.getCharacteristic(Characteristic.Name).value)
-					lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(state.cableLocked)
-					lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(config.authorizationRequired)
-					lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(config.authorizationRequired)
-					batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(Characteristic.ChargingState.NOT_CHARGING)
-					break
-				}
-				case 5:{//error
-					this.log.info("%s error",lockService.getCharacteristic(Characteristic.Name).value)
-					break
-				}
-				case 6:{//ready to charge
-					this.log.info("%s ready to charge",lockService.getCharacteristic(Characteristic.Name).value)
-					lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(state.cableLocked)
-					batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(Characteristic.ChargingState.NOT_CHARGING)
-					break
-				}
-				default:
-					this.log.warn('%s Unknown message received: %s',lockService.getCharacteristic(Characteristic.Name).value, state.chargerOpMode)
-				break	
-			}
-			
-		}	
-  //**
-  //** REQUIRED - Homebridge will call the "configureAccessory" method once for every cached accessory restored
-  //**
-  configureAccessory(accessory){
-    // Added cached devices to the accessories arrary
-    this.log.debug('Found cached accessory %s', accessory.displayName);
-    this.accessories[accessory.UUID]=accessory;
-  }
+	}	
 }
 
 module.exports=easeePlatform

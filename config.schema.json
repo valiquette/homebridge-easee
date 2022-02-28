@@ -28,35 +28,33 @@
 				"placeholder": "password",
 				"required": true
 			},
-			"refreshRate": {
-				"title": "Refresh Rate Minutes",
-				"description": "Polling time to refresh charger state in minutes.",
+			"showControls": {
+				"title": "Show Charger Controls",
 				"type": "integer",
-				"minimum": 5,
-				"maximum": 1440,
 				"required": true,
-				"default": 60
-			},
-			"showStartStop": {
-				"title": "Expose Switch for Start/Stop Charging",
-				"type": "boolean",
-				"required": true,
-				"default": false
-			},
-			"showPauseResume": {
-				"title": "Expose Switch for Pause/Resume Charging",
-				"type": "boolean",
-				"required": true,
-				"default": true
-			},
-			"showToggle": {
-				"title": "Expose Switch for Toggling Charging State",
-				"type": "boolean",
-				"required": true,
-				"default": false
-			},
+				"default": 0,
+				"description": "Select the control type to display in Homkit.",
+				"oneOf": [
+					{
+						"title": "None",
+						"enum": [0]
+					},
+					{
+						"title": "Toggle Charging State",
+						"enum": [1]
+					},
+					{
+						"title": "Start/Stop Charging Reguires Authorzation to be enabled",
+						"enum": [2]
+					},
+					{
+						"title": "Pause/Resume Charging",
+						"enum": [3]
+					}
+				]
+			}, 	
 			"showLight": {
-				"title": "Expose Switch to set LED Brightness",
+				"title": "Expose Switch for adjusting LED Brightness",
 				"type": "boolean",
 				"required": true,
 				"default": false
@@ -91,17 +89,14 @@
 			"type": "flex",
 			"flex-flow": "row wrap",
 			"items": [
-				"refreshRate"
+				"showControls"
 			]
 		},
 		{
 			"type": "flex",
 			"flex-flow": "row wrap",
 			"items": [
-				"showLight",
-				"showToggle",
-				"showStartStop",
-				"showPauseResume"
+				"showLight"
 			]
 		}
 	]

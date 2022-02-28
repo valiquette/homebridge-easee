@@ -23,19 +23,20 @@ This plugin is being developed and verified and may be very buggy.
 ```
 "platforms": [
 	{
-		"name": "Easee",
-		"username": "username",
-		"password": "password",
-		"refreshRate": 60,
-		"showStartStop": false,
-		"showPauseResume": true,
-		"showToggle": false,
-		"showLight": false,
-		"_bridge": {
-			"username": "0E:6C:D4:F2:16:EB",
-			"port": 35919
+    "name": "Easee",
+    "username": "user",
+    "password": "pass",
+    "showControls": 1,
+    "showLight": true,
+    "_bridge": {
+        "username": "0E:46:88:49:71:DD",
+        "port": 39306
+    },
+    "platform": "easee"
 		},
 		"platform": "easee"
 	}
 ]
 ```
+showControls valid values
+0:None, 1:Toggle, 2:Start/Stop, 3:pause/Resume

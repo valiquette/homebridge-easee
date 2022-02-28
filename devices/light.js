@@ -1,4 +1,3 @@
-let packageJson=require('../package.json')
 let easeeAPI=require('../easeeapi')
 let easeeTestAPI=require('../easeeapitest')
 
@@ -16,7 +15,7 @@ light.prototype={
 
   createLightService(device, config, state, type){
     this.log.debug('adding new switch')
-    let lightService=new Service.Lightbulb(type, type) 
+    let lightService=new Service.Lightbulb(type, device.id) 
 		let lightOn=false
 		if(config.ledStripBrightness>0){lightOn=true}
     lightService 
@@ -35,8 +34,8 @@ light.prototype={
       .on('set', this.setLightValue.bind(this, device, lightService))
 		lightService
       .getCharacteristic(Characteristic.Brightness)
-			.setProps(
-				{minStep:10
+			.setProps({
+					minStep:10
 				})
       .on('get', this.getLightBrightness.bind(this, lightService))
       .on('set', this.setLightBrightness.bind(this, device, lightService))
@@ -70,13 +69,13 @@ light.prototype={
 			this.easeeapi.light(this.platform.token,device.id,value).then(response=>{
 				switch(response.status){
 					case 200:
-						lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
+						//lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
 						break
 					case 202:
-						lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
+						//lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
 						break	
 					case 400:
-						lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
+						lightService.getCharacteristic(Characteristic.Brightness).updateValue(!value)
 						this.log.info('Failed to start charging %s',response.data.title)
 						this.log.debug(response.data)
 						break

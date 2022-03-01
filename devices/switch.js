@@ -35,7 +35,7 @@ basicSwitch.prototype={
   setSwitchValue(device, switchService, value, callback){
 		this.easeeapi.state(this.platform.token,device.id).then(state=>{
 			this.log.debug('check current state',state.data.chargerOpMode)
-			if(state.data.chargerOpMode==2 || state.data.chargerOpMode==3 || state.data.chargerOpMode==4 ||  state.data.chargerOpMode==6){
+			if(true==true){//state.data.chargerOpMode==2 || state.data.chargerOpMode==3 || state.data.chargerOpMode==4 ||  state.data.chargerOpMode==6){
 				this.log.debug('toggle switch state %s',switchService.getCharacteristic(Characteristic.Name).value)
 				switch(switchService.getCharacteristic(Characteristic.Name).value){
 					case 'Start/Stop': 
@@ -47,11 +47,7 @@ basicSwitch.prototype={
 								this.easeeapi.command(this.platform.token,device.id,'start_charging').then(response=>{
 									switch(response.status){
 										case 200:
-											//switchService.getCharacteristic(Characteristic.On).updateValue(value)
-											this.log.info('%s charging started',device.name)
-											break
 										case 202:
-											//switchService.getCharacteristic(Characteristic.On).updateValue(value)
 											this.log.info('%s charging started',device.name)
 											break	
 										case 400:
@@ -70,11 +66,7 @@ basicSwitch.prototype={
 								this.easeeapi.command(this.platform.token,device.id,'stop_charging').then(response=>{
 									switch(response.status){
 										case 200:
-											//switchService.getCharacteristic(Characteristic.On).updateValue(value)
-											this.log.info('%s charging stopped',device.name)
-											break
 										case 202:
-											//switchService.getCharacteristic(Characteristic.On).updateValue(value)
 											this.log.info('%s charging stopped',device.name)
 											break	
 										case 400:
@@ -101,11 +93,7 @@ basicSwitch.prototype={
 								this.easeeapi.command(this.platform.token,device.id,'resume_charging').then(response=>{
 									switch(response.status){
 										case 200:
-											//switchService.getCharacteristic(Characteristic.On).updateValue(value)
-											this.log.info('%s charging resumed',device.name)
-											break
 										case 202:
-											//switchService.getCharacteristic(Characteristic.On).updateValue(value)
 											this.log.info('%s charging resumed',device.name)
 											break	
 										case 400:
@@ -124,11 +112,7 @@ basicSwitch.prototype={
 								this.easeeapi.command(this.platform.token,device.id,'pause_charging').then(response=>{
 									switch(response.status){
 										case 200:
-											//switchService.getCharacteristic(Characteristic.On).updateValue(value)
-											this.log.info('%s charging paused',device.name)
-											break
 										case 202:
-											//switchService.getCharacteristic(Characteristic.On).updateValue(value)
 											this.log.info('%s charging paused',device.name)
 											break	
 										case 400:
@@ -154,11 +138,7 @@ basicSwitch.prototype={
 							this.easeeapi.command(this.platform.token,device.id,'toggle_charging').then(response=>{
 							switch(response.status){
 								case 200:
-									//switchService.getCharacteristic(Characteristic.On).updateValue(value)
-									this.log.info('%s charging state toggled',device.name)
-									break
 								case 202:
-									//switchService.getCharacteristic(Characteristic.On).updateValue(value)
 									this.log.info('%s charging state toggled',device.name)
 									break	
 								case 400:

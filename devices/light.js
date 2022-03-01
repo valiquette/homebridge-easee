@@ -47,14 +47,23 @@ light.prototype={
 			callback('error')
 		}
 		else{
-			/*
-			lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
+			if(value>0){value=lightService.getCharacteristic(Characteristic.Brightness).value}else{value=0}
 			this.easeeapi.light(this.platform.token,device.id,value).then(response=>{
-				if(response.status=="200"){
-					lightService.getCharacteristic(Characteristic.Brightness).updateValue(100)
-				}
-			})
-			*/	
+				switch(response.status){
+					case 200:
+					case 202:
+						break	
+					case 400:
+						lightService.getCharacteristic(Characteristic.On).updateValue(!value)
+						this.log.info('Failed to start charging %s',response.data.title)
+						this.log.debug(response.data)
+						break
+					default:
+						lightService.getCharacteristic(Characteristic.On).updateValue(value)
+						this.log.debug(response.data)
+						break	
+					}
+				})
 			callback()
 		} 
   },
@@ -69,10 +78,7 @@ light.prototype={
 			this.easeeapi.light(this.platform.token,device.id,value).then(response=>{
 				switch(response.status){
 					case 200:
-						//lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
-						break
 					case 202:
-						//lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
 						break	
 					case 400:
 						lightService.getCharacteristic(Characteristic.Brightness).updateValue(!value)
@@ -90,7 +96,6 @@ light.prototype={
   },
 	
 	getLightValue(lightService, callback){
-		//this.log.debug("%s=%s", lightService.getCharacteristic(Characteristic.Name).value,lightService.getCharacteristic(Characteristic.On))
 		if(lightService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
 			callback('error')
 		}
@@ -101,7 +106,6 @@ light.prototype={
 	}, 
 
 	getLightBrightness(lightService, callback){
-		//this.log.debug("%s=%s", lightService.getCharacteristic(Characteristic.Name).value,lightService.getCharacteristic(Characteristic.On))
 		if(lightService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
 			callback('error')
 		}

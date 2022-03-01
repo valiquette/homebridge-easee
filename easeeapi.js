@@ -34,7 +34,7 @@ easeeAPI.prototype={
 			return  response
 		}catch(err) {this.log.error('Error retrieving token %s', err)}
 	},
-	
+
 	refreshToken: async function(accessToken,refreshToken){
 		try {  
 			this.log.debug('Refreshing token')
@@ -289,31 +289,35 @@ easeeAPI.prototype={
 
 	signalR: async function(token,chargerId){ 
 		let connection = new signalr.HubConnectionBuilder()
-				.withUrl(`${streamingEndpoint}/hubs/chargers`, {
-					accessTokenFactory: () => token
-				}).build()
+			.withUrl(`${streamingEndpoint}/hubs/chargers`, {
+				accessTokenFactory: () => token
+			}).build()
 
 		connection.onclose(() => {
-				this.log.warn("Connection close...")
+			this.log.warn("Connection close...")
 		})
 
 		connection.onreconnected(() => {
-				connection.invoke('SubscribeWithCurrentState', chargerId, true)
-				this.log.info("Reconnected...")
+			connection.invoke('SubscribeWithCurrentState', chargerId, true)
+			this.log.info("Reconnected...")
 		})
 
 		connection.onreconnecting(() => {
-				this.log.info("Reconnecting...")
+			this.log.info("Reconnecting...")
 		})
 
 		connection.on('ProductUpdate', (update) => {
+			if(this.showExtraDebugMessages){
 				this.log.debug(JSON.stringify(update, null, null))
-				this.platform.updateService(update)
+			}
+			this.platform.updateService(update)
 		})
 
 		connection.on('CommandResponse', (update) => {
-				this.log.info(JSON.stringify(update, null, null))
-				this.platform.updateService(update)
+			if(this.showExtraDebugMessages){
+				this.log.debug(JSON.stringify(update, null, null))
+			}
+			this.platform.updateService(update)
 		})
 
 		connection.start().then(() => {

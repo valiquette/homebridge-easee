@@ -31,11 +31,13 @@ lockMechanism.prototype={
 
   createLockService(device, details, state){
     this.log.debug("create Lock service for %s, serial number %s",device.name, details.serialNumber )
+		let inUse
+		if(state.chargerOpMode==1){inUse=false}else{inUse=true}
 		let lockService=new Service.LockMechanism(device.name, device.id)
-		lockService
-		.setCharacteristic(Characteristic.SerialNumber, details.serialNumber)
+		lockService	
+			.setCharacteristic(Characteristic.SerialNumber, details.serialNumber)
 			.setCharacteristic(Characteristic.StatusFault, !state.isOnline)
-			.setCharacteristic(Characteristic.OutletInUse, state.cableLocked)
+			.setCharacteristic(Characteristic.OutletInUse, inUse)
 			.setCharacteristic(Characteristic.AccessoryIdentifier, device.id)
     return lockService
   },
@@ -94,10 +96,7 @@ lockMechanism.prototype={
 				this.easeeapi.lock(this.platform.token,chargerId,value).then(response=>{
 					switch(response.status){
 						case 200:
-						//	lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
-							break
 						case 202:
-						//	lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
 							break	
 						case 400:
 							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(!value)
@@ -118,10 +117,7 @@ lockMechanism.prototype={
 				this.easeeapi.lock(this.platform.token,chargerId,value).then(response=>{
 					switch(response.status){
 						case 200:
-							//lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
-							break
 						case 202:
-							//lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
 							break	
 						case 400:
 							switchService.getCharacteristic(Characteristic.On).updateValue(!value)

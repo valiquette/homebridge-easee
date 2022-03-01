@@ -1,6 +1,14 @@
 # Changes
 
-## 1.1.o
+## If updating from version 1.0.x it will be nessasary to re save the configuration, see readme for syntax or use plugin config.
+
+## 1.1.1
+Update 
+- Fixed logging messages for op mode changes
+-	programmed LED light on off
+- fixed sync for chargign state
+
+## 1.1.0
 Update 
 - Updates now using SignlR
 - Removed Polling requirement

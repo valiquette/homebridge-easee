@@ -1,4 +1,10 @@
-// Public API info https://developer.easee.cloud/docs
+/* 
+Public API info https://developer.easee.cloud/docs
+https://www.notion.so/easee/Developer-documentation-96beaa49e5a64d5fa18d9c801a7dfc28
+https =//www.notion.so/Charger-template-c6a20ff7cfea41e2b5f80b00afb34af5
+Enumerations
+https://www.notion.so/Enumerations-c7fed34ae1ce4d7384d522868f5a0139
+*/
 
 let axios = require('axios')
 let signalr = require('@microsoft/signalr')
@@ -307,14 +313,14 @@ easeeAPI.prototype={
 		})
 
 		connection.on('ProductUpdate', (update) => {
-			if(this.showExtraDebugMessages){
+			if(this.platform.showExtraDebugMessages){
 				this.log.debug(JSON.stringify(update, null, null))
 			}
 			this.platform.updateService(update)
 		})
 
 		connection.on('CommandResponse', (update) => {
-			if(this.showExtraDebugMessages){
+			if(this.platform.showExtraDebugMessages){
 				this.log.debug(JSON.stringify(update, null, null))
 			}
 			this.platform.updateService(update)

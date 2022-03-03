@@ -33,9 +33,9 @@ basicSwitch.prototype={
       .on('set', this.setSwitchValue.bind(this, device, switchService))
   },
   setSwitchValue(device, switchService, value, callback){
-		this.easeeapi.state(this.platform.token,device.id).then(state=>{
-			this.log.debug('check current state',state.data.chargerOpMode)
-			if(true==true){//state.data.chargerOpMode==2 || state.data.chargerOpMode==3 || state.data.chargerOpMode==4 ||  state.data.chargerOpMode==6){
+		//this.easeeapi.state(this.platform.token,device.id).then(state=>{
+			//this.log.debug('check current state',state.data.chargerOpMode)
+			//state.data.chargerOpMode==2 || state.data.chargerOpMode==3 || state.data.chargerOpMode==4 ||  state.data.chargerOpMode==6){
 				this.log.debug('toggle switch state %s',switchService.getCharacteristic(Characteristic.Name).value)
 				switch(switchService.getCharacteristic(Characteristic.Name).value){
 					case 'Start/Stop': 
@@ -52,7 +52,7 @@ basicSwitch.prototype={
 											break	
 										case 400:
 											switchService.getCharacteristic(Characteristic.On).updateValue(!value)
-											this.log.info('Failed to start charging %s',response.data.title)
+											this.log.info('Failed to start charging, %s',response.data.title)
 											this.log.debug(response.data)
 											break
 										default:
@@ -71,7 +71,7 @@ basicSwitch.prototype={
 											break	
 										case 400:
 											switchService.getCharacteristic(Characteristic.On).updateValue(!value)
-											this.log.info('Failed to stop charging %s',response.data.title)
+											this.log.info('Failed to stop charging, %s',response.data.title)
 											this.log.debug(response.data)
 											break
 										default:
@@ -143,7 +143,7 @@ basicSwitch.prototype={
 									break	
 								case 400:
 									switchService.getCharacteristic(Characteristic.On).updateValue(!value)
-									this.log.info('Failed to toggle charging %s',response.data.title)
+									this.log.info('Failed to toggle charging, %s',response.data.title)
 									this.log.debug(response.data)
 									break
 								default:
@@ -156,12 +156,12 @@ basicSwitch.prototype={
 						}
 						break
 				}
-			}
-			else{
-				this.log.info('Unable to start at this time')
-				switchService.getCharacteristic(Characteristic.On).updateValue(!value)
-			}	
-		})
+	//		}
+	//		else{
+	//			this.log.info('Unable to start at this time')
+	//			switchService.getCharacteristic(Characteristic.On).updateValue(!value)
+	//		}	
+	//	})
   },
 
 	getSwitchValue(switchService, callback){

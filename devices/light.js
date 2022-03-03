@@ -23,6 +23,7 @@ light.prototype={
       .setCharacteristic(Characteristic.Name, type)
       .setCharacteristic(Characteristic.StatusFault, !state.isOnline)
       .setCharacteristic(Characteristic.Brightness, config.ledStripBrightness)
+			.setCharacteristic(Characteristic.CurrentPosition, config.ledStripBrightness)
     return lightService
   },
 
@@ -42,39 +43,33 @@ light.prototype={
   },
 
   setLightValue(device, lightService, value, callback){
-    this.log.debug('light switch state %s',lightService.getCharacteristic(Characteristic.Name).value)
+    this.log.debug('%s light switch state %s',lightService.getCharacteristic(Characteristic.Name).value, value)
 		if(lightService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
 			callback('error')
 		}
 		else{
-			if(value>0){value=lightService.getCharacteristic(Characteristic.Brightness).value}else{value=0}
-			this.easeeapi.light(this.platform.token,device.id,value).then(response=>{
-				switch(response.status){
-					case 200:
-					case 202:
-						break	
-					case 400:
-						lightService.getCharacteristic(Characteristic.On).updateValue(!value)
-						this.log.info('Failed to start charging %s',response.data.title)
-						this.log.debug(response.data)
-						break
-					default:
-						lightService.getCharacteristic(Characteristic.On).updateValue(value)
-						this.log.debug(response.data)
-						break	
-					}
-				})
+			if(value>0){
+				value=lightService.getCharacteristic(Characteristic.CurrentPosition).value
+				lightService.setCharacteristic(Characteristic.Brightness, value)
+			}
+			else{
+				value=0
+				lightService.setCharacteristic(Characteristic.Brightness, value)
+			}
 			callback()
 		} 
   },
 
 	setLightBrightness(device, lightService, value, callback){
-    this.log.debug('light switch state %s',lightService.getCharacteristic(Characteristic.Name).value)
+    this.log.debug('%s light brightness = %s',lightService.getCharacteristic(Characteristic.Name).value, value)
 		if(lightService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
 			callback('error')
 		}
 		else{
 			lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
+			if(value>0 && value<100){
+				lightService.getCharacteristic(Characteristic.CurrentPosition).updateValue(value)
+			}
 			this.easeeapi.light(this.platform.token,device.id,value).then(response=>{
 				switch(response.status){
 					case 200:
@@ -90,7 +85,7 @@ light.prototype={
 						this.log.debug(response.data)
 						break	
 					}
-				})	
+				})
 			callback()
 		} 
   },

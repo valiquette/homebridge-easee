@@ -13,7 +13,7 @@ function battery (platform,log, config){
 
 battery.prototype={
 
-  createBatteryService(device){
+  createBatteryService(device,config){
 		let batteryStatus
 		this.log.debug("create battery service for %s",device.name )
 		batteryStatus=new Service.Battery(device.name, device.id)
@@ -21,6 +21,7 @@ battery.prototype={
 			.setCharacteristic(Characteristic.StatusLowBattery,Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL)
 			.setCharacteristic(Characteristic.BatteryLevel, 0) //device.stateOfCharge)
 			.setCharacteristic(Characteristic.ChargingState, Characteristic.ChargingState.NOT_CHARGING)
+			.setCharacteristic(Characteristic.ActiveIdentifier, config.maxChargerCurrent)
     return batteryStatus
   },
   

@@ -28,6 +28,19 @@
 				"placeholder": "password",
 				"required": true
 			},
+			"batterySize": {
+        "title": "Battery Capacity in kwH",
+        "type": "integer",
+        "required": false,
+        "placeholder": 78,
+				"default": 78
+      },
+			"locationAddress": {
+        "title": "Street Address",
+        "type": "string",
+        "required": false,
+        "placeholder": "Leave blank for all locations"
+      },
 			"showControls": {
 				"title": "Show Charger Controls",
 				"type": "integer",
@@ -85,6 +98,28 @@
 				"password"
 			]
 		},
+		{
+      "type": "help",
+      "helpvalue": "<h6><b>Location Support</b></h6><p class='help-block'> If you have more than one location and want to display them in separate Homebridge/HomeKit homes you can retrive only the devices at this street address otherwise leave blank.<br/>The address must match the address configured in the Easee app, review the log file to see the adresses as configured in the Easee app.</p>"
+    },
+    {
+      "type": "flex",
+      "flex-flow": "row wrap",
+      "items": [
+        "locationAddress"
+      ]
+    },
+		{
+      "type": "help",
+      "helpvalue": "<h6><b>Charging Estimate</b></h6><p class='help-block'> The plugin will attempt to calulate in real time the percent charge added based on these values.<br/></p>"
+    },
+    {
+      "type": "flex",
+      "flex-flow": "row wrap",
+      "items": [
+        "batterySize"
+      ]
+    },
 		{
 			"type": "flex",
 			"flex-flow": "row wrap",

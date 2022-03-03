@@ -8,6 +8,7 @@
 ## About
 
 <br> Supports the ablity to lock and unlock charger from HomeKit
+<br> If you have more than one home on your Rachio account you may filter devices for a home based on the street address for the location you want to display in HomeKit.
 
 ## Notes on testing
 
@@ -26,15 +27,15 @@ This plugin is being developed and verified and may be very buggy.
     "name": "Easee",
     "username": "user",
     "password": "pass",
+		"batterySize": 78,
+		"location_address": "123 Easy St",
     "showControls": 1,
     "showLight": true,
     "_bridge": {
-        "username": "0E:46:88:49:71:DD",
-        "port": 39306
+			"username": "0E:46:88:49:71:DD",
+			"port": 39306
     },
     "platform": "easee"
-		},
-		"platform": "easee"
 	}
 ]
 ```

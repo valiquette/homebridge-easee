@@ -2,11 +2,18 @@
 
 ## If updating from version 1.0.x it will be nessasary to re save the configuration, see readme for syntax or use plugin config.
 
+## 1.1.2
+Update 
+- Suppessed extra logging ifo that does nto need action.
+-	Fixed sync for LED light on/off when turnign back on.
+- Added location support.
+- Inital support to track battery charge added, will need to update config with info
+
 ## 1.1.1
 Update 
 - Fixed logging messages for op mode changes
--	programmed LED light on off
-- fixed sync for chargign state
+-	programmed LED light on/off
+- fixed sync for charging state
 
 ## 1.1.0
 Update 

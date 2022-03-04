@@ -21,7 +21,6 @@ battery.prototype={
 			.setCharacteristic(Characteristic.StatusLowBattery,Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL)
 			.setCharacteristic(Characteristic.BatteryLevel, 0) //device.stateOfCharge)
 			.setCharacteristic(Characteristic.ChargingState, Characteristic.ChargingState.NOT_CHARGING)
-			.setCharacteristic(Characteristic.ActiveIdentifier, config.maxChargerCurrent)
     return batteryStatus
   },
   

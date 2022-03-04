@@ -28,13 +28,37 @@
 				"placeholder": "password",
 				"required": true
 			},
-			"batterySize": {
-        "title": "Battery Capacity in kwH",
-        "type": "integer",
-        "required": false,
-        "placeholder": 78,
-				"default": 78
-      },
+			"cars": {
+        "title": "Cars",
+        "type": "array",
+        "required": true,
+        "items": {
+          "title": "Car Info",
+          "type": "object",
+          "properties": {
+						"carName": {
+              "title": "Name of your Car",
+              "type": "string",
+              "minLength": 3,
+              "required": false,
+							"placeholder": "My EV"
+            },
+            "chargerName": {
+              "title": "Name of your Charger used for this car, reference the logging for exact names",
+              "type": "string",
+              "minLength": 3,
+              "required": false,
+							"placeholder": "Easee"
+            },
+            "kwH": {
+              "title": "Battery Size in kwH for this car",
+              "type": "integer",
+							"required": false,
+							"placeholder": 78
+						}
+					}
+				}
+			},
 			"locationAddress": {
         "title": "Street Address",
         "type": "string",
@@ -68,6 +92,12 @@
 			}, 	
 			"showLight": {
 				"title": "Expose Switch for adjusting LED Brightness",
+				"type": "boolean",
+				"required": true,
+				"default": false
+			},
+			"showReboot": {
+				"title": "Expose Switch to reboot charger",
 				"type": "boolean",
 				"required": true,
 				"default": false
@@ -111,15 +141,18 @@
     },
 		{
       "type": "help",
-      "helpvalue": "<h6><b>Charging Estimate</b></h6><p class='help-block'> The plugin will attempt to calulate in real time the percent charge added based on these values.<br/></p>"
+      "helpvalue": "<h6><b>Charging Estimate</b></h6><p class='help-block'> The plugin will attempt to calulate in real time the percent charge added based on these values for each car.<br/></p>"
     },
-    {
-      "type": "flex",
-      "flex-flow": "row wrap",
-      "items": [
-        "batterySize"
-      ]
-    },
+		{
+			"key": "cars",
+			"type": "tabarray",
+			"title": "{{ value.carName || 'new Car' }}",
+			"items": [
+				"cars[].carName",
+				"cars[].chargerName",
+				"cars[].kwH"
+					]			
+		},
 		{
 			"type": "flex",
 			"flex-flow": "row wrap",
@@ -131,7 +164,8 @@
 			"type": "flex",
 			"flex-flow": "row wrap",
 			"items": [
-				"showLight"
+				"showLight",
+				"showReboot"
 			]
 		}
 	]

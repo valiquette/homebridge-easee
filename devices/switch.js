@@ -25,6 +25,18 @@ basicSwitch.prototype={
     return switchService
   },
 
+	createRebootSwitchService(device, state, type){
+    this.log.debug('adding new switch')
+		let uuid=UUIDGen.generate(device.id+type)
+		let switchService=new Service.Switch(type, uuid)
+		let switchOn=false
+    switchService 
+      .setCharacteristic(Characteristic.On, switchOn)
+      .setCharacteristic(Characteristic.Name, type)
+      .setCharacteristic(Characteristic.StatusFault,!state.isOnline)
+    return switchService
+  },
+
   configureSwitchService(device, switchService){
     this.log.info("Configured %s switch for %s" , switchService.getCharacteristic(Characteristic.Name).value, device.name,)
     switchService
@@ -144,6 +156,31 @@ basicSwitch.prototype={
 								case 400:
 									switchService.getCharacteristic(Characteristic.On).updateValue(!value)
 									this.log.info('Failed to toggle charging, %s',response.data.title)
+									this.log.debug(response.data)
+									break
+								default:
+									switchService.getCharacteristic(Characteristic.On).updateValue(!value)
+									this.log.debug(response.data)
+									break	
+								}
+							})	
+						callback()
+						}
+						break
+					case 'Reboot': 
+						if(switchService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
+							callback('error')
+						}
+						else{
+							this.easeeapi.command(this.platform.token,device.id,'reboot').then(response=>{
+							switch(response.status){
+								case 200:
+								case 202:
+									this.log.info('%s reboot',device.name)
+									break	
+								case 400:
+									switchService.getCharacteristic(Characteristic.On).updateValue(!value)
+									this.log.info('Failed to reboot, %s',response.data.title)
 									this.log.debug(response.data)
 									break
 								default:

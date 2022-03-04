@@ -298,39 +298,32 @@ easeeAPI.prototype={
 			.withUrl(`${streamingEndpoint}/hubs/chargers`, {
 				accessTokenFactory: () => token
 			}).build()
-
 		connection.onclose(() => {
 			this.log.warn("Connection close...")
 		})
-
 		connection.onreconnected(() => {
 			connection.invoke('SubscribeWithCurrentState', chargerId, true)
 			this.log.info("Reconnected...")
-		})
-
+		})//.catch((err) => {this.log.error('Error invoking connection: ', err)})
 		connection.onreconnecting(() => {
 			this.log.info("Reconnecting...")
-		})
-
+		})//.catch((err) => {this.log.error('Error reconnecting: ', err)})
 		connection.on('ProductUpdate', (update) => {
 			if(this.platform.showExtraDebugMessages){
 				this.log.debug(JSON.stringify(update, null, null))
 			}
 			this.platform.updateService(update)
 		})
-
 		connection.on('CommandResponse', (update) => {
 			if(this.platform.showExtraDebugMessages){
 				this.log.debug(JSON.stringify(update, null, null))
 			}
 			this.platform.updateService(update)
 		})
-
 		connection.start().then(() => {
 			connection.invoke('SubscribeWithCurrentState', chargerId, true)
 			this.log.info('Starting connection')
 		}).catch((err) => {this.log.error('Error while starting connection: ', err)})
-		
 	}
 	
 }

@@ -23,6 +23,7 @@ lockMechanism.prototype={
       .setCharacteristic(Characteristic.SerialNumber, details.serialNumber)
       .setCharacteristic(Characteristic.Model, details.product)
       .setCharacteristic(Characteristic.Identify, true)
+			.setCharacteristic(Characteristic.ProductData,details.unitType)
       .setCharacteristic(Characteristic.FirmwareRevision, state.chargerFirmware.toString())
       .setCharacteristic(Characteristic.HardwareRevision, device.backPlate.masterBackPlateId)
       .setCharacteristic(Characteristic.SoftwareRevision, packageJson.version)

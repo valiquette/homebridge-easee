@@ -31,16 +31,17 @@ class easeePlatform {
 		this.refreshToken
 		this.showControls=config.showControls
 		this.showLight=config.showLight
+		this.showReboot=config.showReboot
 		this.showExtraDebugMessages=false
     this.userId
-		this.batterySize=config.batterySize || 78
+		this.cars=config.cars
 		this.voltage=240
 		this.amperage=40
-		this.kwh=config.kwh || 9.6  
 		this.locationAddress=config.locationAddress
 		this.locationMatch
 		this.observations={}
 		this.accessories=[]
+		this.amps=[]
 		this.endTime=[]
     if(!config.username || !config.password){
       this.log.error('Valid username and password are required in order to communicate with easee, please check the plugin config')
@@ -119,6 +120,7 @@ class easeePlatform {
 												lockAccessory.addService(batteryService)
 												//extras
 												let switchService
+												let rebootService
 												if(this.showLight){
 													let lightService=this.light.createLightService(charger, chargerConfig, chargerState,'LED')
 													this.light.configureLightService(charger, lightService)
@@ -138,10 +140,16 @@ class easeePlatform {
 													lockAccessory.addService(switchService)
 												}
 												if(this.showControls==3){
-													switchService=this.basicSwitch.createSwitchService(charger,chargerState,'Pause/Resume')
+													switchService=this.basicSwitch.createSwitchService(charger, chargerState,'Pause/Resume')
 													this.basicSwitch.configureSwitchService(charger, switchService)
 													lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
 													lockAccessory.addService(switchService)
+												}
+												if(this.showReboot){
+													rebootService=this.basicSwitch.createRebootSwitchService(charger, chargerState,'Reboot')
+													this.basicSwitch.configureSwitchService(charger, rebootService)
+													lockAccessory.getService(Service.LockMechanism).addLinkedService(rebootService)
+													lockAccessory.addService(rebootService)
 												}
 												this.accessories[uuid]=lockAccessory                
 												this.log.info('Adding Charger Lock for %s', charger.name)
@@ -183,7 +191,14 @@ class easeePlatform {
 		}	
 
 		calcBattery(batteryService){
-			this.amperage=batteryService.getCharacteristic(Characteristic.ActiveIdentifier).value
+			if(this.cars){
+				let car=this.cars.filter(charger=>(charger.chargerName.includes(batteryService.getCharacteristic(Characteristic.Name).value)))
+				this.batterySize=car[0].kwH
+			}
+			else{
+				this.batterySize=80
+			}
+			this.amperage=this.amps[batteryService.subtype]
 			let kwh=this.voltage*this.amperage/1000 
 			let fullCharge=(this.batterySize)/(kwh)
 			let x=new Date(0,0)
@@ -270,15 +285,16 @@ class easeePlatform {
 				case 47://config_maxChargerCurrent
 					this.log.info('%s to %s', message.mid, messageText, value)
 					batteryService=lockAccessory.getServiceById(Service.Battery, message.mid)
-					batteryService.getCharacteristic(Characteristic.ActiveIdentifier).updateValue(value)
+					this.amps[batteryService.subtype]=value
 					break
 				case 48://state_dynamicChargerCurrent
 					this.log.info('%s changed to %s', message.mid, messageText, value)
 					if(value>0){
-						//do nothing
+						//this.amps[batteryService.subtype]=value
 					}
 					else{
-						//do nothing
+						activeService=lockAccessory.getServiceById(Service.Switch,UUIDGen.generate(message.mid+'Reboot'))
+						activeService.getCharacteristic(Characteristic.On).updateValue(false)
 					}
 					break
 				case 76://NumberOfCarsConnected

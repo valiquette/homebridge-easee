@@ -27,10 +27,22 @@ This plugin is being developed and verified and may be very buggy.
     "name": "Easee",
     "username": "user",
     "password": "pass",
-		"batterySize": 78,
+		"cars": [
+			{
+				"carName": "Volvo",
+				"chargerName": "Charger 1",
+				"kwH": 78
+			},
+			{
+				"carName": "Tesla",
+				"chargerName": "Charger 2",
+				"kwH": 84
+		}
+	],
 		"location_address": "123 Easy St",
     "showControls": 1,
     "showLight": true,
+		"showReboot": false,
     "_bridge": {
 			"username": "0E:46:88:49:71:DD",
 			"port": 39306

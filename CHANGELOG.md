@@ -2,9 +2,14 @@
 
 ## If updating from version 1.0.x it will be nessasary to re save the configuration, see readme for syntax or use plugin config.
 
+## 1.1.3
+Update 
+-	Added battery info for multiple cars. Will need to update config with new info
+- Added switch to reboot charger.
+
 ## 1.1.2
 Update 
-- Suppessed extra logging ifo that does nto need action.
+- Suppessed extra logging info that does nto need action.
 -	Fixed sync for LED light on/off when turnign back on.
 - Added location support.
 - Inital support to track battery charge added, will need to update config with info

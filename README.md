@@ -21,12 +21,14 @@ This plugin is only been tested with Easee Home Charger.
 5. Pair to HomeKit
 
 ## Config.json example with child bridge
+
 ```
 "platforms": [
 	{
     "name": "Easee",
     "username": "user",
     "password": "pass",
+		"location_address": "123 Easy St",
 		"cars": [
 			{
 				"carName": "Volvo",
@@ -39,7 +41,6 @@ This plugin is only been tested with Easee Home Charger.
 				"kwH": 84
 			}
 		],
-		"location_address": "123 Easy St",
     "showControls": 1,
     "showLight": true,
 		"showReboot": false,

@@ -26,8 +26,8 @@ This plugin is only been tested with Easee Home Charger.
 "platforms": [
 	{
     "name": "Easee",
-    "username": "user",
-    "password": "pass",
+    "username": "username",
+    "password": "password",
 		"cars": [
 			{
 				"carName": "Volvo",

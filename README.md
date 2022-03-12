@@ -41,11 +41,11 @@ This plugin is only been tested with Easee Home Charger.
 			}
 		],
 		"location_address": "123 Easy St",
-    "showControls": 1,
-    "showLight": true,
+		"showControls": 1,
+		"showLight": true,
 		"showReboot": false,
 		"showOverride": true,
-    "_bridge": {
+		"_bridge": {
 			"username": "0E:46:88:49:71:DD",
 			"port": 39306
     },

@@ -101,6 +101,12 @@
 				"type": "boolean",
 				"required": true,
 				"default": false
+			},
+			"showOverride": {
+				"title": "Expose Switch to override any exsiting charging schedule and start immediately",
+				"type": "boolean",
+				"required": true,
+				"default": false
 			}
 		}
 	},
@@ -165,7 +171,8 @@
 			"flex-flow": "row wrap",
 			"items": [
 				"showLight",
-				"showReboot"
+				"showReboot",
+				"showOverride"
 			]
 		}
 	]

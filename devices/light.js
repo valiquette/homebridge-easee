@@ -20,7 +20,7 @@ light.prototype={
 		if(config.ledStripBrightness>0){lightOn=true}
     lightService 
       .setCharacteristic(Characteristic.On, lightOn)
-      .setCharacteristic(Characteristic.Name, type)
+      .setCharacteristic(Characteristic.Name, device.name+" "+type)
       .setCharacteristic(Characteristic.StatusFault, !state.isOnline)
       .setCharacteristic(Characteristic.Brightness, config.ledStripBrightness)
 			.setCharacteristic(Characteristic.CurrentPosition, config.ledStripBrightness)

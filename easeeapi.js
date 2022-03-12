@@ -227,7 +227,7 @@ easeeAPI.prototype={
 				this.log.debug('Error posting lock command  %s', err.response.config.header, err.response.config.method, err.response.config.url)
 				return err.response
 			})
-		if(response==200 || response==202){this.log.debug('post lock response',JSON.stringify(response.data,null,2))}
+		if(response.status==200 || response.status==202){this.log.debug('post lock response',JSON.stringify(response.data,null,2))}
 		return response
 	},
 
@@ -251,7 +251,7 @@ easeeAPI.prototype={
 				this.log.debug('Error posting light command  %s', err.response.config.header, err.response.config.method, err.response.config.url)
 				return err.response
 			})
-		if(response==200 || response==202){this.log.debug('post light response',response.status)}
+		if(response.status==200 || response.status==202){this.log.debug('post light response',response.status)}
 		return response
 	},
 
@@ -271,7 +271,7 @@ easeeAPI.prototype={
 			this.log.debug('Error posting %s command  %s', command, err.response.config.header, err.response.config.method, err.response.config.url)
 			return err.response
 		})
-		if(response==200 || response==202){this.log.debug('post %s response',command, JSON.stringify(response,null,2))}
+		if(response.status==200 || response.status==202){this.log.debug('post %s response',command, JSON.stringify(response,null,2))}
 		return response
 	},
 
@@ -291,6 +291,58 @@ easeeAPI.prototype={
 			//if(response){	this.log.debug('get observations response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving observations %s', err)}
+	},
+
+	overrideSchedule: async function(token,chargerId){
+		try {  
+			this.log.debug('Override schedule')
+			let response = await axios({
+					method: 'post',
+					url: `${endpoint}/chargers/${chargerId}/commands/override_schedule`,
+					headers: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/json',
+						'Authorization': 'Bearer '+token
+					},
+					responseType: 'json'
+				}).catch(err=>{
+					this.log.debug('Error posting override  %s', err.message)
+					this.log.debug('Error posting override  %s', err.response.config.header, err.response.config.method, err.response.config.url)
+					return err.response
+				})
+				if(response.status==200 || response.status==202){this.log.debug('post response', JSON.stringify(response.data,null,2))}
+				return response
+		}catch(err) {this.log.error('Error setting override %s', err)}
+	},
+
+	setDelay: async function(token,chargerId){
+		try {  
+			this.log.debug('Delay start')
+			let response = await axios({
+					method: 'post',
+					url: `${endpoint}/chargers/${chargerId}/commands/override_schedule`,
+					headers: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/json',
+						'Authorization': 'Bearer '+token
+					},
+					data:{
+						"chargingCurrentLimit": 32,
+						"id": chargerId,
+						"chargeStartTime": "18:00",
+						"chargeStopTime": "",
+						"repeat": false,
+						"isEnabled": true
+					},
+					responseType: 'json'
+				}).catch(err=>{
+					this.log.debug('Error posting delay  %s', err.message)
+					this.log.debug('Error posting delay  %s', err.response.config.header, err.response.config.method, err.response.config.url)
+					return err.response
+				})
+				if(response.status==200 || response.status==202){this.log.debug('post response', JSON.stringify(response,null,2))}
+				return response
+		}catch(err) {this.log.error('Error setting delay %s', err)}
 	},
 
 	signalR: async function(token,chargerId){ 

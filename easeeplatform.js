@@ -32,6 +32,7 @@ class easeePlatform {
 		this.showControls=config.showControls
 		this.showLight=config.showLight
 		this.showReboot=config.showReboot
+		this.showOverride=config.showOverride
 		this.showExtraDebugMessages=false
     this.userId
 		this.cars=config.cars
@@ -121,6 +122,7 @@ class easeePlatform {
 												//extras
 												let switchService
 												let rebootService
+												let overrideService
 												if(this.showLight){
 													let lightService=this.light.createLightService(charger, chargerConfig, chargerState,'LED')
 													this.light.configureLightService(charger, lightService)
@@ -146,10 +148,16 @@ class easeePlatform {
 													lockAccessory.addService(switchService)
 												}
 												if(this.showReboot){
-													rebootService=this.basicSwitch.createRebootSwitchService(charger, chargerState,'Reboot')
+													rebootService=this.basicSwitch.createOtherSwitchService(charger, chargerState,'Reboot')
 													this.basicSwitch.configureSwitchService(charger, rebootService)
 													lockAccessory.getService(Service.LockMechanism).addLinkedService(rebootService)
 													lockAccessory.addService(rebootService)
+												}
+												if(this.showOverride){
+													overrideService=this.basicSwitch.createOtherSwitchService(charger, chargerState,'Start Now')
+													this.basicSwitch.configureSwitchService(charger, overrideService)
+													lockAccessory.getService(Service.LockMechanism).addLinkedService(overrideService)
+													lockAccessory.addService(overrideService)
 												}
 												this.accessories[uuid]=lockAccessory                
 												this.log.info('Adding Charger Lock for %s', charger.name)
@@ -334,13 +342,15 @@ class easeePlatform {
 								lockService.setCharacteristic(Characteristic.StatusFault, Characteristic.StatusFault.GENERAL_FAULT)
 							}
 							break
-						case 1:
+						case 1://disconnected
 							this.log.info('%s disconnected',lockService.getCharacteristic(Characteristic.Name).value)
 							lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(false)
+							batteryService.getCharacteristic(Characteristic.BatteryLevel).updateValue(0)
 							break
 						case 2://awating start
 							this.log.info('%s paused, waiting to start',lockService.getCharacteristic(Characteristic.Name).value)
 							lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(true)
+							//add delay
 							break
 						case 3://charging
 							this.log.info('%s charging',lockService.getCharacteristic(Characteristic.Name).value)
@@ -348,7 +358,6 @@ class easeePlatform {
 							break
 						case 4://complete
 							this.log.info('%s complete, %s% charge added',lockService.getCharacteristic(Characteristic.Name).value,batteryService.getCharacteristic(Characteristic.BatteryLevel).value)
-							batteryService.getCharacteristic(Characteristic.BatteryLevel).updateValue(0)
 							clearInterval(this.endTime[batteryService.subtype])
 							break
 						case 5://error

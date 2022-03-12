@@ -20,19 +20,19 @@ basicSwitch.prototype={
 		if(state.chargerOpMode==3){switchOn=true}
     switchService 
       .setCharacteristic(Characteristic.On, switchOn)
-      .setCharacteristic(Characteristic.Name, type)
+      .setCharacteristic(Characteristic.Name, device.name+" "+type)
       .setCharacteristic(Characteristic.StatusFault,!state.isOnline)
     return switchService
   },
 
-	createRebootSwitchService(device, state, type){
-    this.log.debug('adding new switch')
+	createOtherSwitchService(device, state, type){
+    this.log.debug('adding other switch')
 		let uuid=UUIDGen.generate(device.id+type)
 		let switchService=new Service.Switch(type, uuid)
 		let switchOn=false
     switchService 
       .setCharacteristic(Characteristic.On, switchOn)
-      .setCharacteristic(Characteristic.Name, type)
+      .setCharacteristic(Characteristic.Name, device.name+" "+type)
       .setCharacteristic(Characteristic.StatusFault,!state.isOnline)
     return switchService
   },
@@ -49,7 +49,8 @@ basicSwitch.prototype={
 			//this.log.debug('check current state',state.data.chargerOpMode)
 			//state.data.chargerOpMode==2 || state.data.chargerOpMode==3 || state.data.chargerOpMode==4 ||  state.data.chargerOpMode==6){
 				this.log.debug('toggle switch state %s',switchService.getCharacteristic(Characteristic.Name).value)
-				switch(switchService.getCharacteristic(Characteristic.Name).value){
+				this.log.debug('toggle %s',switchService.displayName)
+				switch(switchService.displayName){
 					case 'Start/Stop': 
 						if(switchService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
 							callback('error')
@@ -192,13 +193,35 @@ basicSwitch.prototype={
 						callback()
 						}
 						break
+					case 'Start Now': 
+					if(switchService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
+						callback('error')
+					}
+					else{
+						if(value){
+							this.easeeapi.overrideSchedule(this.platform.token,device.id).then(response=>{
+							switch(response.status){
+								case 200:
+								case 202:
+									switchService.getCharacteristic(Characteristic.On).updateValue(false)
+									this.log.info('%s Schedule overridden',device.name)
+									break	
+								case 400:
+									switchService.getCharacteristic(Characteristic.On).updateValue(!value)
+									this.log.info('Failed to override, %s',response.data.title)
+									this.log.debug(response.data)
+									break
+								default:
+									switchService.getCharacteristic(Characteristic.On).updateValue(!value)
+									this.log.debug(response.data)
+									break	
+								}
+							})
+						}	
+					callback()
+					}
+					break
 				}
-	//		}
-	//		else{
-	//			this.log.info('Unable to start at this time')
-	//			switchService.getCharacteristic(Characteristic.On).updateValue(!value)
-	//		}	
-	//	})
   },
 
 	getSwitchValue(switchService, callback){

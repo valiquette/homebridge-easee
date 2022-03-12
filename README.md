@@ -52,6 +52,7 @@ This plugin is only been tested with Easee Home Charger.
     "platform": "easee"
 	}
 ]
+
 ```
 showControls valid values
 0:None, 1:Toggle, 2:Start/Stop, 3:Pause/Resume

@@ -6,7 +6,7 @@ let battery=require('./devices/battery')
 let basicSwitch=require('./devices/switch')
 let light=require('./devices/light')
 let enumeration=require('./enumerations')
-let observations=require('./enumerations')
+let observations=require('./observations')
 
 class easeePlatform {
 

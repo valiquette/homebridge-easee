@@ -2,6 +2,10 @@
 
 ## If updating from version 1.0.x it will be nessasary to re save the configuration, see readme for syntax or use plugin config.
 
+## 1.1.5
+Fix 
+- Fixed condition causing crash when pause/resume
+
 ## 1.1.4
 Update 
 - Added optional switch to override chargign schedules

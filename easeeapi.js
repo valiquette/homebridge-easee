@@ -251,7 +251,7 @@ easeeAPI.prototype={
 				this.log.debug('Error posting light command  %s', err.response.config.header, err.response.config.method, err.response.config.url)
 				return err.response
 			})
-		if(response.status==200 || response.status==202){this.log.debug('post light response',response.status)}
+		if(response.status==200 || response.status==202){this.log.debug('post light response',JSON.stringify(response.data,null,2))}
 		return response
 	},
 
@@ -271,7 +271,7 @@ easeeAPI.prototype={
 			this.log.debug('Error posting %s command  %s', command, err.response.config.header, err.response.config.method, err.response.config.url)
 			return err.response
 		})
-		if(response.status==200 || response.status==202){this.log.debug('post %s response',command, JSON.stringify(response,null,2))}
+		if(response.status==200 || response.status==202){this.log.debug('post %s response',command, JSON.stringify(response.data,null,2))}
 		return response
 	},
 
@@ -340,7 +340,7 @@ easeeAPI.prototype={
 					this.log.debug('Error posting delay  %s', err.response.config.header, err.response.config.method, err.response.config.url)
 					return err.response
 				})
-				if(response.status==200 || response.status==202){this.log.debug('post response', JSON.stringify(response,null,2))}
+				if(response.status==200 || response.status==202){this.log.debug('post response', JSON.stringify(response.data,null,2))}
 				return response
 		}catch(err) {this.log.error('Error setting delay %s', err)}
 	},
@@ -368,9 +368,9 @@ easeeAPI.prototype={
 		})
 		connection.on('CommandResponse', (update) => {
 			if(this.platform.showExtraDebugMessages){
-				this.log.debug(JSON.stringify(update, null, null))
+				this.log.debug(JSON.stringify(update, null, 2))
 			}
-			this.platform.updateService(update)
+			//if needed could process response here
 		})
 		connection.start().then(() => {
 			connection.invoke('SubscribeWithCurrentState', chargerId, true)

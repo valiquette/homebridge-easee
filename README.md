@@ -48,7 +48,7 @@ This plugin is only been tested with Easee Home Charger.
 	"_bridge": {
 		"username": "0E:46:88:49:71:DD",
 		"port": 39306
-    },
+   },
   "platform": "easee"
 	}
 ]

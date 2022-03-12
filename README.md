@@ -37,8 +37,8 @@ This plugin is only been tested with Easee Home Charger.
 				"carName": "Tesla",
 				"chargerName": "Charger 2",
 				"kwH": 84
-		}
-	],
+			}
+		],
 		"location_address": "123 Easy St",
     "showControls": 1,
     "showLight": true,

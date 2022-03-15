@@ -346,38 +346,65 @@ easeeAPI.prototype={
 	},
 
 	signalR: async function(token,chargerId){ 
+		/*	
+			Trace = 0	
+			Log level for very low severity diagnostic messages.
+			Debug = 1	
+			Log level for low severity diagnostic messages.
+			Information = 2	
+			Log level for informational diagnostic messages.
+			Warning = 3	
+			Log level for diagnostic messages that indicate a non-fatal problem.
+			Error = 4	
+			Log level for diagnostic messages that indicate a failure in the current operation.
+			Critical = 5	
+			Log level for diagnostic messages that indicate a failure that will terminate the entire application.
+			None = 6	
+			The highest possible log level. Used when configuring logging to indicate that no log messages should be emitted.
+		*/
 		let connection = new signalr.HubConnectionBuilder()
 			.withUrl(`${streamingEndpoint}/hubs/chargers`, {
-				accessTokenFactory: () => token
-			}).build()
-		connection.onclose(() => {
+				accessTokenFactory:()=>token
+			})
+			.withAutomaticReconnect()
+			.configureLogging(signalr.LogLevel.None)
+			.build()
+
+		connection.start().then(()=>{
+			connection.invoke('SubscribeWithCurrentState', chargerId, true)
+			this.log.info('Starting connection')
+		})
+		connection.onclose(()=>{
 			this.log.warn("Connection close...")
 		})
-		connection.onreconnected(() => {
+		connection.onreconnected(()=>{
 			connection.invoke('SubscribeWithCurrentState', chargerId, true)
 			this.log.info("Reconnected...")
-		})//.catch((err) => {this.log.error('Error invoking connection: ', err)})
-		connection.onreconnecting(() => {
-			this.log.info("Reconnecting...")
-		})//.catch((err) => {this.log.error('Error reconnecting: ', err)})
-		connection.on('ProductUpdate', (update) => {
-			if(this.platform.showExtraDebugMessages){
-				this.log.debug(JSON.stringify(update, null, null))
-			}
-			this.platform.updateService(update)
 		})
-		connection.on('CommandResponse', (update) => {
+		connection.onreconnecting(()=>{
+			this.log.info("Reconnecting...")
+		})
+		connection.on('ProductUpdate', (productUpdate)=>{
+			if(this.platform.showExtraDebugMessages){
+				this.log.debug(JSON.stringify(productUpdate, null, null))
+			}
+			this.platform.updateService(productUpdate)
+		})
+		connection.on('ChargerUpdate', (chargerUpdate)=>{
+			if(this.platform.showExtraDebugMessages){
+				this.log.debug(JSON.stringify(chargerUpdate, null, 2))
+			}
+			//duplicate responses
+			//this.platform.updateService(chargerUpdate)
+		})
+		
+		connection.on('CommandResponse', (update)=>{
 			if(this.platform.showExtraDebugMessages){
 				this.log.debug(JSON.stringify(update, null, 2))
 			}
 			//if needed could process response here
 		})
-		connection.start().then(() => {
-			connection.invoke('SubscribeWithCurrentState', chargerId, true)
-			this.log.info('Starting connection')
-		}).catch((err) => {this.log.error('Error while starting connection: ', err)})
 	}
-	
 }
 
 module.exports = easeeAPI                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        

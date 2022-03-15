@@ -29,6 +29,7 @@ class easeePlatform {
     this.password=config.password
     this.token
 		this.refreshToken
+		this.showBattery=config.showBattery
 		this.showControls=config.showControls
 		this.showLight=config.showLight
 		this.showReboot=config.showReboot
@@ -44,6 +45,7 @@ class easeePlatform {
 		this.accessories=[]
 		this.amps=[]
 		this.endTime=[]
+		if(config.cars){this.showBattery=true}
     if(!config.username || !config.password){
       this.log.error('Valid username and password are required in order to communicate with easee, please check the plugin config')
     }
@@ -114,17 +116,22 @@ class easeePlatform {
 												let lockService=this.lockMechanism.createLockService(charger,chargerDetails,chargerState)
 												this.lockMechanism.configureLockService(lockService, chargerConfig)
 												lockAccessory.addService(lockService)
-												
-												let batteryService=this.battery.createBatteryService(charger,chargerConfig)
-												this.battery.configureBatteryService(batteryService)
-												lockAccessory.getService(Service.LockMechanism).addLinkedService(batteryService)
-												lockAccessory.addService(batteryService)
+
 												//extras
+												let batteryService
+												let lightService
 												let switchService
 												let rebootService
 												let overrideService
+												
+												if(this.showBattery){
+													batteryService=this.battery.createBatteryService(charger,chargerConfig)
+													this.battery.configureBatteryService(batteryService)
+													lockAccessory.getService(Service.LockMechanism).addLinkedService(batteryService)
+													lockAccessory.addService(batteryService)
+												}
 												if(this.showLight){
-													let lightService=this.light.createLightService(charger, chargerConfig, chargerState,'LED')
+													lightService=this.light.createLightService(charger, chargerConfig, chargerState,'LED')
 													this.light.configureLightService(charger, lightService)
 													lockAccessory.getService(Service.LockMechanism).addLinkedService(lightService)
 													lockAccessory.addService(lightService)

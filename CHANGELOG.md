@@ -2,6 +2,11 @@
 
 ## If updating from version 1.0.x it will be nessasary to re save the configuration, see readme for syntax or use plugin config.
 
+## 1.1.7
+Update 
+- Code cleanup
+-	Updated streaming endpoint
+
 ## 1.1.6
 Fix 
 - Fixed an issue where signalR was not automatically reconnecting following netowrk connection interuption.

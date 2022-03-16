@@ -34,7 +34,7 @@ class easeePlatform {
 		this.showLight=config.showLight
 		this.showReboot=config.showReboot
 		this.showOverride=config.showOverride
-		this.showExtraDebugMessages=false
+		this.showExtraDebugMessages=config.showExtraDebugMessages||false
     this.userId
 		this.cars=config.cars
 		this.voltage=240
@@ -263,17 +263,18 @@ class easeePlatform {
 				this.log.info('% offline reason %s', message.mid, value)
 					break
 				case 40://config_ledStripBrightness
-					this.log.info('%s %s changed to %s', message.mid, messageText, value)
-					if(value>0){
-						activeService=lockAccessory.getServiceById(Service.Lightbulb, message.mid)							
-						activeService.getCharacteristic(Characteristic.Brightness).updateValue(value)
-						activeService.getCharacteristic(Characteristic.CurrentPosition).updateValue(value)
-					}
-					else{
+					if(this.showLight){
+						this.log.info('%s %s changed to %s', message.mid, messageText, value)
 						activeService=lockAccessory.getServiceById(Service.Lightbulb, message.mid)
-						activeService.getCharacteristic(Characteristic.On).updateValue(value)
+						if(value>0){						
+							activeService.getCharacteristic(Characteristic.Brightness).updateValue(value)
+							activeService.getCharacteristic(Characteristic.CurrentPosition).updateValue(value)
+						}
+						else{
+							activeService.getCharacteristic(Characteristic.On).updateValue(value)
+						}
+						this.log.debug('%s light brightness updated',activeService.getCharacteristic(Characteristic.Name).value)
 					}
-					this.log.debug('%s light brightness updated',activeService.getCharacteristic(Characteristic.Name).value)
 					break	
 				case 42://config_authorizationRequired
 					this.log.info('%s %s changed to %s', message.mid, messageText, value)
@@ -283,24 +284,25 @@ class easeePlatform {
 					this.log.debug('%s authorization updated',activeService.getCharacteristic(Characteristic.Name).value)
 					break
 				case 46://state_ledMode
-					valueText=this.enumeration.data.ChargerLEDModeType[message.value]
-					this.log.info('%s %s to %s', message.mid, messageText, valueText)
-					activeService=lockAccessory.getServiceById(Service.LockMechanism, message.mid)
-					if(message.value>0){
+					if(this.showLight){
+						valueText=this.enumeration.data.ChargerLEDModeType[message.value]
+						this.log.info('%s %s to %s', message.mid, messageText, valueText)
 						activeService=lockAccessory.getServiceById(Service.Lightbulb, message.mid)
-						activeService.getCharacteristic(Characteristic.On).updateValue(true)
+						if(message.value>0){
+							activeService.getCharacteristic(Characteristic.On).updateValue(true)
+						}
+						else{
+							activeService.getCharacteristic(Characteristic.On).updateValue(false)
+						}
+						this.log.debug('%s light mode changed',activeService.getCharacteristic(Characteristic.Name).value)
 					}
-					else{
-						activeService=lockAccessory.getServiceById(Service.Lightbulb, message.mid)
-						activeService.getCharacteristic(Characteristic.On).updateValue(false)
-					}
-
-					this.log.debug('%s light mode changed',activeService.getCharacteristic(Characteristic.Name).value)
 					break
 				case 47://config_maxChargerCurrent
-					this.log.info('%s to %s', message.mid, messageText, value)
-					batteryService=lockAccessory.getServiceById(Service.Battery, message.mid)
-					this.amps[batteryService.subtype]=value
+					if(this.showBattery){
+						this.log.info('%s to %s', message.mid, messageText, value)
+						batteryService=lockAccessory.getServiceById(Service.Battery, message.mid)
+						this.amps[batteryService.subtype]=value
+					}
 					break
 				case 48://state_dynamicChargerCurrent
 					this.log.info('%s changed to %s', message.mid, messageText, value)
@@ -308,25 +310,27 @@ class easeePlatform {
 						//this.amps[batteryService.subtype]=value
 					}
 					else{
-						activeService=lockAccessory.getServiceById(Service.Switch,UUIDGen.generate(message.mid+'Reboot'))
-						activeService.getCharacteristic(Characteristic.On).updateValue(false)
+						if(this.showReboot){
+							activeService=lockAccessory.getServiceById(Service.Switch,UUIDGen.generate(message.mid+'Reboot'))
+							activeService.getCharacteristic(Characteristic.On).updateValue(false)
+						}
 					}
 					break
 				case 76://NumberOfCarsConnected
 					this.log.info('%S cars connected %s', message.mid, value)
 					break
 				case 77://NumberOfCarsCharging 
-				this.log.info('%S cars charging %s', message.mid, value)
+					this.log.info('%S cars charging %s', message.mid, value)
 					break
 				case 78://NumberOfCarsInQueue
-				this.log.info('%s cars queued %s', message.mid, value)
+					this.log.info('%s cars queued %s', message.mid, value)
 					break
 				case 79://NumberOfCarsFullyCharged
-				this.log.info('%s cars connected %s', message.mid, value)
+					this.log.info('%s cars connected %s', message.mid, value)
 					break
 				case 96://state_reasonForNoCurrent
-				valueText=this.enumeration.data.ReasonForNoCurrent[message.value]
-				this.log.info('%s %s to %s', message.mid, messageText, valueText)
+					valueText=this.enumeration.data.ReasonForNoCurrent[message.value]
+					this.log.info('%s %s to %s', message.mid, messageText, valueText)
 						break	
 				case 103://state_cableLocked
 					this.log.info('%s cable lock state to %s', message.mid, value)
@@ -335,9 +339,9 @@ class easeePlatform {
 				case 109://state_chargerOpMode
 					valueText=this.enumeration.data.OpModeType[message.value]
 					this.log.info('%s updated to %s', message.mid, messageText, valueText)
-					activeService=lockAccessory.getServiceById(Service.Switch, message.mid)
 					lockService=lockAccessory.getServiceById(Service.LockMechanism, message.mid)
-					batteryService=lockAccessory.getServiceById(Service.Battery, message.mid)
+					if(this.showControls){activeService=lockAccessory.getServiceById(Service.Switch, message.mid)}
+					if(this.showBattery){batteryService=lockAccessory.getServiceById(Service.Battery, message.mid)}
 					switch(value){
 						case 0://offline
 							this.log.info('%s offline',lockService.getCharacteristic(Characteristic.Name).value)
@@ -352,7 +356,7 @@ class easeePlatform {
 						case 1://disconnected
 							this.log.info('%s disconnected',lockService.getCharacteristic(Characteristic.Name).value)
 							lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(false)
-							batteryService.getCharacteristic(Characteristic.BatteryLevel).updateValue(0)
+							if(this.showBattery){batteryService.getCharacteristic(Characteristic.BatteryLevel).updateValue(0)}
 							break
 						case 2://awating start
 							this.log.info('%s paused, waiting to start',lockService.getCharacteristic(Characteristic.Name).value)
@@ -361,11 +365,11 @@ class easeePlatform {
 							break
 						case 3://charging
 							this.log.info('%s charging',lockService.getCharacteristic(Characteristic.Name).value)
-							this.calcBattery(batteryService)
+							if(this.showBattery){this.calcBattery(batteryService)}
 							break
 						case 4://complete
 							this.log.info('%s complete, %s% charge added',lockService.getCharacteristic(Characteristic.Name).value,batteryService.getCharacteristic(Characteristic.BatteryLevel).value)
-							clearInterval(this.endTime[batteryService.subtype])
+								if(this.showBattery){clearInterval(this.endTime[batteryService.subtype])}
 							break
 						case 5://error
 							this.log.info('%s error',lockService.getCharacteristic(Characteristic.Name).value)
@@ -381,15 +385,15 @@ class easeePlatform {
 					break
 				case 114://state_outputCurrent
 					this.log.info('%s %s changed to %s', message.mid, messageText, value)
-					batteryService=lockAccessory.getServiceById(Service.Battery, message.mid)
-					activeService=lockAccessory.getServiceById(Service.Switch, message.mid)
+					if(this.showBattery){batteryService=lockAccessory.getServiceById(Service.Battery, message.mid)}
+					if(this.showControls){activeService=lockAccessory.getServiceById(Service.Switch, message.mid)}
 					if(value>0){
-						batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(true)
-						activeService.getCharacteristic(Characteristic.On).updateValue(true)
+						if(this.showBattery){batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(true)}
+						if(this.showControls){activeService.getCharacteristic(Characteristic.On).updateValue(true)}
 					}
 					else{
-						batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(false)
-						activeService.getCharacteristic(Characteristic.On).updateValue(false)
+						if(this.showBattery){batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(false)}
+						if(this.showControls){activeService.getCharacteristic(Characteristic.On).updateValue(false)}
 					}
 					this.log.debug('%s output current updated',activeService.getCharacteristic(Characteristic.Name).value)
 					break

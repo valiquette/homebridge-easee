@@ -1,13 +1,14 @@
 /* 
+Easee information
 Public API info https://developer.easee.cloud/docs
+SignalR examples https://developer.easee.cloud/page/signalr-code-examples
 https://www.notion.so/easee/Developer-documentation-96beaa49e5a64d5fa18d9c801a7dfc28
-https =//www.notion.so/Charger-template-c6a20ff7cfea41e2b5f80b00afb34af5
-Enumerations
-https://www.notion.so/Enumerations-c7fed34ae1ce4d7384d522868f5a0139
+https://www.notion.so/Charger-template-c6a20ff7cfea41e2b5f80b00afb34af5
+Enumerations https://www.notion.so/Enumerations-c7fed34ae1ce4d7384d522868f5a0139
 */
 
 let axios = require('axios')
-let signalr = require('@microsoft/signalr')
+let signalR = require('@microsoft/signalr')
  
 let endpoint = 'https://api.easee.cloud/api'
 //let streamingEndpoint = 'https://api.beta.easee.cloud'
@@ -346,7 +347,7 @@ easeeAPI.prototype={
 	},
 
 	signalR: async function(token,chargerId){ 
-		/*	
+		/*	signlR logging
 			Trace = 0	
 			Log level for very low severity diagnostic messages.
 			Debug = 1	
@@ -362,18 +363,21 @@ easeeAPI.prototype={
 			None = 6	
 			The highest possible log level. Used when configuring logging to indicate that no log messages should be emitted.
 		*/
-		let connection = new signalr.HubConnectionBuilder()
-			.withUrl(`${streamingEndpoint}/hubs/chargers`, {
+		let connection = new signalR.HubConnectionBuilder()
+			//.withUrl(`${streamingEndpoint}/hubs/chargers`, {
+			.withUrl(`${streamingEndpoint}/hubs/products`, {
 				accessTokenFactory:()=>token
 			})
 			.withAutomaticReconnect()
-			.configureLogging(signalr.LogLevel.None)
+			.configureLogging(signalR.LogLevel.None)
 			.build()
 
-		connection.start().then(()=>{
-			connection.invoke('SubscribeWithCurrentState', chargerId, true)
-			this.log.info('Starting connection')
-		})
+		connection.start()
+			.then(()=>{
+				connection.invoke('SubscribeWithCurrentState', chargerId, true)
+				this.log.info('Starting connection')
+			}).catch((err) => {this.log.error('Error while starting connection: ', err)})
+		
 		connection.onclose(()=>{
 			this.log.warn("Connection close...")
 		})
@@ -386,23 +390,23 @@ easeeAPI.prototype={
 		})
 		connection.on('ProductUpdate', (productUpdate)=>{
 			if(this.platform.showExtraDebugMessages){
-				this.log.debug(JSON.stringify(productUpdate, null, null))
+				this.log.debug('Product:',JSON.stringify(productUpdate, null, null))
 			}
+			//** full set of responses with a lot of extras
 			this.platform.updateService(productUpdate)
 		})
 		connection.on('ChargerUpdate', (chargerUpdate)=>{
 			if(this.platform.showExtraDebugMessages){
-				this.log.debug(JSON.stringify(chargerUpdate, null, 2))
+				this.log.debug('Charger:',JSON.stringify(chargerUpdate, null, null))
 			}
-			//duplicate responses
+			//** duplicate responses to product but fewer
 			//this.platform.updateService(chargerUpdate)
-		})
-		
+		})		
 		connection.on('CommandResponse', (update)=>{
 			if(this.platform.showExtraDebugMessages){
-				this.log.debug(JSON.stringify(update, null, 2))
+				this.log.debug('Command:',JSON.stringify(update, null, null))
 			}
-			//if needed could process response here
+			//if needed could process response here vs api response
 		})
 	}
 }

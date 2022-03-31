@@ -195,8 +195,8 @@ class easeePlatform {
 			setInterval(()=>{		
 				try{		
 					this.easeeapi.refreshToken(this.token,this.refreshToken).then(tokenInfo=>{
-						this.log.debug('refreshed token %s',tokenInfo.data.acessToken)
-						this.token=tokenInfo.data.acessToken 
+						this.log.debug('refreshed token %s',tokenInfo.data.accessToken)
+						this.token=tokenInfo.data.accessToken 
 						this.refreshToken=tokenInfo.data.refreshToken 
 						this.log.info('Token has been refreshed')
 					}).catch(err=>{this.log.error('Failed signin to refresh token', err)})

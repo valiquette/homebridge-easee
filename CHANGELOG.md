@@ -2,6 +2,10 @@
 
 ## If updating from version 1.0.x it will be nessasary to re save the configuration, see readme for syntax or use plugin config.
 
+## 1.1.8
+Fix 
+- fixed bug with refreshing API token
+
 ## 1.1.7
 Update 
 - Code cleanup

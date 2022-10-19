@@ -1,14 +1,9 @@
 let easeeAPI=require('../easeeapi')
-let easeeTestAPI=require('../easeeapitest')
 
 function basicSwitch (platform,log,config){
 	this.log=log
 	this.platform=platform
-	//this.easeeapi=new easeeAPI(this,log)
-	if (config.test){
-		this.easeeapi=new easeeTestAPI(this,log)}
-	else {
-		this.easeeapi=new easeeAPI(this,log)}
+	this.easeeapi=new easeeAPI(this,log)
 }
 
 basicSwitch.prototype={
@@ -18,7 +13,7 @@ basicSwitch.prototype={
 		let switchService=new Service.Switch(type, device.id)
 		let switchOn=false
 		if(state.chargerOpMode==3){switchOn=true}
-    switchService 
+    switchService
       .setCharacteristic(Characteristic.On, switchOn)
       .setCharacteristic(Characteristic.Name, device.name+" "+type)
       .setCharacteristic(Characteristic.StatusFault,!state.isOnline)
@@ -30,7 +25,7 @@ basicSwitch.prototype={
 		let uuid=UUIDGen.generate(device.id+type)
 		let switchService=new Service.Switch(type, uuid)
 		let switchOn=false
-    switchService 
+    switchService
       .setCharacteristic(Characteristic.On, switchOn)
       .setCharacteristic(Characteristic.Name, device.name+" "+type)
       .setCharacteristic(Characteristic.StatusFault,!state.isOnline)
@@ -51,7 +46,7 @@ basicSwitch.prototype={
 				this.log.debug('toggle switch state %s',switchService.getCharacteristic(Characteristic.Name).value)
 				this.log.debug('toggle %s',switchService.displayName)
 				switch(switchService.displayName){
-					case 'Start/Stop': 
+					case 'Start/Stop':
 						if(switchService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
 							callback('error')
 						}
@@ -62,7 +57,7 @@ basicSwitch.prototype={
 										case 200:
 										case 202:
 											this.log.info('%s charging started',device.name)
-											break	
+											break
 										case 400:
 											switchService.getCharacteristic(Characteristic.On).updateValue(!value)
 											this.log.info('Failed to start charging, %s',response.data.title)
@@ -71,17 +66,17 @@ basicSwitch.prototype={
 										default:
 											switchService.getCharacteristic(Characteristic.On).updateValue(!value)
 											this.log.debug(response.data)
-											break	
+											break
 										}
-								})	
-							} 
+								})
+							}
 							else {
 								this.easeeapi.command(this.platform.token,device.id,'stop_charging').then(response=>{
 									switch(response.status){
 										case 200:
 										case 202:
 											this.log.info('%s charging stopped',device.name)
-											break	
+											break
 										case 400:
 											switchService.getCharacteristic(Characteristic.On).updateValue(!value)
 											this.log.info('Failed to stop charging, %s',response.data.title)
@@ -90,14 +85,14 @@ basicSwitch.prototype={
 										default:
 											switchService.getCharacteristic(Characteristic.On).updateValue(!value)
 											this.log.debug(response.data)
-											break	
+											break
 										}
-								})	
+								})
 							}
 							callback()
-						} 
+						}
 						break
-					case 'Pause/Resume': 
+					case 'Pause/Resume':
 						if(switchService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
 							callback('error')
 						}
@@ -108,7 +103,7 @@ basicSwitch.prototype={
 										case 200:
 										case 202:
 											this.log.info('%s charging resumed',device.name)
-											break	
+											break
 										case 400:
 											switchService.getCharacteristic(Characteristic.On).updateValue(!value)
 											this.log.info('Failed to resume charging %s',response.data.title)
@@ -117,17 +112,17 @@ basicSwitch.prototype={
 										default:
 											switchService.getCharacteristic(Characteristic.On).updateValue(!value)
 											this.log.debug(response.data)
-											break	
+											break
 										}
-								})	
-							} 
+								})
+							}
 							else {
 								this.easeeapi.command(this.platform.token,device.id,'pause_charging').then(response=>{
 									switch(response.status){
 										case 200:
 										case 202:
 											this.log.info('%s charging paused',device.name)
-											break	
+											break
 										case 400:
 											switchService.getCharacteristic(Characteristic.On).updateValue(!value)
 											this.log.info('Failed to pause charging %s',response.data.title)
@@ -136,14 +131,14 @@ basicSwitch.prototype={
 										default:
 											switchService.getCharacteristic(Characteristic.On).updateValue(!value)
 											this.log.debug(response.data)
-											break	
+											break
 										}
-								})	
+								})
 							}
 							callback()
 						}
 						break
-					case 'Toggle': 
+					case 'Toggle':
 						if(switchService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
 							callback('error')
 						}
@@ -153,7 +148,7 @@ basicSwitch.prototype={
 								case 200:
 								case 202:
 									this.log.info('%s charging state toggled',device.name)
-									break	
+									break
 								case 400:
 									switchService.getCharacteristic(Characteristic.On).updateValue(!value)
 									this.log.info('Failed to toggle charging, %s',response.data.title)
@@ -162,13 +157,13 @@ basicSwitch.prototype={
 								default:
 									switchService.getCharacteristic(Characteristic.On).updateValue(!value)
 									this.log.debug(response.data)
-									break	
+									break
 								}
-							})	
+							})
 						callback()
 						}
 						break
-					case 'Reboot': 
+					case 'Reboot':
 						if(switchService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
 							callback('error')
 						}
@@ -178,7 +173,7 @@ basicSwitch.prototype={
 								case 200:
 								case 202:
 									this.log.info('%s reboot',device.name)
-									break	
+									break
 								case 400:
 									switchService.getCharacteristic(Characteristic.On).updateValue(!value)
 									this.log.info('Failed to reboot, %s',response.data.title)
@@ -187,13 +182,13 @@ basicSwitch.prototype={
 								default:
 									switchService.getCharacteristic(Characteristic.On).updateValue(!value)
 									this.log.debug(response.data)
-									break	
+									break
 								}
-							})	
+							})
 						callback()
 						}
 						break
-					case 'Start Now': 
+					case 'Start Now':
 					if(switchService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
 						callback('error')
 					}
@@ -205,7 +200,7 @@ basicSwitch.prototype={
 								case 202:
 									switchService.getCharacteristic(Characteristic.On).updateValue(false)
 									this.log.info('%s Schedule overridden',device.name)
-									break	
+									break
 								case 400:
 									switchService.getCharacteristic(Characteristic.On).updateValue(!value)
 									this.log.info('Failed to override, %s',response.data.title)
@@ -214,10 +209,10 @@ basicSwitch.prototype={
 								default:
 									switchService.getCharacteristic(Characteristic.On).updateValue(!value)
 									this.log.debug(response.data)
-									break	
+									break
 								}
 							})
-						}	
+						}
 					callback()
 					}
 					break
@@ -233,7 +228,7 @@ basicSwitch.prototype={
 			currentValue=switchService.getCharacteristic(Characteristic.On).value
 			callback(null, currentValue)
 		}
-	} 
+	}
 
 }
 

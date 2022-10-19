@@ -1,15 +1,9 @@
 let easeeAPI=require('../easeeapi')
-let easeeTestAPI=require('../easeeapitest')
 
-function battery (platform,log, config){
+function battery (platform,log,config){
 	this.log=log
 	this.platform=platform
-	//this.easeeapi=new easeeAPI(this,log)
-	if (config.test){
-		this.easeeapi=new easeeTestAPI(this,log)}
-	else {
-		this.easeeapi=new easeeAPI(this,log)}
-}
+	this.easeeapi=new easeeAPI(this,log)}
 
 battery.prototype={
 
@@ -23,7 +17,7 @@ battery.prototype={
 			.setCharacteristic(Characteristic.ChargingState, Characteristic.ChargingState.NOT_CHARGING)
     return batteryStatus
   },
-  
+
   configureBatteryService(batteryStatus){
     this.log.debug("configured battery service for %s",batteryStatus.getCharacteristic(Characteristic.Name).value)
     batteryStatus
@@ -41,7 +35,7 @@ battery.prototype={
 			}
 		callback(null,currentValue)
 	}
-	
+
 }
 
 module.exports = battery

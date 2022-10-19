@@ -1,18 +1,17 @@
-/* 
+/*
 Easee information
 Public API info https://developer.easee.cloud/docs
 SignalR examples https://developer.easee.cloud/page/signalr-code-examples
-https://www.notion.so/easee/Developer-documentation-96beaa49e5a64d5fa18d9c801a7dfc28
-https://www.notion.so/Charger-template-c6a20ff7cfea41e2b5f80b00afb34af5
-Enumerations https://www.notion.so/Enumerations-c7fed34ae1ce4d7384d522868f5a0139
+observations https://developer.easee.cloud/docs/observation-ids
+Enumerations https://developer.easee.cloud/docs/enumerations
 */
 
 let axios = require('axios')
 let signalR = require('@microsoft/signalr')
- 
+
 let endpoint = 'https://api.easee.cloud/api'
 //let streamingEndpoint = 'https://api.beta.easee.cloud'
-let streamingEndpoint = 'https://api.easee.cloud' 
+let streamingEndpoint = 'https://api.easee.cloud'
 
 function easeeAPI (platform,log){
 	this.log=log
@@ -22,14 +21,16 @@ function easeeAPI (platform,log){
 easeeAPI.prototype={
 
 	login: async function(userName,password){
-		try {  
+		try {
 			this.log.debug('Retrieving token')
 			let response = await axios({
 				method: 'post',
-				url: `${endpoint}/accounts/login`,
+				baseURL: endpoint,
+				url: `/accounts/login`,
 				headers: {
 					'Accept': 'application/json',
-					'Content-Type': 'application/json'
+					'Content-Type': 'application/json',
+					'User-Agent': `${PluginName}/${PluginVersion}`
 					},
 				data:{
 					'userName':userName,
@@ -43,14 +44,16 @@ easeeAPI.prototype={
 	},
 
 	refreshToken: async function(accessToken,refreshToken){
-		try {  
+		try {
 			this.log.debug('Refreshing token')
 			let response = await axios({
 				method: 'post',
-				url: `${endpoint}/accounts/refresh_token`,
+				baseURL: endpoint,
+				url: `/accounts/refresh_token`,
 				headers: {
 					'Accept': 'application/json',
-					'Content-Type': 'application/json'
+					'Content-Type': 'application/json',
+					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				data:{
 					'accessToken':accessToken,
@@ -62,72 +65,80 @@ easeeAPI.prototype={
 			return  response
 		}catch(err) {this.log.error('Error refreshing token %s', err)}
 	},
-	
+
 	profile: async function(token){
-		try {  
+		try {
 			this.log.debug('Retrieving user profile')
 			let response = await axios({
 				method: 'get',
-				url: `${endpoint}/accounts/profile`,
+				baseURL: endpoint,
+				url: `/accounts/profile`,
 				headers: {
 					'Accept': 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': 'Bearer '+token
+					'Authorization': `Bearer ${token}`,
+					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting user profile %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			if(response){this.log.debug('get user response',JSON.stringify(response.data,null,2))}		
+			if(response){this.log.debug('get user response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving user profile %s', err)}
 	},
 
 	products: async function(token,userId){
 		//is userID needed
-		try {  
+		try {
 				this.log.debug('Retrieving products info')
 				let response = await axios({
 						method: 'get',
-						url: `${endpoint}/accounts/products`,
+						baseURL: endpoint,
+						url: `/accounts/products`,
 						headers: {
               'Accept': 'application/json',
 							'Content-Type': 'application/json',
-							'Authorization': 'Bearer '+token
+							'Authorization': `Bearer ${token}`,
+							'User-Agent': `${PluginName}/${PluginVersion}`
 						},
 						responseType: 'json'
 				}).catch(err=>{this.log.error('Error %s-%s getting products %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-				if(response){	this.log.debug('get products data response',JSON.stringify(response.data,null,2))}	
+				if(response){	this.log.debug('get products data response',JSON.stringify(response.data,null,2))}
 				return response
 			}catch(err) {this.log.error('Error retrieving products %s', err)}
 		},
 
 	site: async function(token,chargerId){
-		try {  
+		try {
 				this.log.debug('Retrieving site info %s',chargerId)
 				let response = await axios({
 						method: 'get',
-						url: `${endpoint}/chargers/${chargerId}/${site}`,
+						baseURL: endpoint,
+						url: `/chargers/${chargerId}/${site}`,
 						headers: {
 							'Accept': 'application/json',
 							'Content-Type': 'application/json',
-							'Authorization': 'Bearer '+token
+							'Authorization': `Bearer ${token}`,
+							'User-Agent': `${PluginName}/${PluginVersion}`
 						},
 						responseType: 'json'
 				}).catch(err=>{this.log.error('Error getting site %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
 				if(response){this.log.debug('get site data response',JSON.stringify(response.data,null,2))}
 				return response
 			}catch(err) {this.log.error('Error site products %s', err)}
-		},	
-	
+		},
+
 	chargers: async function(token){
-		try {  
+		try {
 			this.log.debug('Retrieving chargers')
 			let response = await axios({
 					method: 'get',
-					url: `${endpoint}/chargers`,
+					baseURL: endpoint,
+					url: `/chargers`,
 					headers: {
 						'Accept': 'application/json',
 						'Content-Type': 'application/json',
-						'Authorization': 'Bearer '+token
+						'Authorization': `Bearer ${token}`,
+						'User-Agent': `${PluginName}/${PluginVersion}`
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting chargers %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
@@ -137,15 +148,17 @@ easeeAPI.prototype={
 	},
 
 	charger: async function(token,chargerId){
-		try {  
+		try {
 			this.log.debug('Retrieving charger info %s',chargerId)
 			let response = await axios({
 					method: 'get',
-					url: `${endpoint}/chargers/${chargerId}`,
+					baseURL: endpoint,
+					url: `/chargers/${chargerId}`,
 					headers: {
 						'Accept': 'application/json',
 						'Content-Type': 'application/json',
-						'Authorization': 'Bearer '+token
+						'Authorization': `Bearer ${token}`,
+						'User-Agent': `${PluginName}/${PluginVersion}`
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting charger info %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
@@ -155,15 +168,17 @@ easeeAPI.prototype={
 	},
 
 	chargerDetails: async function(token,chargerId){
-		try {  
+		try {
 			this.log.debug('Retrieving charger details %s',chargerId)
 			let response = await axios({
 					method: 'get',
-					url: `${endpoint}/chargers/${chargerId}/details`,
+					baseURL: endpoint,
+					url: `/chargers/${chargerId}/details`,
 					headers: {
 						'Accept': 'application/json',
 						'Content-Type': 'application/json',
-						'Authorization': 'Bearer '+token
+						'Authorization': `Bearer ${token}`,
+						'User-Agent': `${PluginName}/${PluginVersion}`
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting charger details %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
@@ -173,15 +188,17 @@ easeeAPI.prototype={
 	},
 
 	state: async function(token,chargerId){
-		try {  
+		try {
 			this.log.debug('Retrieving charger state %s',chargerId)
 			let response = await axios({
 					method: 'get',
-					url: `${endpoint}/chargers/${chargerId}/state`,
+					baseURL: endpoint,
+					url: `/chargers/${chargerId}/state`,
 					headers: {
 						'Accept': 'application/json',
 						'Content-Type': 'application/json',
-						'Authorization': 'Bearer '+token
+						'Authorization': `Bearer ${token}`,
+						'User-Agent': `${PluginName}/${PluginVersion}`
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting charger state %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
@@ -191,15 +208,17 @@ easeeAPI.prototype={
 	},
 
 	getConfig: async function(token,chargerId){
-		try {  
+		try {
 			this.log.debug('Retrieving charger config %s',chargerId)
 			let response = await axios({
 					method: 'get',
-					url: `${endpoint}/chargers/${chargerId}/config`,
+					baseURL: endpoint,
+					url: `/chargers/${chargerId}/config`,
 					headers: {
 						'Accept': 'application/json',
 						'Content-Type': 'application/json',
-						'Authorization': 'Bearer '+token
+						'Authorization': `Bearer ${token}`,
+						'User-Agent': `${PluginName}/${PluginVersion}`
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting charger config %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
@@ -213,11 +232,13 @@ easeeAPI.prototype={
 		this.log.debug('Setting charger lock state for %s to %s', chargerId, value)
 		let response = await axios({
 				method: 'post',
-				url: `${endpoint}/chargers/${chargerId}/settings`,
+				baseURL: endpoint,
+				url: `/chargers/${chargerId}/settings`,
 				headers: {
 					'Accept': 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': 'Bearer '+token
+					'Authorization': `Bearer ${token}`,
+					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				data:{
 					'authorizationRequired':value
@@ -237,11 +258,13 @@ easeeAPI.prototype={
 		this.log.debug('Setting LED light for %s to %s',chargerId,value)
 		let response = await axios({
 				method: 'post',
-				url: `${endpoint}/chargers/${chargerId}/settings`,
+				baseURL: endpoint,
+				url: `/chargers/${chargerId}/settings`,
 				headers: {
 					'Accept': 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': 'Bearer '+token
+					'Authorization': `Bearer ${token}`,
+					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				data:{
 					'ledStripBrightness':value
@@ -256,15 +279,17 @@ easeeAPI.prototype={
 		return response
 	},
 
-	command: async function(token,chargerId,command){ 
+	command: async function(token,chargerId,command){
 		this.log.debug('%s for %s',command, chargerId)
 		let response = await axios({
 				method: 'post',
-				url: `${endpoint}/chargers/${chargerId}/commands/${command}`,
+				baseURL: endpoint,
+				url: `/chargers/${chargerId}/commands/${command}`,
 				headers: {
 					'Accept': 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': 'Bearer '+token
+					'Authorization': `Bearer ${token}`,
+					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				responseType: 'json'
 		}).catch(err=>{
@@ -276,34 +301,37 @@ easeeAPI.prototype={
 		return response
 	},
 
-	getObservations: async function(token){
-		try {  
+	getObservations: async function(){
+		try {
 			this.log.debug('Retrieving observations')
 			let response = await axios({
 					method: 'get',
-					url: `${endpoint}/resources/observation_properties`,
+					baseURL: endpoint,
+					url: `/resources/observation_properties`,
 					headers: {
 						'Accept': 'application/json',
 						'Content-Type': 'application/json',
-						'Authorization': 'Bearer '+token
+						'User-Agent': `${PluginName}/${PluginVersion}`
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s observations %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			//if(response){	this.log.debug('get observations response',JSON.stringify(response.data,null,2))}
+			//if(response){this.log.debug('get observations response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving observations %s', err)}
 	},
 
 	overrideSchedule: async function(token,chargerId){
-		try {  
+		try {
 			this.log.debug('Override schedule')
 			let response = await axios({
 					method: 'post',
-					url: `${endpoint}/chargers/${chargerId}/commands/override_schedule`,
+					baseURL: endpoint,
+					url: `/chargers/${chargerId}/commands/override_schedule`,
 					headers: {
 						'Accept': 'application/json',
 						'Content-Type': 'application/json',
-						'Authorization': 'Bearer '+token
+						'Authorization': `Bearer ${token}`,
+						'User-Agent': `${PluginName}/${PluginVersion}`
 					},
 					responseType: 'json'
 				}).catch(err=>{
@@ -317,15 +345,17 @@ easeeAPI.prototype={
 	},
 
 	setDelay: async function(token,chargerId){
-		try {  
+		try {
 			this.log.debug('Delay start')
 			let response = await axios({
 					method: 'post',
-					url: `${endpoint}/chargers/${chargerId}/commands/override_schedule`,
+					baseURL: endpoint,
+					url: `/chargers/${chargerId}/commands/override_schedule`,
 					headers: {
 						'Accept': 'application/json',
 						'Content-Type': 'application/json',
-						'Authorization': 'Bearer '+token
+						'Authorization': `Bearer ${token}`,
+						'User-Agent': `${PluginName}/${PluginVersion}`
 					},
 					data:{
 						"chargingCurrentLimit": 32,
@@ -346,21 +376,21 @@ easeeAPI.prototype={
 		}catch(err) {this.log.error('Error setting delay %s', err)}
 	},
 
-	signalR: async function(token,chargerId){ 
+	signalR: async function(token,chargerId){
 		/*	signlR logging
-			Trace = 0	
+			Trace = 0
 			Log level for very low severity diagnostic messages.
-			Debug = 1	
+			Debug = 1
 			Log level for low severity diagnostic messages.
-			Information = 2	
+			Information = 2
 			Log level for informational diagnostic messages.
-			Warning = 3	
+			Warning = 3
 			Log level for diagnostic messages that indicate a non-fatal problem.
-			Error = 4	
+			Error = 4
 			Log level for diagnostic messages that indicate a failure in the current operation.
-			Critical = 5	
+			Critical = 5
 			Log level for diagnostic messages that indicate a failure that will terminate the entire application.
-			None = 6	
+			None = 6
 			The highest possible log level. Used when configuring logging to indicate that no log messages should be emitted.
 		*/
 		let connection = new signalR.HubConnectionBuilder()
@@ -368,8 +398,8 @@ easeeAPI.prototype={
 			.withUrl(`${streamingEndpoint}/hubs/products`, {
 				accessTokenFactory:()=>token
 			})
-			.withAutomaticReconnect()
 			.configureLogging(signalR.LogLevel.None)
+			.withAutomaticReconnect()
 			.build()
 
 		connection.start()
@@ -377,7 +407,7 @@ easeeAPI.prototype={
 				connection.invoke('SubscribeWithCurrentState', chargerId, true)
 				this.log.info('Starting connection')
 			}).catch((err) => {this.log.error('Error while starting connection: ', err)})
-		
+
 		connection.onclose(()=>{
 			this.log.warn("Connection close...")
 		})
@@ -401,7 +431,7 @@ easeeAPI.prototype={
 			}
 			//** duplicate responses to product but fewer
 			//this.platform.updateService(chargerUpdate)
-		})		
+		})
 		connection.on('CommandResponse', (update)=>{
 			if(this.platform.showExtraDebugMessages){
 				this.log.debug('Command:',JSON.stringify(update, null, null))
@@ -411,4 +441,4 @@ easeeAPI.prototype={
 	}
 }
 
-module.exports = easeeAPI                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+module.exports = easeeAPI

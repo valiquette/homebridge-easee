@@ -1,15 +1,10 @@
 let packageJson=require('../package.json')
 let easeeAPI=require('../easeeapi')
-let easeeTestAPI=require('../easeeapitest')
 
 function lockMechanism (platform,log,config){
 	this.log=log
 	this.platform=platform
-	//this.easeeapi=new easeeAPI(this,log)
-	if (config.test){
-		this.easeeapi=new easeeTestAPI(this,log)}
-	else {
-		this.easeeapi=new easeeAPI(this,log)}
+	this.easeeapi=new easeeAPI(this,log)
 }
 
 lockMechanism.prototype={
@@ -35,7 +30,7 @@ lockMechanism.prototype={
 		let inUse
 		if(state.chargerOpMode==1){inUse=false}else{inUse=true}
 		let lockService=new Service.LockMechanism(device.name, device.id)
-		lockService	
+		lockService
 			.setCharacteristic(Characteristic.SerialNumber, details.serialNumber)
 			.setCharacteristic(Characteristic.StatusFault, !state.isOnline)
 			.setCharacteristic(Characteristic.OutletInUse, inUse)
@@ -71,7 +66,7 @@ lockMechanism.prototype={
 			if (value == true) {
 				this.log.info('%s locked',lockService.getCharacteristic(Characteristic.Name).value)
 				lockService.getCharacteristic(Characteristic.LockCurrentState).updatevalue(Characteristic.LockCurrentState.SECURED)
-			} 
+			}
 			else{
 				this.log.info('%s unlocked',lockService.getCharacteristic(Characteristic.Name).value)
 				lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNSECURED)
@@ -98,7 +93,7 @@ lockMechanism.prototype={
 					switch(response.status){
 						case 200:
 						case 202:
-							break	
+							break
 						case 400:
 							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(!value)
 							this.log.info('Failed to start charging %s',response.data.title)
@@ -107,10 +102,10 @@ lockMechanism.prototype={
 						default:
 							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(!value)
 							this.log.debug(response.data)
-							break	
+							break
 						}
 				})
-			} 
+			}
 			else{
 				this.log.info('Unlocking %s',lockService.getCharacteristic(Characteristic.Name).value)
 				lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.UNSECURED)
@@ -119,7 +114,7 @@ lockMechanism.prototype={
 					switch(response.status){
 						case 200:
 						case 202:
-							break	
+							break
 						case 400:
 							switchService.getCharacteristic(Characteristic.On).updateValue(!value)
 							this.log.info('Failed to start charging %s',response.data.title)
@@ -128,7 +123,7 @@ lockMechanism.prototype={
 						default:
 							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
 							this.log.debug(response.data)
-							break	
+							break
 						}
 				})
 			}

@@ -7,3 +7,7 @@ Thumbs.db
 # Dependency directories
 node_modules/
 jspm_packages/
+
+# ignore file
+testeaseeapi.js
+package-lock.json

@@ -9,5 +9,5 @@ node_modules/
 jspm_packages/
 
 # ignore file
-testeaseeapi.js
 package-lock.json
+testeaseeapi.js

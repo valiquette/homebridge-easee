@@ -4,7 +4,7 @@
 
 ## 1.1.9
 Fix
-- Bummped dependancies
+- Bumped dependancies
 -	Added explict user-agent info to API calls.
 -	Code cleanup
 
@@ -31,7 +31,7 @@ Update
 - Added optional switch to override chargign schedules
 - Added device name to optional switches
 - Will show extimated charge until disconnected
-- Bummped dependancies
+- Bumped dependancies
 - Code cleanup
 
 ## 1.1.3
@@ -49,8 +49,8 @@ Update
 ## 1.1.1
 Update
 - Fixed logging messages for op mode changes
--	programmed LED light on/off
-- fixed sync for charging state
+-	Programmed LED light on/off
+- Fixed sync for charging state
 
 ## 1.1.0
 Update

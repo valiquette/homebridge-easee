@@ -87,9 +87,17 @@
 					{
 						"title": "Pause/Resume Charging",
 						"enum": [3]
+					},
+					{
+						"title": "Full Control in the form of a Fahrenheit Thermostat",
+						"enum": [4]
+					},
+					{
+						"title": "Full Control in the form of a Celsius Thermostat",
+						"enum": [5]
 					}
 				]
-			}, 	
+			},
 			"showLight": {
 				"title": "Expose Switch for adjusting LED Brightness",
 				"type": "boolean",
@@ -107,6 +115,52 @@
 				"type": "boolean",
 				"required": true,
 				"default": false
+			},
+			"socSensor": {
+				"title": "State of Charge Sensor",
+				"type": "boolean",
+				"required": false,
+				"default": false,
+				"description": "Do you want to create a Humidity Sensor for automations based on battery level?"
+			},
+			"showEqualizer": {
+				"title": "Show Equalizer",
+				"type": "boolean",
+				"required": false,
+				"default": false,
+				"description": "Do you want to expose a Easee Equalizer if one is installed?"
+			},
+			"experimental": {
+				"title": "Experimental Mode",
+				"type": "boolean",
+				"required": false,
+				"default": false,
+				"description": "Use max continuous current mode for Equalizer ? (experimental)"
+			},
+			"dynamicTTL": {
+				"title": "Dynamic change TTL",
+				"type": "integer",
+				"minimum": 30,
+				"maximum": 480,
+				"required": true,
+				"default": 240,
+				"description": "How many minutes would you like a dynamic charging session to last before reverting?"
+			},
+			"eqMin": {
+				"title": "Equalizer Min percent",
+				"type": "integer",
+				"minimum": 15,
+				"maximum": 100,
+				"required": false,
+				"default": 15
+			},
+			"eqMax": {
+				"title": "Equalizer Max percent",
+				"type": "integer",
+				"minimum": 15,
+				"maximum": 100,
+				"required": false,
+				"default": 100
 			}
 		}
 	},
@@ -157,7 +211,7 @@
 				"cars[].carName",
 				"cars[].chargerName",
 				"cars[].kwH"
-					]			
+					]
 		},
 		{
 			"type": "flex",
@@ -167,12 +221,21 @@
 			]
 		},
 		{
-			"type": "flex",
+			"type": "fieldset",
+			"title": "Options",
+			"description": "Expand to select addition options",
+			"expandable": true,
 			"flex-flow": "row wrap",
 			"items": [
 				"showLight",
 				"showReboot",
-				"showOverride"
+				"showOverride",
+				"socSensor",
+				"dynamicTTL",
+				"showEqualizer",
+				"experimental",
+				"eqMin",
+				"eqMax"
 			]
 		}
 	]

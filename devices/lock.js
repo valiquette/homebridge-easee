@@ -1,7 +1,7 @@
 let packageJson=require('../package.json')
 let easeeAPI=require('../easeeapi')
 
-function lockMechanism (platform,log,config){
+function lockMechanism (platform,log){
 	this.log=log
 	this.platform=platform
 	this.easeeapi=new easeeAPI(this,log)
@@ -38,7 +38,7 @@ lockMechanism.prototype={
     return lockService
   },
 
-  configureLockService(lockService,config){
+  configureLockService(lockService, config){
     this.log.info("Configured Lock for %s",lockService.getCharacteristic(Characteristic.Name).value)
     lockService
 			.setCharacteristic(Characteristic.LockCurrentState, config.authorizationRequired)

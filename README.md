@@ -45,6 +45,10 @@ This plugin is only been tested with Easee Home Charger.
 	"showLight": true,
 	"showReboot": false,
 	"showOverride": true,
+	"socSensor": true,
+	"showEqualizer": true,
+	"eqMin": 0,
+	"eqMax": 90,
 	"_bridge": {
 	  "username": "0E:46:88:49:71:DD",
 	  "port": 39306

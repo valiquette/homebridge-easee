@@ -1,5 +1,5 @@
-{ 
-	"items":[ 
+{
+	"items":[
 		{"observationId": 15,
 			"name": "LocalPreAuthorizeEnabled",
 			"dataType": 2

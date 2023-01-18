@@ -2,6 +2,15 @@
 
 ## If updating from version 1.0.x it will be nessasary to re save the configuration, see readme for syntax or use plugin config.
 
+## 1.2.0
+Enhancment
+- Bumped dependancies
+-	Added sensor to display added charge, usefull for homekit automation.
+- Added support for Easee Equalizer.
+- Added support to change dynamic current.
+- Updated list of error codes.
+-	Code cleanup
+
 ## 1.1.9
 Fix
 - Bumped dependancies

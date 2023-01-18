@@ -5,17 +5,23 @@ let lockMechanism=require('./devices/lock')
 let battery=require('./devices/battery')
 let basicSwitch=require('./devices/switch')
 let light=require('./devices/light')
+let equalizer=require('./devices/equalizer')
+let sensor=require('./devices/sensor')
+let control=require('./devices/control')
 let enumeration=require('./enumerations')
 let observations=require('./observations')
 
 class easeePlatform {
 
   constructor(log, config, api){
-    this.easeeapi=new easeeAPI(this,log)
-		this.lockMechanism=new lockMechanism(this, log, config)
-		this.battery=new battery(this, log, config)
-		this.basicSwitch=new basicSwitch(this, log, config)
-		this.light=new light(this, log, config)
+    this.easeeapi=new easeeAPI(this, log)
+		this.lockMechanism=new lockMechanism(this, log)
+		this.battery=new battery(this, log)
+		this.basicSwitch=new basicSwitch(this, log)
+		this.light=new light(this, log)
+		this.equalizer=new equalizer(this, log, config)
+		this.sensor=new sensor(this, log)
+		this.control=new control(this, log, config)
 		this.enumeration=enumeration
 		this.observations=observations
 
@@ -32,16 +38,27 @@ class easeePlatform {
 		this.showReboot=config.showReboot
 		this.showOverride=config.showOverride
 		this.showExtraDebugMessages=config.showExtraDebugMessages||false
+		this.showSensor=config.socSensor ? config.socSensor : false
+		this.showEqualizer=config.showEqualizer ? config.showEqualizer : false
+		this.experimental=config.experimental ? config.experimental : false
+		this.useFahrenheit=config.useFahrenheit ? config.useFahrenheit : true
+		this.eq
+		this.testAPI=config.testAPI || false
+		this.siteStructure={}
     this.userId
 		this.cars=config.cars
 		this.voltage=240
-		this.amperage=40
+		this.amperage=32
 		this.locationAddress=config.locationAddress
 		this.locationMatch
 		this.observations={}
 		this.accessories=[]
 		this.amps=[]
 		this.endTime=[]
+		if(this.showControls==5){
+			this.showControls=4
+			this.useFahrenheit=false
+		}
 		if(config.cars){this.showBattery=true}
     if(!config.username || !config.password){
       this.log.error('Valid username and password are required in order to communicate with easee, please check the plugin config')
@@ -66,23 +83,22 @@ class easeePlatform {
 				this.log.debug('Fetching Build info...')
 				this.log.info('Getting Account info...')
 				//get new observation list
-				let observationList=await this.easeeapi.getObservations().catch(err=>{this.log.error('Failed to get observation list for build', err)})
-				this.observations.items=observationList.data
+				this.observations.items=(await this.easeeapi.getObservations().catch(err=>{this.log.error('Failed to get observation list for build', err)})).data
 				this.log.debug('Retrieved %s observations',observations.items.length)
 				// login to the API and get the token
-				let login=await this.easeeapi.login(this.username,this.password).catch(err=>{this.log.error('Failed to get login for build', err)})
-				this.log.debug('Found Token %s',login.data.accessToken)
-				this.log.debug('Found Token %s',login.data.refreshToken)
-				this.token=login.data.accessToken
-				this.refreshToken=login.data.refreshToken
-				this.setTokenRefresh(login.data.expiresIn)
+				let login=(await this.easeeapi.login(this.username,this.password).catch(err=>{this.log.error('Failed to get login for build', err)})).data
+				this.log.debug('Found Token %s',login.accessToken)
+				this.log.debug('Found Token %s',login.refreshToken)
+				this.token=login.accessToken
+				this.refreshToken=login.refreshToken
+				this.setTokenRefresh(login.expiresIn)
 				//get profile
-				let profile=await	this.easeeapi.profile(this.token).catch(err=>{this.log.error('Failed to get profile for build', err)})
-				this.log.info('Found account for %s %s', profile.data.firstName, profile.data.lastName)
-				this.userId=profile.data.userId
+				let profile=(await	this.easeeapi.profile(this.token).catch(err=>{this.log.error('Failed to get profile for build', err)})).data
+				this.log.info('Found account for %s %s', profile.firstName, profile.lastName)
+				this.userId=profile.userId
 				//get product
-				let products=await this.easeeapi.products(this.token,this.userId).catch(err=>{this.log.error('Failed to get products for build', err)})
-				products.data.filter((location)=>{
+				let products=(await this.easeeapi.products(this.token,this.userId).catch(err=>{this.log.error('Failed to get products for build', err)})).data
+				products.filter((location)=>{
 					this.log.info('Found products at %s %s', location.address.street, location.name)
 				//	this.log.warn(this.locationAddress, location.address.street )
 					if(!this.locationAddress || this.locationAddress==location.address.street){
@@ -94,18 +110,17 @@ class easeePlatform {
 						this.locationMatch=false
 					}
 					return this.locationMatch
-				}).forEach((location)=>{
+				}).forEach(async(location)=>{
 					//adding devices that met filter criteria
 					location.circuits.forEach((circuit)=>{
 						//loop each charger
 						circuit.chargers.forEach(async(charger)=>{
 							this.log.info('Found charger %s with ID-%s ', charger.name, charger.id)
-							let configInfo=await this.easeeapi.getConfig(this.token,charger.id).catch(err=>{this.log.error('Failed to get comfig info for build', err)})
-							let chargerConfig=configInfo.data
-							let tokenInfo=await this.easeeapi.state(this.token,charger.id).catch(err=>{this.log.error('Failed to get token info for build', err)})
-							let chargerState=tokenInfo.data
-							let detail=await this.easeeapi.chargerDetails(this.token,charger.id).catch(err=>{this.log.error('Failed to get detail info for build', err)})
-							let chargerDetails=detail.data
+							this.log.info('Circuit ID %s Site ID-%s ', circuit.id, circuit.siteId)
+							let chargerConfig=(await this.easeeapi.chargerConfig(this.token,charger.id).catch(err=>{this.log.error('Failed to get charger config info for build', err)})).data
+							let chargerState=(await this.easeeapi.chargerState(this.token,charger.id).catch(err=>{this.log.error('Failed to get charger state for build', err)})).data
+							let chargerDetails=(await this.easeeapi.chargerDetails(this.token,charger.id).catch(err=>{this.log.error('Failed to get charger detail info for build', err)})).data
+							this.log.info('Phase mode = %s', this.enumeration.data.PhaseMode[chargerConfig.phaseMode])
 							let uuid=UUIDGen.generate(charger.id)
 							if(this.accessories[uuid]){
 								this.api.unregisterPlatformAccessories(PluginName, PlatformName, [this.accessories[uuid]])
@@ -122,8 +137,16 @@ class easeePlatform {
 							let batteryService
 							let lightService
 							let switchService
+							let controlService
 							let rebootService
 							let overrideService
+
+							if(this.showSensor){
+								let sensorService=this.sensor.createSensorService(charger,'SOC')
+								this.sensor.configureSensorService(charger,sensorService)
+								lockAccessory.getService(Service.LockMechanism).addLinkedService(sensorService)
+								lockAccessory.addService(sensorService)
+							}
 							if(this.showBattery){
 								batteryService=this.battery.createBatteryService(charger,chargerConfig)
 								this.battery.configureBatteryService(batteryService)
@@ -154,6 +177,12 @@ class easeePlatform {
 								lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
 								lockAccessory.addService(switchService)
 							}
+							if(this.showControls==4){
+								controlService=this.control.createControlService(charger, chargerState, 'Charging Amps')
+								this.control.configureControlService(charger, controlService, circuit.id, circuit.siteId)
+								lockAccessory.getService(Service.LockMechanism).addLinkedService(controlService)
+								lockAccessory.addService(controlService)
+							}
 							if(this.showReboot){
 								rebootService=this.basicSwitch.createOtherSwitchService(charger, chargerState,'Reboot')
 								this.basicSwitch.configureSwitchService(charger, rebootService)
@@ -174,6 +203,39 @@ class easeePlatform {
 							//this.resetSignalR(864000,charger)
 						})
 					})
+					if(this.showEqualizer){
+						this.eq=location.equalizers[0].id
+						let equalizerConfig=(await this.easeeapi.equalizerConfig(this.token,location.equalizers[0].id).catch(err=>{this.log.error('Failed to get equalizer config info for build', err)})).data
+						let equalizerState=(await this.easeeapi.equalizerState(this.token,location.equalizers[0].id).catch(err=>{this.log.error('Failed to get equalizer state for build', err)})).data
+						let equalizerDetails=(await this.easeeapi.equalizerDetails(this.token,location.equalizers[0].id).catch(err=>{this.log.error('Failed to get equalizer detail info for build', err)})).data
+						let uuid2=UUIDGen.generate(location.equalizers[0].id)
+						this.siteStructure=equalizerConfig.siteStructure
+						if(this.accessories[uuid2]){
+							this.api.unregisterPlatformAccessories(PluginName, PlatformName, [this.accessories[uuid2]])
+							delete this.accessories[uuid2]
+						}
+						this.log.info('Adding Equalizer %s for site ID %s', location.equalizers[0].name, location.equalizers[0].siteId)
+						this.log.debug('Registering platform accessory')
+						let windowAccessory=this.equalizer.createWindowAccessory(location.equalizers[0], equalizerConfig, equalizerState, uuid2)
+						let windowService=this.equalizer.createWindowService(location.equalizers[0], equalizerDetails, equalizerConfig, equalizerState)
+						this.equalizer.configureWindowService(windowService, equalizerConfig)
+						windowAccessory.addService(windowService)
+
+						this.accessories[uuid2]=windowAccessory
+						this.log.info('Adding Equalizer %s', location.equalizers[0].name)
+						this.log.debug('Registering platform accessory')
+						this.api.registerPlatformAccessories(PluginName, PlatformName, [windowAccessory])
+					}
+					else{
+						if(location.equalizers[0].id){
+							let uuid2=UUIDGen.generate(location.equalizers[0].id)
+							if(this.accessories[uuid2]){
+								this.log.info('Removed accessory %s', location.equalizers[0].name)
+								this.api.unregisterPlatformAccessories(PluginName, PlatformName, [this.accessories[uuid2]])
+								delete this.accessories[uuid2]
+							}
+						}
+					}
 				})
 				setTimeout(()=>{this.log.info('Easee Platform finished loading')}, 500)
 			}catch(err){
@@ -189,20 +251,20 @@ class easeePlatform {
 		//**
 		configureAccessory(accessory){
 			// Added cached devices to the accessories array
-			this.log.debug('Found cached accessory %s', accessory.displayName);
-			this.accessories[accessory.UUID]=accessory;
+			this.log.debug('Found cached accessory %s', accessory.displayName)
+			this.accessories[accessory.UUID]=accessory
 		}
 
 		setTokenRefresh(ttl){
 			setInterval(async()=>{
 				try{
-					let tokenInfo=await this.easeeapi.refreshToken(this.token,this.refreshToken).catch(err=>{this.log.error('Failed signin to refresh token', err)})
+					let tokenInfo=(await this.easeeapi.refreshToken(this.token,this.refreshToken).catch(err=>{this.log.error('Failed signin to refresh token', err)})).data
 					this.log.debug('refreshed token %s',tokenInfo.data.accessToken)
-					this.token=tokenInfo.data.accessToken
-					this.refreshToken=tokenInfo.data.refreshToken
+					this.token=tokenInfo.accessToken
+					this.refreshToken=tokenInfo.refreshToken
 					this.log.info('Token has been refreshed')
 				}catch(err){this.log.error('Failed to refresh token', err)}
-			},(3600*1000))//(ttl-3600)*1000) //refresh 1 hour before
+			},(ttl*1000/2))//3600*1000))//(ttl-3600)*1000) //refresh 1 hour before
 		}
 
 		resetSignalR(ttl,charger){
@@ -211,10 +273,10 @@ class easeePlatform {
 					this.log.info('SignalR has been reset')
 					this.easeeapi.signalR(this.token,charger.id)
 				}catch(err){this.log.error('Failed to reset SignalR', err)}
-			},(4000*1000))//(ttl-3600)*1000) //refresh 1 hour before expire
+			},((ttl*1000/2)+(600*1000)))//4000*1000))//(ttl-3600)*1000) //refresh 1 hour before expire
 		}
 
-		calcBattery(batteryService){
+		calcBattery(batteryService, sensorService){
 			if(this.cars){
 				let car=this.cars.filter(charger=>(charger.chargerName.includes(batteryService.getCharacteristic(Characteristic.Name).value)))
 				this.batterySize=car[0].kwH
@@ -222,7 +284,7 @@ class easeePlatform {
 			else{
 				this.batterySize=80
 			}
-			this.amperage=this.amps[batteryService.subtype]
+			if(this.amps[batteryService.subtype]){this.amperage=this.amps[batteryService.subtype]}
 			let kwh=this.voltage*this.amperage/1000
 			let fullCharge=(this.batterySize)/(kwh)
 			let x=new Date(0,0)
@@ -237,23 +299,43 @@ class easeePlatform {
 						let percentAdded=(chargeAdded/this.batterySize*100).toFixed(2)
 						//this.log.warn('Charge added %s kwh, %s%',chargeAdded,percentAdded)
 						batteryService.getCharacteristic(Characteristic.BatteryLevel).updateValue(percentAdded)
+						if(this.showSensor){
+							sensorService.getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(percentAdded)
+						}
 						if(percentAdded>100){
 							clearInterval(endTime)
 						}
 					}catch(err){this.log.error('Failed', err)}
 			},1*60*1000)
 			this.endTime[batteryService.subtype]=endTime
+			this.endTime[sensorService.subtype]=endTime
 		}
 
-		updateService(message){
+		async updateEq(windowService,eqId){
+				try{
+					let equalizerConfig=(await this.easeeapi.equalizerConfig(this.token,eqId).catch(err=>{this.log.error('Failed to get comfig info for build', err)})).data
+					let percent=Math.round(equalizerConfig.siteStructure.maxAllocatedCurrent/equalizerConfig.siteStructure.ratedCurrent*100)
+					if(this.platform.experimental){
+						percent=Math.round(equalizerConfig.siteStructure.maxContinuousCurrent/equalizerConfig.siteStructure.ratedCurrent*100)
+					}
+					this.log.debug('updating equalizer %s with new value %s%',eqId, percent)
+					windowService.getCharacteristic(Characteristic.TargetPosition).updateValue(percent)
+					windowService.getCharacteristic(Characteristic.CurrentPosition).updateValue(percent)
+				}catch(err){this.log.error('Failed to update equalizer', err)}
+		}
+
+	  updateService(message){
 			let messageText=this.observations.items.filter(result=>result.observationId == message.id)[0].name
 			this.log.debug('%s %s(%s)=%s', message.mid, messageText, message.id, message.value)
-
 			let uuid=UUIDGen.generate(message.mid)
+			let uuid2=UUIDGen.generate(this.eq)
 			let lockAccessory=this.accessories[uuid]
+			let windowAccessory=this.accessories[uuid2]
 			let activeService
 			let lockService
+			let windowService
 			let batteryService
+			let sensorService
 			let value
 			let valueText
 
@@ -273,7 +355,7 @@ class easeePlatform {
 					break
 				case 40://config_ledStripBrightness
 					if(this.showLight){
-						this.log.info('%s %s changed to %s', message.mid, messageText, value)
+						this.log.info('%s %s updated to %s', message.mid, messageText, value)
 						activeService=lockAccessory.getServiceById(Service.Lightbulb, message.mid)
 						if(value>0){
 							activeService.getCharacteristic(Characteristic.Brightness).updateValue(value)
@@ -286,7 +368,7 @@ class easeePlatform {
 					}
 					break
 				case 42://config_authorizationRequired
-					this.log.info('%s %s changed to %s', message.mid, messageText, value)
+					this.log.info('%s %s updated to %s', message.mid, messageText, value)
 					activeService=lockAccessory.getServiceById(Service.LockMechanism, message.mid)
 					activeService.getCharacteristic(Characteristic.LockTargetState).updateValue(value)
 					activeService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
@@ -308,15 +390,43 @@ class easeePlatform {
 					break
 				case 47://config_maxChargerCurrent
 					if(this.showBattery){
-						this.log.info('%s to %s', message.mid, messageText, value)
+						this.log.info('%s %s updated to %s', message.mid, messageText, value)
 						batteryService=lockAccessory.getServiceById(Service.Battery, message.mid)
 						this.amps[batteryService.subtype]=value
 					}
+					if(this.showSensor){
+						this.log.info('%s %s updated to %s', message.mid, messageText, value)
+						sensorService=lockAccessory.getServiceById(Service.HumiditySensor, message.mid)
+						this.amps[sensorService.subtype]=value
+					}
+					/* //moved to case 48
+					if(this.showControls==(4||5)){
+						this.log.info('%s %s updated to %s', message.mid, messageText, value)
+						controlService=lockAccessory.getServiceById(Service.Thermostat, message.mid)
+						controlService.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)
+						controlService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(value)
+					}
+					*/
 					break
 				case 48://state_dynamicChargerCurrent
-					this.log.info('%s changed to %s', message.mid, messageText, value)
+					this.log.info('%s %s updated to %s', message.mid, messageText, value)
 					if(value>0){
-						//this.amps[batteryService.subtype]=value
+						if(this.showBattery){
+							this.log.info('%s %s updated to %s', message.mid, messageText, value)
+							batteryService=lockAccessory.getServiceById(Service.Battery, message.mid)
+							this.amps[batteryService.subtype]=value
+						}
+						if(this.showSensor){
+							this.log.info('%s %s updated to %s', message.mid, messageText, value)
+							sensorService=lockAccessory.getServiceById(Service.HumiditySensor, message.mid)
+							this.amps[sensorService.subtype]=value
+						}
+						if(this.showControls==(4||5)){
+							this.log.info('%s %s updated to %s', message.mid, messageText, value)
+							controlService=lockAccessory.getServiceById(Service.Thermostat, message.mid)
+							controlService.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)
+							controlService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(value)
+						}
 					}
 					else{
 						if(this.showReboot){
@@ -324,6 +434,9 @@ class easeePlatform {
 							activeService.getCharacteristic(Characteristic.On).updateValue(false)
 						}
 					}
+					break
+				case 65://Paired equalizer details
+					this.log.warn('%S Equalizer %s', message.mid, value)
 					break
 				case 76://NumberOfCarsConnected
 					this.log.info('%S cars connected %s', message.mid, value)
@@ -339,7 +452,7 @@ class easeePlatform {
 					break
 				case 96://state_reasonForNoCurrent
 					valueText=this.enumeration.data.ReasonForNoCurrent[message.value]
-					this.log.info('%s %s to %s', message.mid, messageText, valueText)
+					this.log.info('%s %s due to %s', message.mid, messageText, valueText)
 						break
 				case 103://state_cableLocked
 					this.log.info('%s cable lock state to %s', message.mid, value)
@@ -349,8 +462,11 @@ class easeePlatform {
 					valueText=this.enumeration.data.OpModeType[message.value]
 					this.log.info('%s updated to %s', message.mid, messageText, valueText)
 					lockService=lockAccessory.getServiceById(Service.LockMechanism, message.mid)
-					if(this.showControls){activeService=lockAccessory.getServiceById(Service.Switch, message.mid)}
+					if(this.showControls==(1||2||3)){activeService=lockAccessory.getServiceById(Service.Switch, message.mid)}
 					if(this.showBattery){batteryService=lockAccessory.getServiceById(Service.Battery, message.mid)}
+					if(this.showSensor){sensorService=lockAccessory.getServiceById(Service.HumiditySensor, message.mid)}
+					if(this.showControls==(4||5)){controlService=lockAccessory.getServiceById(Service.Thermostat, message.mid)}
+
 					switch(value){
 						case 0://offline
 							this.log.info('%s offline',lockService.getCharacteristic(Characteristic.Name).value)
@@ -366,6 +482,7 @@ class easeePlatform {
 							this.log.info('%s disconnected',lockService.getCharacteristic(Characteristic.Name).value)
 							lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(false)
 							if(this.showBattery){batteryService.getCharacteristic(Characteristic.BatteryLevel).updateValue(0)}
+							if(this.showSensor){HumiditySensor.getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(0)}
 							break
 						case 2://awating start
 							this.log.info('%s paused, waiting to start',lockService.getCharacteristic(Characteristic.Name).value)
@@ -374,11 +491,12 @@ class easeePlatform {
 							break
 						case 3://charging
 							this.log.info('%s charging',lockService.getCharacteristic(Characteristic.Name).value)
-							if(this.showBattery){this.calcBattery(batteryService)}
+							if(this.showBattery){this.calcBattery(batteryService,sensorService)}
 							break
 						case 4://complete
 							this.log.info('%s complete, %s% charge added',lockService.getCharacteristic(Characteristic.Name).value,batteryService.getCharacteristic(Characteristic.BatteryLevel).value)
 								if(this.showBattery){clearInterval(this.endTime[batteryService.subtype])}
+								if(this.showBattery){clearInterval(this.endTime[sensorService.subtype])}
 							break
 						case 5://error
 							this.log.info('%s error',lockService.getCharacteristic(Characteristic.Name).value)
@@ -393,19 +511,50 @@ class easeePlatform {
 					}
 					break
 				case 114://state_outputCurrent
-					this.log.info('%s %s changed to %s', message.mid, messageText, value)
+					this.log.info('%s %s updated to %s', message.mid, messageText, value)
 					if(this.showBattery){batteryService=lockAccessory.getServiceById(Service.Battery, message.mid)}
-					if(this.showControls){activeService=lockAccessory.getServiceById(Service.Switch, message.mid)}
+					if(this.showControls==(1||2||3)){activeService=lockAccessory.getServiceById(Service.Switch, message.mid)}
+					if(this.showControls==(4||5)){activeService=lockAccessory.getServiceById(Service.Thermostat, message.mid)}
 					if(value>0){
 						if(this.showBattery){batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(true)}
-						if(this.showControls){activeService.getCharacteristic(Characteristic.On).updateValue(true)}
+						if(this.showControls==(1||2||3)){activeService.getCharacteristic(Characteristic.On).updateValue(true)}
+						if(this.showControls==(4||5)){
+							if(this.platform.useFahrenheit){
+								this.log.warn(value)
+								value=Math.round((value-32)*5/9)
+								this.log.warn(value)
+								}
+							activeService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(true)
+							activeService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(true)
+							activeService.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)
+							activeService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(value)
+							}
+						if(this.showEqualizer){
+							this.log.info('%s %s updated to %s for equalizer %s', message.mid, messageText, value, this.eq)
+							windowService=windowAccessory.getServiceById(Service.WindowCovering, this.eq)
+							this.updateEq(windowService,this.eq)
+						}
 					}
 					else{
 						if(this.showBattery){batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(false)}
-						if(this.showControls){activeService.getCharacteristic(Characteristic.On).updateValue(false)}
+						if(this.showControls==(1||2||3)){activeService.getCharacteristic(Characteristic.On).updateValue(false)}
+						if(this.showControls==(4||5)){
+							activeService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(false)
+							activeService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(false)
+							}
 					}
 					this.log.debug('%s output current updated',activeService.getCharacteristic(Characteristic.Name).value)
 					break
+				case 230://EqAvailableCurrentP1
+				case 231://EqAvailableCurrentP2
+				case 232://EqAvailableCurrentP3
+					if(this.showEqualizer){
+						this.log.info('%s %s updated to %s for equalizer %s', message.mid, messageText, value, this.eq)
+						//windowService=windowAccessory.getServiceById(Service.WindowCovering, this.eq)
+						//this.updateEq(windowService,this.eq)
+					}
+
+				break
 		}
 	}
 }

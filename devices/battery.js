@@ -1,6 +1,6 @@
 let easeeAPI=require('../easeeapi')
 
-function battery (platform,log,config){
+function battery (platform,log){
 	this.log=log
 	this.platform=platform
 	this.easeeapi=new easeeAPI(this,log)}

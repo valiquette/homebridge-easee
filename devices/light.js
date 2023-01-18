@@ -1,6 +1,6 @@
 let easeeAPI=require('../easeeapi')
 
-function light (platform,log,config){
+function light (platform,log){
 	this.log=log
 	this.platform=platform
 	this.easeeapi=new easeeAPI(this,log)
@@ -72,7 +72,7 @@ light.prototype={
 						break
 					case 400:
 						lightService.getCharacteristic(Characteristic.Brightness).updateValue(!value)
-						this.log.info('Failed to start charging %s',response.data.title)
+						this.log.info('Failed to change light %s',response.data.title)
 						this.log.debug(response.data)
 						break
 					default:

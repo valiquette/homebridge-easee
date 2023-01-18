@@ -24,6 +24,13 @@
 				"5":"Error",
 				"6":"ReadyToCharge"
 			},
+			"PilotMode":{
+				"A":"Car disconnected",
+				"B":"Car connected",
+				"C":"Car charging",
+				"D":"Car needs ventilation",
+				"F":"Fault detected"
+			},
 			"ChargerLEDModeType":{
 				"0":"Off",
 				"1":"Startup1ApplicationStarted",
@@ -52,7 +59,10 @@
 				"24":"NormalModeCharging",
 				"25":"AwaitingAuthorization",
 				"26":"VerifyAuthWithBackend",
-				"27":"EmptyBackplate"
+				"27":"EmptyBackplate",
+				"29":"Pairing RFID Keys",
+				"43":"Self test mode",
+				"44":"Self test mode"
 			},
 			"OutputPhaseType":{
 				"0":"UNASSIGNED",
@@ -77,6 +87,15 @@
 				"6":"WaitingInFully",
 				"7":"IllegalGridType",
 				"8":"PrimaryUnitHasNotReceivedCurrentRequestFromSecondaryUnit",
+				"9":"Master communication lost",
+				"10":"No current from equalizer to low",
+				"11":"No current, phase not connected",
+				"25":"Current limited by circuit fuse",
+				"26":"Current limited by circuit max current",
+				"27":"Current limited by dynamic circuit current",
+				"28":"Current limited by equalizer",
+				"29":"Current limited by circuit load balancing",
+				"30":"Current limited by offline setting",
 				"50":"SecondaryUnitNotRequestingCurrent",
 				"51":"MaxChargerCurrentTooLow",
 				"52":"MaxDynamicChargerCurrentTooLow",
@@ -84,6 +103,14 @@
 				"54":"PendingScheduledCharging",
 				"55":"PendingAuthorization",
 				"56":"ChargerInErrorState",
+				"57":"Erratic EV",
+				"75":"Current limited by cable rating",
+				"76":"Current limited by schedule",
+				"77":"Current limited by charger max current",
+				"78":"Current limited by dynamic charger current",
+				"79":"Current limited by car not charging",
+				"80":"Current limited by local adjustment",
+				"81":"Current limited by car",
 				"100":"Undefined"
 		},
 			"PowerGridType:":{
@@ -105,6 +132,7 @@
 				"2":"Never"
 			},
 			"PhaseMode":{
+				"0":"NoPhaseReported",
 				"1":"LockedToSinglePhase",
 				"2":"Auto",
 				"3":"LockedToThreePhase"

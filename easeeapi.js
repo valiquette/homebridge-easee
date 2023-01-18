@@ -22,7 +22,7 @@ easeeAPI.prototype={
 
 	login: async function(userName,password){
 		try {
-			this.log.debug('Retrieving token')
+			this.log.debug('Authenticating and retrieving access Token')
 			let response = await axios({
 				method: 'post',
 				baseURL: endpoint,
@@ -32,20 +32,20 @@ easeeAPI.prototype={
 					'Content-Type': 'application/json',
 					'User-Agent': `${PluginName}/${PluginVersion}`
 					},
-				data:{
-					'userName':userName,
-					'password':password
+				data: {
+					'userName': userName,
+					'password': password
 				},
 				responseType: 'json'
-			}).catch(err=>{this.log.error('Error getting token %s', JSON.stringify(err.config,null,2))})
-			if(response){this.log.debug('login response',JSON.stringify(response.data,null,2))}
+			}).catch(err=>{this.log.error('Error authenticating %s', JSON.stringify(err.config,null,2))})
+			if(response.status==200){this.log.debug('authentication response',JSON.stringify(response.data,null,2))}
 			return  response
-		}catch(err) {this.log.error('Error retrieving token %s', err)}
+		}catch(err) {this.log.error('Error authenticating and retrieving token %s', err)}
 	},
 
 	refreshToken: async function(accessToken,refreshToken){
 		try {
-			this.log.debug('Refreshing token')
+			this.log.debug('Refreshing access token')
 			let response = await axios({
 				method: 'post',
 				baseURL: endpoint,
@@ -55,20 +55,20 @@ easeeAPI.prototype={
 					'Content-Type': 'application/json',
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
-				data:{
-					'accessToken':accessToken,
-					'refreshToken':refreshToken
+				data: {
+					'accessToken': accessToken,
+					'refreshToken': refreshToken
 				},
 				responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s refresing token %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			if(response){this.log.debug('refresh response',JSON.stringify(response.data,null,2))}
+			if(response.status==200){this.log.debug('refresh response',JSON.stringify(response.data,null,2))}
 			return  response
 		}catch(err) {this.log.error('Error refreshing token %s', err)}
 	},
 
 	profile: async function(token){
 		try {
-			this.log.debug('Retrieving user profile')
+			this.log.debug('Retrieving profile info of logged in account')
 			let response = await axios({
 				method: 'get',
 				baseURL: endpoint,
@@ -80,16 +80,16 @@ easeeAPI.prototype={
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				responseType: 'json'
-			}).catch(err=>{this.log.error('Error %s-%s getting user profile %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			if(response){this.log.debug('get user response',JSON.stringify(response.data,null,2))}
+			}).catch(err=>{this.log.error('Error %s-%s getting user profile info %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
+			if(response.status==200){this.log.debug('get user response',JSON.stringify(response.data,null,2))}
 			return response
-		}catch(err) {this.log.error('Error retrieving user profile %s', err)}
+		}catch(err) {this.log.error('Error retrieving user profile info %s', err)}
 	},
 
 	products: async function(token,userId){
 		//is userID needed
 		try {
-				this.log.debug('Retrieving products info')
+				this.log.debug('Retrieving products of logged in account')
 				let response = await axios({
 						method: 'get',
 						baseURL: endpoint,
@@ -102,14 +102,14 @@ easeeAPI.prototype={
 						},
 						responseType: 'json'
 				}).catch(err=>{this.log.error('Error %s-%s getting products %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-				if(response){	this.log.debug('get products data response',JSON.stringify(response.data,null,2))}
+				if(response.status==200){	this.log.debug('get products data response',JSON.stringify(response.data,null,2))}
 				return response
 			}catch(err) {this.log.error('Error retrieving products %s', err)}
 		},
 
-	site: async function(token,chargerId){
+	chargerSite: async function(token,chargerId){
 		try {
-				this.log.debug('Retrieving site info %s',chargerId)
+				this.log.debug('Retrieving charger site info %s',chargerId)
 				let response = await axios({
 						method: 'get',
 						baseURL: endpoint,
@@ -122,7 +122,7 @@ easeeAPI.prototype={
 						},
 						responseType: 'json'
 				}).catch(err=>{this.log.error('Error getting site %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-				if(response){this.log.debug('get site data response',JSON.stringify(response.data,null,2))}
+				if(response.status==200){this.log.debug('get site data response',JSON.stringify(response.data,null,2))}
 				return response
 			}catch(err) {this.log.error('Error site products %s', err)}
 		},
@@ -142,14 +142,14 @@ easeeAPI.prototype={
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting chargers %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			if(response){	this.log.debug('get chargers config response',JSON.stringify(response.data,null,2))}
+			if(response.status==200){	this.log.debug('get chargers config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving chargers %s', err)}
 	},
 
 	charger: async function(token,chargerId){
 		try {
-			this.log.debug('Retrieving charger info %s',chargerId)
+			this.log.debug('Retrieving specified charger info %s',chargerId)
 			let response = await axios({
 					method: 'get',
 					baseURL: endpoint,
@@ -162,7 +162,7 @@ easeeAPI.prototype={
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting charger info %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			if(response){this.log.debug('get charger info config response',JSON.stringify(response.data,null,2))}
+			if(response.status==200){this.log.debug('get charger info config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving charger info %s', err)}
 	},
@@ -182,12 +182,12 @@ easeeAPI.prototype={
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting charger details %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			if(response){this.log.debug('get charger details config response',JSON.stringify(response.data,null,2))}
+			if(response.status==200){this.log.debug('get charger details config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving charger details %s', err)}
 	},
 
-	state: async function(token,chargerId){
+	chargerState: async function(token,chargerId){
 		try {
 			this.log.debug('Retrieving charger state %s',chargerId)
 			let response = await axios({
@@ -202,12 +202,12 @@ easeeAPI.prototype={
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting charger state %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			if(response){this.log.debug('get charger state config response',JSON.stringify(response.data,null,2))}
+			if(response.status==200){this.log.debug('get charger state config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving charger state %s', err)}
 	},
 
-	getConfig: async function(token,chargerId){
+	chargerConfig: async function(token,chargerId){
 		try {
 			this.log.debug('Retrieving charger config %s',chargerId)
 			let response = await axios({
@@ -222,9 +222,198 @@ easeeAPI.prototype={
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting charger config %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			if(response){	this.log.debug('get charger config response',JSON.stringify(response.data,null,2))}
+			if(response.status==200){	this.log.debug('get charger config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving charger config %s', err)}
+	},
+
+	equalizer: async function(token,equalizerId){
+		try {
+			this.log.debug('Retrieving specified equalizer info %s',equalizerId)
+			let response = await axios({
+					method: 'get',
+					baseURL: endpoint,
+					url: `/equalizers/${equalizerId}`,
+					headers: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/json',
+						'Authorization': `Bearer ${token}`,
+						'User-Agent': `${PluginName}/${PluginVersion}`
+					},
+					responseType: 'json'
+			}).catch(err=>{this.log.error('Error %s-%s getting charger info %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
+			if(response.status==200){this.log.debug('get charger info config response',JSON.stringify(response.data,null,2))}
+			return response
+		}catch(err) {this.log.error('Error retrieving charger info %s', err)}
+	},
+
+	equalizerDetails: async function(token,equalizerId){
+		try {
+			this.log.debug('Retrieving equalizer details %s',equalizerId)
+			let response = await axios({
+					method: 'get',
+					baseURL: endpoint,
+					url: `/equalizers/${equalizerId}/details`,
+					headers: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/json',
+						'Authorization': `Bearer ${token}`,
+						'User-Agent': `${PluginName}/${PluginVersion}`
+					},
+					responseType: 'json'
+			}).catch(err=>{this.log.error('Error %s-%s getting equalizer details %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
+			if(response.status==200){this.log.debug('get equalizer details config response',JSON.stringify(response.data,null,2))}
+			return response
+		}catch(err) {this.log.error('Error retrieving equalizer details %s', err)}
+	},
+
+	equalizerState: async function(token,equalizerId){
+		try {
+			this.log.debug('Retrieving equalizer state %s',equalizerId)
+			let response = await axios({
+					method: 'get',
+					baseURL: endpoint,
+					url: `/equalizers/${equalizerId}/state`,
+					headers: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/json',
+						'Authorization': `Bearer ${token}`,
+						'User-Agent': `${PluginName}/${PluginVersion}`
+					},
+					responseType: 'json'
+			}).catch(err=>{this.log.error('Error %s-%s getting equalizer state %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
+			if(response.status==200){this.log.debug('get equalizer state config response',JSON.stringify(response.data,null,2))}
+			return response
+		}catch(err) {this.log.error('Error retrieving equalizer state %s', err)}
+	},
+
+	equalizerConfig: async function(token,equalizerId){
+		try {
+			this.log.debug('Retrieving equalizer config %s',equalizerId)
+			let response = await axios({
+					method: 'get',
+					baseURL: endpoint,
+					url: `/equalizers/${equalizerId}/config`,
+					headers: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/json',
+						'Authorization': `Bearer ${token}`,
+						'User-Agent': `${PluginName}/${PluginVersion}`
+					},
+					responseType: 'json'
+			}).catch(err=>{this.log.error('Error %s-%s getting equalizer config %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
+			if(response.status==200){
+				response.data.siteStructure=JSON.parse(response.data.siteStructure.replace(/(\r\n\t|\r\n|\r|\n|\t)/gm,'')) //removing CR LF and Tabs
+				response.data.meterType=response.data.meterType.replace(/(\r\n\t|\r\n|\r|\n|\t)/gm,'') //removing CR LF and Tabs
+				this.log.debug('get equalizer config response',JSON.stringify(response.data,null,2))
+			}
+			return response
+		}catch(err) {this.log.error('Error retrieving equalizer config %s', err)}
+	},
+
+	configureEqualizerFuse: async function(token,eqId,fuseSize,value){ // unpublished API
+		//change equalizer fuse settings
+		this.log.debug('Setting Equalizer %s max continuous current to %s',eqId,value)
+		let response = await axios({
+				method: 'post',
+				baseURL: endpoint,
+				url: `equalizers/${eqId}/commands/configure_fuse`,
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`,
+					'User-Agent': `${PluginName}/${PluginVersion}`
+				},
+				data: {
+					'FuseSize': fuseSize,
+					'MaxContinuousCurrent': value
+				},
+				responseType: 'json'
+			}).catch(err=>{
+				this.log.debug('Error posting fuse command  %s', err.message)
+				this.log.debug('Error posting fuse command  %s', err.response.config.header, err.response.config.method, err.response.config.url)
+				return err.response
+			})
+		if(response.status==200 || response.status==202){this.log.debug('post fuse response',JSON.stringify(response.data,null,2))}
+		return response
+	},
+
+	setMaxAllocatedCurrent: async function(token,eqId,value){
+		//change equalizer settings
+		this.log.debug('Setting Equalizer %s max allocated current to %s',eqId,value)
+		let response = await axios({
+				method: 'post',
+				baseURL: endpoint,
+				url: `equalizers/${eqId}/commands/configure_max_allocated_current`,
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`,
+					'User-Agent': `${PluginName}/${PluginVersion}`
+				},
+				data: {
+					'maxCurrent': value
+				},
+				responseType: 'json'
+			}).catch(err=>{
+				this.log.debug('Error posting max allocated %s', err.message)
+				this.log.debug('Error posting max allocated %s', err.response.config.header, err.response.config.method, err.response.config.url)
+				return err.response
+			})
+		if(response.status==200 || response.status==202){this.log.debug('post max allocated response',JSON.stringify(response.data,null,2))}
+		return response
+	},
+
+	getDynamicCircuitCurrent: async function(token,siteId,circuitId){
+		//get charger settings
+		this.log.debug('Getting dynamic circuit current')
+		let response = await axios({
+				method: 'get',
+				baseURL: endpoint,
+				url:`sites/${siteId}/circuits/${circuitId}/dynamicCurrent`,
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`,
+					'User-Agent': `${PluginName}/${PluginVersion}`
+				},
+				responseType: 'json'
+			}).catch(err=>{
+				this.log.debug('Error retrieving dynamic circuit %s', err.message)
+				this.log.debug('Error retrieving dynamic circuit %s', err.response.config.header, err.response.config.method, err.response.config.url)
+				return err.response
+			})
+		if(response.status==200 || response.status==202){this.log.debug('post dynamic circuit response',JSON.stringify(response.data,null,2))}
+		return response
+	},
+
+	setDynamicCircuitCurrent: async function(token,siteId,circuitId,p1,p2,p3,ttl){
+		//change charger settings
+		this.log.debug('Setting dynamic circuit current to %s',p1,p2,p3)
+		let response = await axios({
+				method: 'post',
+				baseURL: endpoint,
+				url:`sites/${siteId}/circuits/${circuitId}/dynamicCurrent`,
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`,
+					'User-Agent': `${PluginName}/${PluginVersion}`
+				},
+				data: {
+					'phase1': p1,
+					'phase2': p2,
+					'phase3': p3,
+					'timeToLive': ttl
+				},
+				responseType: 'json'
+			}).catch(err=>{
+				this.log.debug('Error posting dynamic circuit %s', err.message)
+				this.log.debug('Error posting dynamic circuit %s', err.response.config.header, err.response.config.method, err.response.config.url)
+				return err.response
+			})
+		if(response.status==200 || response.status==202){this.log.debug('post dynamic circuit response',JSON.stringify(response.data,null,2))}
+		return response
 	},
 
 	lock: async function(token,chargerId,value){
@@ -240,8 +429,8 @@ easeeAPI.prototype={
 					'Authorization': `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
-				data:{
-					'authorizationRequired':value
+				data: {
+					'authorizationRequired': value
 				},
 				responseType: 'json'
 			}).catch(err=>{
@@ -266,8 +455,8 @@ easeeAPI.prototype={
 					'Authorization': `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
-				data:{
-					'ledStripBrightness':value
+				data: {
+					'ledStripBrightness': value
 				},
 				responseType: 'json'
 			}).catch(err=>{
@@ -315,7 +504,7 @@ easeeAPI.prototype={
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s observations %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			//if(response){this.log.debug('get observations response',JSON.stringify(response.data,null,2))}
+			//if(response.status==200){this.log.debug('get observations response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving observations %s', err)}
 	},
@@ -357,7 +546,7 @@ easeeAPI.prototype={
 						'Authorization': `Bearer ${token}`,
 						'User-Agent': `${PluginName}/${PluginVersion}`
 					},
-					data:{
+					data: {
 						"chargingCurrentLimit": 32,
 						"id": chargerId,
 						"chargeStartTime": "18:00",

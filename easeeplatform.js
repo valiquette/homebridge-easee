@@ -203,7 +203,7 @@ class easeePlatform {
 							//this.resetSignalR(864000,charger)
 						})
 					})
-					if(this.showEqualizer){
+					if(this.showEqualizer && location.equalizers[0]){
 						this.eq=location.equalizers[0].id
 						let equalizerConfig=(await this.easeeapi.equalizerConfig(this.token,location.equalizers[0].id).catch(err=>{this.log.error('Failed to get equalizer config info for build', err)})).data
 						let equalizerState=(await this.easeeapi.equalizerState(this.token,location.equalizers[0].id).catch(err=>{this.log.error('Failed to get equalizer state for build', err)})).data
@@ -259,7 +259,7 @@ class easeePlatform {
 			setInterval(async()=>{
 				try{
 					let tokenInfo=(await this.easeeapi.refreshToken(this.token,this.refreshToken).catch(err=>{this.log.error('Failed signin to refresh token', err)})).data
-					this.log.debug('refreshed token %s',tokenInfo.data.accessToken)
+					this.log.debug('refreshed token %s',tokenInfo.accessToken)
 					this.token=tokenInfo.accessToken
 					this.refreshToken=tokenInfo.refreshToken
 					this.log.info('Token has been refreshed')
@@ -549,7 +549,7 @@ class easeePlatform {
 				case 231://EqAvailableCurrentP2
 				case 232://EqAvailableCurrentP3
 					if(this.showEqualizer){
-						this.log.info('%s %s updated to %s for equalizer %s', message.mid, messageText, value, this.eq)
+						this.log.debug('%s %s updated to %s for equalizer %s', message.mid, messageText, value, this.eq)
 						//windowService=windowAccessory.getServiceById(Service.WindowCovering, this.eq)
 						//this.updateEq(windowService,this.eq)
 					}

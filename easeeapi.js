@@ -43,6 +43,8 @@ easeeAPI.prototype={
 		}catch(err) {this.log.error('Error authenticating and retrieving token %s', err)}
 	},
 
+
+
 	refreshToken: async function(accessToken,refreshToken){
 		try {
 			this.log.debug('Refreshing access token')

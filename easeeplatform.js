@@ -315,7 +315,7 @@ class easeePlatform {
 				try{
 					let equalizerConfig=(await this.easeeapi.equalizerConfig(this.token,eqId).catch(err=>{this.log.error('Failed to get comfig info for build', err)})).data
 					let percent=Math.round(equalizerConfig.siteStructure.maxAllocatedCurrent/equalizerConfig.siteStructure.ratedCurrent*100)
-					if(this.platform.experimental){
+					if(this.experimental){
 						percent=Math.round(equalizerConfig.siteStructure.maxContinuousCurrent/equalizerConfig.siteStructure.ratedCurrent*100)
 					}
 					this.log.debug('updating equalizer %s with new value %s%',eqId, percent)

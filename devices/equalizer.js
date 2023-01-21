@@ -110,7 +110,7 @@ equalizer.prototype={
 			this.x=setTimeout(() => {
 				if(this.platform.experimental){
 					//(token,eqId,fuseSize,value){ // unpublished API
-					convertedValue=Math.round(config.siteStructure.maxContinuousCurrent*value/100)
+					convertedValue=Math.round(config.siteStructure.ratedCurrent*value/100)
 					this.log.info('Changing Equalizer %s Max Continuous Current',windowService.getCharacteristic(Characteristic.AccessoryIdentifier).value)
 					this.log.warn ('Equalizer %s, fuse size %s, new max continuous current %s',this.platform.eq, this.platform.siteStructure.ratedCurrent, convertedValue)
 					this.log.warn('call API and set max continuous current value to %s or equivalent of %s%', convertedValue, value)
@@ -134,7 +134,7 @@ equalizer.prototype={
 					}
 				}
 				else{
-					convertedValue=Math.round(config.siteStructure.maxAllocatedCurrent*value/100)
+					convertedValue=Math.round(config.siteStructure.ratedCurrent*value/100)
 					this.log.info('Changing Equalizer %s Max Allocated Current',windowService.getCharacteristic(Characteristic.AccessoryIdentifier).value)
 					this.log.warn ('Equalizer %s, rated current %s, new max allocated current %s',this.platform.eq, this.platform.siteStructure.ratedCurrent, convertedValue)
 					this.log.warn('call API and set max allocated value to %s or equivalent of %s%', convertedValue, value)

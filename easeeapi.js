@@ -44,7 +44,6 @@ easeeAPI.prototype={
 	},
 
 
-
 	refreshToken: async function(accessToken,refreshToken){
 		try {
 			this.log.debug('Refreshing access token')

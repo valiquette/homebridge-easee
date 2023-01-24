@@ -43,7 +43,6 @@ class easeePlatform {
 		this.experimental=config.experimental ? config.experimental : false
 		this.useFahrenheit=config.useFahrenheit ? config.useFahrenheit : true
 		this.eq
-		this.testAPI=config.testAPI || false
 		this.siteStructure={}
     this.userId
 		this.cars=config.cars
@@ -529,8 +528,8 @@ class easeePlatform {
 							activeService.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)
 							activeService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(value)
 							}
-						if(this.showEqualizer){
-							this.log.info('%s %s updated to %s for equalizer %s', message.mid, messageText, value, this.eq)
+						if(this.showEqualizer && !this.experimental){
+							this.log.info('%s %s updated to %s for equalizer max allocation current %s', message.mid, messageText, value, this.eq)
 							windowService=windowAccessory.getServiceById(Service.WindowCovering, this.eq)
 							this.updateEq(windowService,this.eq)
 						}
@@ -548,10 +547,10 @@ class easeePlatform {
 				case 230://EqAvailableCurrentP1
 				case 231://EqAvailableCurrentP2
 				case 232://EqAvailableCurrentP3
-					if(this.showEqualizer){
-						this.log.debug('%s %s updated to %s for equalizer %s', message.mid, messageText, value, this.eq)
-						//windowService=windowAccessory.getServiceById(Service.WindowCovering, this.eq)
-						//this.updateEq(windowService,this.eq)
+					if(this.showEqualizer && this.experimental){
+						this.log.debug('%s %s updated to %s for equalizer max circuit current %s', message.mid, messageText, value, this.eq)
+						windowService=windowAccessory.getServiceById(Service.WindowCovering, this.eq)
+						this.updateEq(windowService,this.eq)
 					}
 
 				break

@@ -58,4 +58,4 @@ This plugin is only been tested with Easee Home Charger.
 ]
 ```
 showControls valid values
-0:None, 1:Toggle, 2:Start/Stop, 3:Pause/Resume
+0:None, 1:Toggle, 2:Start/Stop, 3:Pause/Resume, 4:Amperage control with Toggle

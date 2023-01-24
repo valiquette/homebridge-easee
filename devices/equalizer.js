@@ -46,14 +46,6 @@ equalizer.prototype={
 		.setCharacteristic(Characteristic.CurrentPosition, percent)
 		.setCharacteristic(Characteristic.TargetPosition, percent)
 		.setCharacteristic(Characteristic.PositionState, Characteristic.PositionState.STOPPED)
-
-		let eqMin=this.config.eqMin || 15
-		let eqMax=this.config.eqMax || 100
-		if(eqMin>=eqMax){
-			this.log.warn('Equalizer min-max values are inverted, will use default 0-100')
-			eqMin=15
-			eqMax=100
-		}
 		windowService
 			.getCharacteristic(Characteristic.CurrentPosition)
 			.setProps({
@@ -66,8 +58,8 @@ equalizer.prototype={
 		windowService
 			.getCharacteristic(Characteristic.TargetPosition)
 			.setProps({
-				minValue:eqMin,
-				maxValue:eqMax,
+				minValue:0,
+				maxValue:100,
 				minStep:1
 			})
 			.on('get', this.getTargetPosition.bind(this, windowService))
@@ -105,6 +97,21 @@ equalizer.prototype={
 			callback('error')
 		}
 		else{
+			let eqMin=this.config.eqMin || 15
+			let eqMax=this.config.eqMax || 100
+			if(eqMin>=eqMax){
+				this.log.warn('Equalizer min-max values are inverted, will use default 15-100')
+				eqMin=15
+				eqMax=100
+			}
+			if(value>eqMax){
+				this.log.warn('Limits out of range, will use max value. Check high limits in config')
+				value=eqMax
+			}
+			if(value<eqMin){
+				this.log.warn('Limits out of range, will use min value. Check low limits in config')
+				value=eqMin
+			}
 			windowService.getCharacteristic(Characteristic.CurrentPosition).updateValue(value)
 			clearTimeout(this.x)
 			this.x=setTimeout(() => {
@@ -112,52 +119,48 @@ equalizer.prototype={
 					//(token,eqId,fuseSize,value){ // unpublished API
 					convertedValue=Math.round(config.siteStructure.ratedCurrent*value/100)
 					this.log.info('Changing Equalizer %s Max Continuous Current',windowService.getCharacteristic(Characteristic.AccessoryIdentifier).value)
-					this.log.warn ('Equalizer %s, fuse size %s, new max continuous current %s',this.platform.eq, this.platform.siteStructure.ratedCurrent, convertedValue)
-					this.log.warn('call API and set max continuous current value to %s or equivalent of %s%', convertedValue, value)
-					if(this.platform.testAPI){
-						this.easeeapi.configureEqualizerFuse(this.platform.token, this.platform.eq, this.platform.siteStructure.ratedCurrent, convertedValue).then(response=>{
-							switch(response.status){
-								case 200:
-								case 202:
-									break
-								case 400:
-									windowService.getCharacteristic(Characteristic.TargetPosition).updateValue(windowService.getCharacteristic(Characteristic.CurrentPosition).value)
-									this.log.info('Failed to adjust equalizer %s',response.data.title)
-									this.log.debug(response.data)
-									break
-								default:
-									windowService.getCharacteristic(Characteristic.TargetPosition).updateValue(windowService.getCharacteristic(Characteristic.CurrentPosition).value)
-									this.log.debug(response.data)
-									break
-								}
-						})
-					}
+					this.log.debug ('equalizer %s, fuse size %s, new max continuous current %s',this.platform.eq, this.platform.siteStructure.ratedCurrent, convertedValue)
+					this.log.debug('set max continuous current value to %s or equivalent of %s%', convertedValue, value)
+					this.easeeapi.configureEqualizerFuse(this.platform.token, this.platform.eq, this.platform.siteStructure.ratedCurrent, convertedValue).then(response=>{
+						switch(response.status){
+							case 200:
+							case 202:
+								break
+							case 400:
+								windowService.getCharacteristic(Characteristic.TargetPosition).updateValue(windowService.getCharacteristic(Characteristic.CurrentPosition).value)
+								this.log.info('Failed to adjust equalizer %s',response.data.title)
+								this.log.debug(response.data)
+								break
+							default:
+								windowService.getCharacteristic(Characteristic.TargetPosition).updateValue(windowService.getCharacteristic(Characteristic.CurrentPosition).value)
+								this.log.debug(response.data)
+								break
+							}
+					})
 				}
 				else{
 					convertedValue=Math.round(config.siteStructure.ratedCurrent*value/100)
 					this.log.info('Changing Equalizer %s Max Allocated Current',windowService.getCharacteristic(Characteristic.AccessoryIdentifier).value)
-					this.log.warn ('Equalizer %s, rated current %s, new max allocated current %s',this.platform.eq, this.platform.siteStructure.ratedCurrent, convertedValue)
-					this.log.warn('call API and set max allocated value to %s or equivalent of %s%', convertedValue, value)
-					if(this.platform.testAPI){
-						this.easeeapi.setMaxAllocatedCurrent(this.platform.token, this.platform.eq, convertedValue).then(response=>{
-							switch(response.status){
-								case 200:
-								case 202:
-									break
-								case 400:
-									windowService.getCharacteristic(Characteristic.TargetPosition).updateValue(windowService.getCharacteristic(Characteristic.CurrentPosition).value)
-									this.log.info('Failed to adjust equalizer %s',response.data.title)
-									this.log.debug(response.data)
-									break
-								default:
-									windowService.getCharacteristic(Characteristic.TargetPosition).updateValue(windowService.getCharacteristic(Characteristic.CurrentPosition).value)
-									this.log.debug(response.data)
-									break
-								}
-						})
-					}
+					this.log.debug ('equalizer %s, rated current %s, new max allocated current %s',this.platform.eq, this.platform.siteStructure.ratedCurrent, convertedValue)
+					this.log.debug('set max allocated value to %s or equivalent of %s%', convertedValue, value)
+					this.easeeapi.setMaxAllocatedCurrent(this.platform.token, this.platform.eq, convertedValue).then(response=>{
+						switch(response.status){
+							case 200:
+							case 202:
+								break
+							case 400:
+								windowService.getCharacteristic(Characteristic.TargetPosition).updateValue(windowService.getCharacteristic(Characteristic.CurrentPosition).value)
+								this.log.info('Failed to adjust equalizer %s',response.data.title)
+								this.log.debug(response.data)
+								break
+							default:
+								windowService.getCharacteristic(Characteristic.TargetPosition).updateValue(windowService.getCharacteristic(Characteristic.CurrentPosition).value)
+								this.log.debug(response.data)
+								break
+							}
+					})
 				}
-			}, 1000)
+			}, 2500)
 			callback()
 		}
 	}

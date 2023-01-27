@@ -13,6 +13,7 @@ light.prototype={
     let lightService=new Service.Lightbulb(type, device.id)
 		let lightOn=false
 		if(config.ledStripBrightness>0){lightOn=true}
+		//CurrentPostion tracks level at tiem of off so on returns to pre set level
     lightService
       .setCharacteristic(Characteristic.On, lightOn)
       .setCharacteristic(Characteristic.Name, device.name+" "+type)

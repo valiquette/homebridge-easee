@@ -43,6 +43,8 @@ class easeePlatform {
 		this.experimental=config.experimental ? config.experimental : false
 		this.useFahrenheit=config.useFahrenheit ? config.useFahrenheit : true
 		this.eq
+		this.eqMin=this.config.eqMin || 15
+		this.eqMax=this.config.eqMax || 100
 		this.siteStructure={}
     this.userId
 		this.cars=config.cars
@@ -317,6 +319,19 @@ class easeePlatform {
 					if(this.experimental){
 						percent=Math.round(equalizerConfig.siteStructure.maxContinuousCurrent/equalizerConfig.siteStructure.ratedCurrent*100)
 					}
+					if(this.eqMin>this.eqMax){
+						this.log.warn('Equalizer min-max values are inverted, will use default 15-100')
+						this.eqMin=15
+						this.eqMax=100
+					}
+					if(percent>this.eqMax){
+						this.log.warn('Limits out of range, will use max value. Check high limits in config')
+						percent=this.eqMax
+					}
+					if(percent<this.eqMin){
+						this.log.warn('Limits out of range, will use min value. Check low limits in config')
+						percent=this.eqMin
+					}
 					this.log.debug('updating equalizer %s with new value %s%',eqId, percent)
 					windowService.getCharacteristic(Characteristic.TargetPosition).updateValue(percent)
 					windowService.getCharacteristic(Characteristic.CurrentPosition).updateValue(percent)
@@ -340,7 +355,7 @@ class easeePlatform {
 
 			switch(message.dataType){
 				case 1: {value=parseInt(message.value); break}
-				case 2: {if(parseInt(message.value)){value=true} else{value=false}; break}
+				case 2: {if(parseInt(message.value)==1 || message.value=='True'){value=true} else{value=false}; break}
 				case 3: {value=parseFloat(message.value); break}
 				case 4: {value=parseInt(message.value); break}
 				case 5: {value=(message.value); break}

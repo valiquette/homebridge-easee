@@ -78,42 +78,46 @@ control.prototype={
   },
 
 	async setControlAmps(device, controlService, siteId, circuitId, value, callback){
-		let amps
-		if(this.platform.useFahrenheit){
-			amps=(value*1.8+32+.01).toFixed(0)
+		if(controlService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
+			callback('error')
 		}
 		else{
-			amps=value.toFixed(0)
+			let amps
+			if(this.platform.useFahrenheit){
+				amps=(value*1.8+32+.01).toFixed(0)
+			}
+			else{
+				amps=value.toFixed(0)
+			}
+			controlService.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)
+			let phases=(await this.easeeapi.getDynamicCircuitCurrent(this.platform.token, siteId, circuitId).catch(err=>{this.log.error('Failed to get comfig info for build', err)})).data
+			this.log.info('current dynamic circuit current %s',phases)
+			let p1=amps
+			let p2=amps
+			let p3=amps
+			if(phases.phase1 == 0){p1=0}
+			if(phases.phase2 == 0){p2=0}
+			if(phases.phase3 == 0){p3=0}
+			this.log.debug('set dynamic current value to { phase1: %s, phase2: %s, phase3: %s } for site=%s circuit=%s for %s minutes', p1, p2 ,p3, siteId, circuitId, this.dynamicTTL)
+			this.easeeapi.setDynamicCircuitCurrent(this.platform.token, siteId, circuitId, p1,p2,p3,this.dynamicTTL).then(response=>{
+				switch(response.status){
+					case 200:
+					case 202:
+						controlService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(controlService.getCharacteristic(Characteristic.TargetTemperature).value)
+						break
+					case 400:
+						controlService.getCharacteristic(Characteristic.TargetTemperature).updateValue(controlService.getCharacteristic(Characteristic.CurrentTemperature).value)
+						this.log.info('Failed to set dynamic circuit %s',response.data.title)
+						this.log.debug(response.data)
+						break
+					default:
+						controlService.getCharacteristic(Characteristic.TargetTemperature).updateValue(controlService.getCharacteristic(Characteristic.CurrentTemperature).value)
+						this.log.debug(response.data)
+						break
+					}
+			})
+			callback()
 		}
-
-		controlService.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)
-		controlService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(value)
-		let phases=(await this.easeeapi.getDynamicCircuitCurrent(this.platform.token, siteId, circuitId).catch(err=>{this.log.error('Failed to get comfig info for build', err)})).data
-		this.log.info('current dynamic circuit current %s',phases)
-		let p1=amps
-		let p2=amps
-		let p3=amps
-		if(phases.phase1 == 0){p1=0}
-		if(phases.phase2 == 0){p2=0}
-		if(phases.phase3 == 0){p3=0}
-		this.log.debug('set dynamic current value to { phase1: %s, phase2: %s, phase3: %s } for site=%s circuit=%s for %s minutes', p1, p2 ,p3, siteId, circuitId, this.dynamicTTL)
-		this.easeeapi.setDynamicCircuitCurrent(this.platform.token, siteId, circuitId, p1,p2,p3,this.dynamicTTL).then(response=>{
-			switch(response.status){
-				case 200:
-				case 202:
-					break
-				case 400:
-					controlService.getCharacteristic(Characteristic.TargetTemperature).updateValue(controlService.getCharacteristic(Characteristic.CurrentPosition).value)
-					this.log.info('Failed to set dynamic circuit %s',response.data.title)
-					this.log.debug(response.data)
-					break
-				default:
-					controlService.getCharacteristic(Characteristic.TargetTemperature).updateValue(controlService.getCharacteristic(Characteristic.CurrentPosition).value)
-					this.log.debug(response.data)
-					break
-				}
-		})
-		callback()
 	},
 
 	setControlState(device, controlService, value, callback){
@@ -122,24 +126,21 @@ control.prototype={
 		}
 		else{
 			this.log.debug('set toggle to = %s', value)
-			controlService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(value)
 			controlService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(value)
-
 			this.easeeapi.command(this.platform.token,device.id,'toggle_charging').then(response=>{
 				switch(response.status){
 					case 200:
 					case 202:
+						controlService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(controlService.getCharacteristic(Characteristic.TargetHeatingCoolingState).value)
 						this.log.info('%s charging state toggled',device.name)
 						break
 					case 400:
-						controlService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(!value)
-						controlService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(!value)
+						controlService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(controlService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).value)
 						this.log.info('Failed to toggle charging, %s',response.data.title)
 						this.log.debug(response.data)
 						break
 					default:
-						controlService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(!value)
-						controlService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(!value)
+						controlService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(controlService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).value)
 						this.log.debug(response.data)
 						break
 					}
@@ -149,10 +150,16 @@ control.prototype={
   },
 
 	setControlUnits(device, controlService, value, callback){
-		//this.platform.useFahrenheit=value
-		this.log.debug("change unit value")
-		callback()
-		},
+		if(controlService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){
+			callback('error')
+		}
+		else{
+			//this.platform.useFahrenheit=value
+			//controlService.getCharacteristic(Characteristic.TemperatureDisplayUnits).value=value
+			this.log.debug("change unit value to %s",value)
+			callback()
+		}
+	},
 
 	getControlState(controlService, callback){
 		if(controlService.getCharacteristic(Characteristic.StatusFault).value==Characteristic.StatusFault.GENERAL_FAULT){

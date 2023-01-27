@@ -9,6 +9,7 @@ Enhancment
 - Added support for Easee Equalizer.
 - Added support to change dynamic current.
 - Updated list of error codes.
+- Fix bug with lock updating.
 -	Code cleanup
 
 ## 1.1.9

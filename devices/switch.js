@@ -39,6 +39,7 @@ basicSwitch.prototype={
       .on('get', this.getSwitchValue.bind(this, switchService))
       .on('set', this.setSwitchValue.bind(this, device, switchService))
   },
+	
   setSwitchValue(device, switchService, value, callback){
 		this.log.debug('toggle switch state %s',switchService.getCharacteristic(Characteristic.Name).value)
 		this.log.debug('toggle %s',switchService.displayName)

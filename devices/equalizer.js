@@ -7,6 +7,8 @@ function equalizer (platform,log,config){
 	this.config=config
 	this.easeeapi=new easeeAPI(this,log)
 	this.x=0
+	this.eqMin=this.config.eqMin || 15
+	this.eqMax=this.config.eqMax || 100
 }
 
 equalizer.prototype={
@@ -97,26 +99,22 @@ equalizer.prototype={
 			callback('error')
 		}
 		else{
-			let eqMin=this.config.eqMin || 15
-			let eqMax=this.config.eqMax || 100
-			if(eqMin>=eqMax){
-				this.log.warn('Equalizer min-max values are inverted, will use default 15-100')
-				eqMin=15
-				eqMax=100
-			}
-			if(value>eqMax){
-				this.log.warn('Limits out of range, will use max value. Check high limits in config')
-				value=eqMax
-			}
-			if(value<eqMin){
-				this.log.warn('Limits out of range, will use min value. Check low limits in config')
-				value=eqMin
-			}
-			windowService.getCharacteristic(Characteristic.CurrentPosition).updateValue(value)
 			clearTimeout(this.x)
 			this.x=setTimeout(() => {
+				if(this.eqMin>=this.eqMax){
+					this.log.warn('Equalizer min-max values are inverted, will use default 15-100')
+					this.eqMin=15
+					this.eqMax=100
+				}
+				if(value>this.eqMax){
+					this.log.warn('Limits out of range, will use max value. Check high limits in config')
+					value=this.eqMax
+				}
+				if(value<this.eqMin){
+					this.log.warn('Limits out of range, will use min value. Check low limits in config')
+					value=this.eqMin
+				}
 				if(this.platform.experimental){
-					//(token,eqId,fuseSize,value){ // unpublished API
 					convertedValue=Math.round(config.siteStructure.ratedCurrent*value/100)
 					this.log.info('Changing Equalizer %s Max Continuous Current',windowService.getCharacteristic(Characteristic.AccessoryIdentifier).value)
 					this.log.debug ('equalizer %s, fuse size %s, new max continuous current %s',this.platform.eq, this.platform.siteStructure.ratedCurrent, convertedValue)
@@ -125,6 +123,7 @@ equalizer.prototype={
 						switch(response.status){
 							case 200:
 							case 202:
+								windowService.getCharacteristic(Characteristic.CurrentPosition).updateValue(windowService.getCharacteristic(Characteristic.TargetPosition).value)
 								break
 							case 400:
 								windowService.getCharacteristic(Characteristic.TargetPosition).updateValue(windowService.getCharacteristic(Characteristic.CurrentPosition).value)
@@ -147,6 +146,7 @@ equalizer.prototype={
 						switch(response.status){
 							case 200:
 							case 202:
+								windowService.getCharacteristic(Characteristic.CurrentPosition).updateValue(windowService.getCharacteristic(Characteristic.TargetPosition).value)
 								break
 							case 400:
 								windowService.getCharacteristic(Characteristic.TargetPosition).updateValue(windowService.getCharacteristic(Characteristic.CurrentPosition).value)

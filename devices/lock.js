@@ -50,6 +50,7 @@ lockMechanism.prototype={
 		lockService
 			.getCharacteristic(Characteristic.LockCurrentState)
 			.on('get', this.getLockCurrentState.bind(this, lockService))
+			//.on('set', this.setLockCurrentState.bind(this, device, lockService))
   },
 
 	getLockCurrentState: function (lockService, callback) {
@@ -93,14 +94,17 @@ lockMechanism.prototype={
 					switch(response.status){
 						case 200:
 						case 202:
+							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(lockService.getCharacteristic(Characteristic.LockTargetState).value)
 							break
 						case 400:
-							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(!value)
+							//lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(!value)
+							lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(lockService.getCharacteristic(Characteristic.LockCurrentState).value)
 							this.log.info('Failed to start charging %s',response.data.title)
 							this.log.debug(response.data)
 							break
 						default:
-							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(!value)
+							//lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(!value)
+							lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(lockService.getCharacteristic(Characteristic.LockCurrentState).value)
 							this.log.debug(response.data)
 							break
 						}
@@ -114,14 +118,17 @@ lockMechanism.prototype={
 					switch(response.status){
 						case 200:
 						case 202:
+							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(lockService.getCharacteristic(Characteristic.LockTargetState).value)
 							break
 						case 400:
-							switchService.getCharacteristic(Characteristic.On).updateValue(!value)
+							//switchService.getCharacteristic(Characteristic.LockCurrentState).updateValue(!value)
+							lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(lockService.getCharacteristic(Characteristic.LockCurrentState).value)
 							this.log.info('Failed to start charging %s',response.data.title)
 							this.log.debug(response.data)
 							break
 						default:
-							lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
+							//lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(value)
+							lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(lockService.getCharacteristic(Characteristic.LockCurrentState).value)
 							this.log.debug(response.data)
 							break
 						}

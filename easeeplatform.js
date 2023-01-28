@@ -180,7 +180,7 @@ class easeePlatform {
 							}
 							if(this.showControls==4){
 								controlService=this.control.createControlService(charger, chargerState, 'Charging Amps')
-								this.control.configureControlService(charger, controlService, circuit.id, circuit.siteId)
+								this.control.configureControlService(charger, controlService)
 								lockAccessory.getService(Service.LockMechanism).addLinkedService(controlService)
 								lockAccessory.addService(controlService)
 							}
@@ -403,43 +403,32 @@ class easeePlatform {
 					}
 					break
 				case 47://config_maxChargerCurrent
+					this.log.info('%s %s updated to %s', message.mid, messageText, value)
 					if(this.showBattery){
-						this.log.info('%s %s updated to %s', message.mid, messageText, value)
 						batteryService=lockAccessory.getServiceById(Service.Battery, message.mid)
 						this.amps[batteryService.subtype]=value
 					}
 					if(this.showSensor){
-						this.log.info('%s %s updated to %s', message.mid, messageText, value)
 						sensorService=lockAccessory.getServiceById(Service.HumiditySensor, message.mid)
 						this.amps[sensorService.subtype]=value
 					}
-					/* //moved to case 48
-					if(this.showControls==(4||5)){
-						this.log.info('%s %s updated to %s', message.mid, messageText, value)
-						controlService=lockAccessory.getServiceById(Service.Thermostat, message.mid)
-						controlService.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)
-						controlService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(value)
-					}
-					*/
 					break
 				case 48://state_dynamicChargerCurrent
 					this.log.info('%s %s updated to %s', message.mid, messageText, value)
 					if(value>0){
 						if(this.showBattery){
-							this.log.info('%s %s updated to %s', message.mid, messageText, value)
 							batteryService=lockAccessory.getServiceById(Service.Battery, message.mid)
 							this.amps[batteryService.subtype]=value
 						}
 						if(this.showSensor){
-							this.log.info('%s %s updated to %s', message.mid, messageText, value)
 							sensorService=lockAccessory.getServiceById(Service.HumiditySensor, message.mid)
 							this.amps[sensorService.subtype]=value
 						}
 						if(this.showControls==(4||5)){
-							this.log.info('%s %s updated to %s', message.mid, messageText, value)
-							controlService=lockAccessory.getServiceById(Service.Thermostat, message.mid)
-							controlService.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)
-							controlService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(value)
+							if(this.useFahrenheit){value=((value-32)*5/9).toFixed(1)}
+							activeService=lockAccessory.getServiceById(Service.Thermostat, message.mid)
+							activeService.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)
+							activeService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(value)
 						}
 					}
 					else{
@@ -533,11 +522,7 @@ class easeePlatform {
 						if(this.showBattery){batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(true)}
 						if(this.showControls==(1||2||3)){activeService.getCharacteristic(Characteristic.On).updateValue(true)}
 						if(this.showControls==(4||5)){
-							if(this.platform.useFahrenheit){
-								this.log.warn(value)
-								value=Math.round((value-32)*5/9)
-								this.log.warn(value)
-								}
+							if(this.useFahrenheit){value=((value-32)*5/9).toFixed(1)}
 							activeService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(true)
 							activeService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(true)
 							activeService.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)

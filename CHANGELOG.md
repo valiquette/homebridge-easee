@@ -10,6 +10,7 @@ Enhancment
 - Added support to change dynamic current.
 - Updated list of error codes.
 - Fix bug with lock updating.
+-	Logging cleanup
 -	Code cleanup
 
 ## 1.1.9

@@ -364,58 +364,6 @@ easeeAPI.prototype={
 		return response
 	},
 
-	getDynamicCircuitCurrent: async function(token,siteId,circuitId){
-		//get charger settings
-		this.log.debug('Getting dynamic circuit current')
-		let response = await axios({
-				method: 'get',
-				baseURL: endpoint,
-				url:`sites/${siteId}/circuits/${circuitId}/dynamicCurrent`,
-				headers: {
-					'Accept': 'application/json',
-					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
-					'User-Agent': `${PluginName}/${PluginVersion}`
-				},
-				responseType: 'json'
-			}).catch(err=>{
-				this.log.debug('Error retrieving dynamic circuit %s', err.message)
-				this.log.debug('Error retrieving dynamic circuit %s', err.response.config.header, err.response.config.method, err.response.config.url)
-				return err.response
-			})
-		if(response.status==200 || response.status==202){this.log.debug('post dynamic circuit response',JSON.stringify(response.data,null,2))}
-		return response
-	},
-
-	setDynamicCircuitCurrent: async function(token,siteId,circuitId,p1,p2,p3,ttl){
-		//change charger settings
-		this.log.debug('Setting dynamic circuit current to %s',p1,p2,p3)
-		let response = await axios({
-				method: 'post',
-				baseURL: endpoint,
-				url:`sites/${siteId}/circuits/${circuitId}/dynamicCurrent`,
-				headers: {
-					'Accept': 'application/json',
-					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
-					'User-Agent': `${PluginName}/${PluginVersion}`
-				},
-				data: {
-					'phase1': p1,
-					'phase2': p2,
-					'phase3': p3,
-					'timeToLive': ttl
-				},
-				responseType: 'json'
-			}).catch(err=>{
-				this.log.debug('Error posting dynamic circuit %s', err.message)
-				this.log.debug('Error posting dynamic circuit %s', err.response.config.header, err.response.config.method, err.response.config.url)
-				return err.response
-			})
-		if(response.status==200 || response.status==202){this.log.debug('post dynamic circuit response',JSON.stringify(response.data,null,2))}
-		return response
-	},
-
 	lock: async function(token,chargerId,value){
 		//change charger settings
 		this.log.debug('Setting charger lock state for %s to %s', chargerId, value)
@@ -439,6 +387,32 @@ easeeAPI.prototype={
 				return err.response
 			})
 		if(response.status==200 || response.status==202){this.log.debug('post lock response',JSON.stringify(response.data,null,2))}
+		return response
+	},
+
+	dynamicCurrent: async function(token,chargerId,value){
+		//change charger settings
+		this.log.debug('Setting Dynamic Current for %s to %s',chargerId,value)
+		let response = await axios({
+				method: 'post',
+				baseURL: endpoint,
+				url: `/chargers/${chargerId}/settings`,
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`,
+					'User-Agent': `${PluginName}/${PluginVersion}`
+				},
+				data: {
+					'dynamicChargerCurrent': value
+				},
+				responseType: 'json'
+			}).catch(err=>{
+				this.log.debug('Error posting dynamic current command  %s', err.message)
+				this.log.debug('Error posting dynamic current command  %s', err.response.config.header, err.response.config.method, err.response.config.url)
+				return err.response
+			})
+		if(response.status==200 || response.status==202){this.log.debug('post dynamic current response',JSON.stringify(response.data,null,2))}
 		return response
 	},
 

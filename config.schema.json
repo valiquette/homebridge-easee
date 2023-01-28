@@ -137,15 +137,6 @@
 				"default": false,
 				"description": "Use max continuous current mode for Equalizer ? (experimental)"
 			},
-			"dynamicTTL": {
-				"title": "Dynamic change TTL",
-				"type": "integer",
-				"minimum": 30,
-				"maximum": 480,
-				"required": true,
-				"default": 240,
-				"description": "How many minutes would you like a dynamic charging session to last before reverting?"
-			},
 			"eqMin": {
 				"title": "Equalizer Min percent",
 				"type": "integer",
@@ -231,7 +222,6 @@
 				"showReboot",
 				"showOverride",
 				"socSensor",
-				"dynamicTTL",
 				"showEqualizer",
 				"experimental",
 				"eqMin",

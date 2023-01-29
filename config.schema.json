@@ -104,6 +104,12 @@
 				"required": true,
 				"default": false
 			},
+			"useOutlet": {
+				"title": "Display option in Homekit as outlet, instead of switch",
+				"type": "boolean",
+				"required": false,
+				"default": false
+			},
 			"showReboot": {
 				"title": "Expose Switch to reboot charger",
 				"type": "boolean",
@@ -129,6 +135,20 @@
 				"required": false,
 				"default": false,
 				"description": "Do you want to expose a Easee Equalizer if one is installed?"
+			},
+			"showSignalRMessages": {
+				"title": "Show all observation messages",
+				"type": "boolean",
+				"required": false,
+				"default": false,
+				"description": "Do you want to log SignalR observations?"
+			},
+			"showAPIMessages": {
+				"title": "Show API responses",
+				"type": "boolean",
+				"required": false,
+				"default": false,
+				"description": "Do you want to log API message responses?"
 			},
 			"experimental": {
 				"title": "Experimental Mode",
@@ -208,7 +228,8 @@
 			"type": "flex",
 			"flex-flow": "row wrap",
 			"items": [
-				"showControls"
+				"showControls",
+				"useOutlet"
 			]
 		},
 		{
@@ -226,6 +247,17 @@
 				"experimental",
 				"eqMin",
 				"eqMax"
+			]
+		},
+		{
+			"type": "fieldset",
+			"title": "Debug logging",
+			"description": "Expand to enable additional debug logging",
+			"expandable": true,
+			"flex-flow": "row wrap",
+			"items": [
+				"showAPIMessages",
+				"showSignalRMessages"
 			]
 		}
 	]

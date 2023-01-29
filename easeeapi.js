@@ -38,7 +38,7 @@ easeeAPI.prototype={
 				},
 				responseType: 'json'
 			}).catch(err=>{this.log.error('Error authenticating %s', JSON.stringify(err.config,null,2))})
-			if(response.status==200){this.log.debug('authentication response',JSON.stringify(response.data,null,2))}
+			if(response.status==200 && this.platform.showAPIMessages){this.log.debug('authentication response',JSON.stringify(response.data,null,2))}
 			return  response
 		}catch(err) {this.log.error('Error authenticating and retrieving token %s', err)}
 	},
@@ -61,7 +61,7 @@ easeeAPI.prototype={
 				},
 				responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s refresing token %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			if(response.status==200){this.log.debug('refresh response',JSON.stringify(response.data,null,2))}
+			if(response.status==200 && this.platform.showAPIMessages){this.log.debug('refresh response',JSON.stringify(response.data,null,2))}
 			return  response
 		}catch(err) {this.log.error('Error refreshing token %s', err)}
 	},
@@ -81,7 +81,7 @@ easeeAPI.prototype={
 				},
 				responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting user profile info %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			if(response.status==200){this.log.debug('get user response',JSON.stringify(response.data,null,2))}
+			if(response.status==200 && this.platform.showAPIMessages){this.log.debug('get user response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving user profile info %s', err)}
 	},
@@ -102,7 +102,7 @@ easeeAPI.prototype={
 						},
 						responseType: 'json'
 				}).catch(err=>{this.log.error('Error %s-%s getting products %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-				if(response.status==200){	this.log.debug('get products data response',JSON.stringify(response.data,null,2))}
+				if(response.status==200 && this.platform.showAPIMessages){	this.log.debug('get products data response',JSON.stringify(response.data,null,2))}
 				return response
 			}catch(err) {this.log.error('Error retrieving products %s', err)}
 		},
@@ -122,7 +122,7 @@ easeeAPI.prototype={
 						},
 						responseType: 'json'
 				}).catch(err=>{this.log.error('Error getting site %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-				if(response.status==200){this.log.debug('get site data response',JSON.stringify(response.data,null,2))}
+				if(response.status==200 && this.platform.showAPIMessages){this.log.debug('get site data response',JSON.stringify(response.data,null,2))}
 				return response
 			}catch(err) {this.log.error('Error site products %s', err)}
 		},
@@ -142,7 +142,7 @@ easeeAPI.prototype={
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting chargers %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			if(response.status==200){	this.log.debug('get chargers config response',JSON.stringify(response.data,null,2))}
+			if(response.status==200 && this.platform.showAPIMessages){	this.log.debug('get chargers config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving chargers %s', err)}
 	},
@@ -162,7 +162,7 @@ easeeAPI.prototype={
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting charger info %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			if(response.status==200){this.log.debug('get charger info config response',JSON.stringify(response.data,null,2))}
+			if(response.status==200 && this.platform.showAPIMessages){this.log.debug('get charger info config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving charger info %s', err)}
 	},
@@ -182,7 +182,7 @@ easeeAPI.prototype={
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting charger details %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			if(response.status==200){this.log.debug('get charger details config response',JSON.stringify(response.data,null,2))}
+			if(response.status==200 && this.platform.showAPIMessages){this.log.debug('get charger details config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving charger details %s', err)}
 	},
@@ -202,7 +202,7 @@ easeeAPI.prototype={
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting charger state %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			if(response.status==200){this.log.debug('get charger state config response',JSON.stringify(response.data,null,2))}
+			if(response.status==200 && this.platform.showAPIMessages){this.log.debug('get charger state config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving charger state %s', err)}
 	},
@@ -222,7 +222,7 @@ easeeAPI.prototype={
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting charger config %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			if(response.status==200){	this.log.debug('get charger config response',JSON.stringify(response.data,null,2))}
+			if(response.status==200 && this.platform.showAPIMessages){	this.log.debug('get charger config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving charger config %s', err)}
 	},
@@ -242,7 +242,7 @@ easeeAPI.prototype={
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting charger info %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			if(response.status==200){this.log.debug('get charger info config response',JSON.stringify(response.data,null,2))}
+			if(response.status==200 && this.platform.showAPIMessages){this.log.debug('get charger info config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving charger info %s', err)}
 	},
@@ -262,7 +262,7 @@ easeeAPI.prototype={
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting equalizer details %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			if(response.status==200){this.log.debug('get equalizer details config response',JSON.stringify(response.data,null,2))}
+			if(response.status==200 && this.platform.showAPIMessages){this.log.debug('get equalizer details config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving equalizer details %s', err)}
 	},
@@ -282,7 +282,7 @@ easeeAPI.prototype={
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s getting equalizer state %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			if(response.status==200){this.log.debug('get equalizer state config response',JSON.stringify(response.data,null,2))}
+			if(response.status==200 && this.platform.showAPIMessages){this.log.debug('get equalizer state config response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving equalizer state %s', err)}
 	},
@@ -305,6 +305,8 @@ easeeAPI.prototype={
 			if(response.status==200){
 				response.data.siteStructure=JSON.parse(response.data.siteStructure.replace(/(\r\n\t|\r\n|\r|\n|\t)/gm,'')) //removing CR LF and Tabs
 				response.data.meterType=response.data.meterType.replace(/(\r\n\t|\r\n|\r|\n|\t)/gm,'') //removing CR LF and Tabs
+			}
+			if(this.platform.showAPIMessages){
 				this.log.debug('get equalizer config response',JSON.stringify(response.data,null,2))
 			}
 			return response
@@ -334,7 +336,7 @@ easeeAPI.prototype={
 				this.log.debug('Error posting fuse command  %s', err.response.config.header, err.response.config.method, err.response.config.url)
 				return err.response
 			})
-		if(response.status==200 || response.status==202){this.log.debug('post fuse response',JSON.stringify(response.data,null,2))}
+		if((response.status==200 || response.status==202) && this.platform.showAPIMessages) {this.log.debug('post fuse response',JSON.stringify(response.data,null,2))}
 		return response
 	},
 
@@ -360,7 +362,7 @@ easeeAPI.prototype={
 				this.log.debug('Error posting max allocated %s', err.response.config.header, err.response.config.method, err.response.config.url)
 				return err.response
 			})
-		if(response.status==200 || response.status==202){this.log.debug('post max allocated response',JSON.stringify(response.data,null,2))}
+		if((response.status==200 || response.status==202) && this.platform.showAPIMessages) {this.log.debug('post max allocated response',JSON.stringify(response.data,null,2))}
 		return response
 	},
 
@@ -386,7 +388,7 @@ easeeAPI.prototype={
 				this.log.debug('Error posting lock command  %s', err.response.config.header, err.response.config.method, err.response.config.url)
 				return err.response
 			})
-		if(response.status==200 || response.status==202){this.log.debug('post lock response',JSON.stringify(response.data,null,2))}
+		if((response.status==200 || response.status==202) && this.platform.showAPIMessages) {this.log.debug('post lock response',JSON.stringify(response.data,null,2))}
 		return response
 	},
 
@@ -412,7 +414,7 @@ easeeAPI.prototype={
 				this.log.debug('Error posting dynamic current command  %s', err.response.config.header, err.response.config.method, err.response.config.url)
 				return err.response
 			})
-		if(response.status==200 || response.status==202){this.log.debug('post dynamic current response',JSON.stringify(response.data,null,2))}
+		if((response.status==200 || response.status==202) && this.platform.showAPIMessages) {this.log.debug('post dynamic current response',JSON.stringify(response.data,null,2))}
 		return response
 	},
 
@@ -438,7 +440,7 @@ easeeAPI.prototype={
 				this.log.debug('Error posting light command  %s', err.response.config.header, err.response.config.method, err.response.config.url)
 				return err.response
 			})
-		if(response.status==200 || response.status==202){this.log.debug('post light response',JSON.stringify(response.data,null,2))}
+		if((response.status==200 || response.status==202) && this.platform.showAPIMessages) {this.log.debug('post light response',JSON.stringify(response.data,null,2))}
 		return response
 	},
 
@@ -460,7 +462,7 @@ easeeAPI.prototype={
 			this.log.debug('Error posting %s command  %s', command, err.response.config.header, err.response.config.method, err.response.config.url)
 			return err.response
 		})
-		if(response.status==200 || response.status==202){this.log.debug('post %s response',command, JSON.stringify(response.data,null,2))}
+		if((response.status==200 || response.status==202) && this.platform.showAPIMessages) {this.log.debug('post %s response',command, JSON.stringify(response.data,null,2))}
 		return response
 	},
 
@@ -478,7 +480,7 @@ easeeAPI.prototype={
 					},
 					responseType: 'json'
 			}).catch(err=>{this.log.error('Error %s-%s observations %s', err.response.status, err.response.statusText, JSON.stringify(err.config,null,2))})
-			//if(response.status==200){this.log.debug('get observations response',JSON.stringify(response.data,null,2))}
+			//if(response.status==200 && this.platform.showAPIMessages){this.log.debug('get observations response',JSON.stringify(response.data,null,2))}
 			return response
 		}catch(err) {this.log.error('Error retrieving observations %s', err)}
 	},
@@ -502,7 +504,7 @@ easeeAPI.prototype={
 					this.log.debug('Error posting override  %s', err.response.config.header, err.response.config.method, err.response.config.url)
 					return err.response
 				})
-				if(response.status==200 || response.status==202){this.log.debug('post response', JSON.stringify(response.data,null,2))}
+				if((response.status==200 || response.status==202) && this.platform.showAPIMessages) {this.log.debug('post response', JSON.stringify(response.data,null,2))}
 				return response
 		}catch(err) {this.log.error('Error setting override %s', err)}
 	},
@@ -534,7 +536,7 @@ easeeAPI.prototype={
 					this.log.debug('Error posting delay  %s', err.response.config.header, err.response.config.method, err.response.config.url)
 					return err.response
 				})
-				if(response.status==200 || response.status==202){this.log.debug('post response', JSON.stringify(response.data,null,2))}
+				if((response.status==200 || response.status==202) && this.platform.showAPIMessages) {this.log.debug('post response', JSON.stringify(response.data,null,2))}
 				return response
 		}catch(err) {this.log.error('Error setting delay %s', err)}
 	},
@@ -562,41 +564,46 @@ easeeAPI.prototype={
 				accessTokenFactory:()=>token
 			})
 			.configureLogging(signalR.LogLevel.None)
-			.withAutomaticReconnect()
+			.withAutomaticReconnect({ //added json
+				"type": "raw",
+				"keep_alive_interval": 10,
+				"reconnect_interval": 5,
+				"max_attempts": 5
+			})
 			.build()
 
 		connection.start()
 			.then(()=>{
 				connection.invoke('SubscribeWithCurrentState', chargerId, true)
-				this.log.info('Starting connection')
+				this.log.info('Starting connection...')
 			}).catch((err) => {this.log.error('Error while starting connection: ', err)})
 
-		connection.onclose(()=>{
-			this.log.warn("Connection close...")
+		connection.onclose((error)=>{
+			this.log.warn('Connection close...',error) //added error
 		})
 		connection.onreconnected(()=>{
 			connection.invoke('SubscribeWithCurrentState', chargerId, true)
-			this.log.info("Reconnected...")
+			this.log.info('Reconnected...')
 		})
-		connection.onreconnecting(()=>{
-			this.log.info("Reconnecting...")
+		connection.onreconnecting((error)=>{
+			this.log.info('Reconnecting...',error) //added error
 		})
 		connection.on('ProductUpdate', (productUpdate)=>{
-			if(this.platform.showExtraDebugMessages){
+			if(this.platform.showSignalRMessages){
 				this.log.debug('Product:',JSON.stringify(productUpdate, null, null))
 			}
 			//** full set of responses with a lot of extras
 			this.platform.updateService(productUpdate)
 		})
 		connection.on('ChargerUpdate', (chargerUpdate)=>{
-			if(this.platform.showExtraDebugMessages){
+			if(this.platform.showSignalRMessages){
 				this.log.debug('Charger:',JSON.stringify(chargerUpdate, null, null))
 			}
 			//** duplicate responses to product but fewer
 			//this.platform.updateService(chargerUpdate)
 		})
 		connection.on('CommandResponse', (update)=>{
-			if(this.platform.showExtraDebugMessages){
+			if(this.platform.showSignalRMessages){
 				this.log.debug('Command:',JSON.stringify(update, null, null))
 			}
 			//if needed could process response here vs api response

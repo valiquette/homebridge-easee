@@ -11,6 +11,7 @@ Enhancment
 - Updated list of error codes.
 - Fix bug with lock updating.
 -	Logging cleanup
+- Add config options foe additional logging
 -	Code cleanup
 
 ## 1.1.9

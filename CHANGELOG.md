@@ -4,21 +4,23 @@
 
 ## 1.2.0
 Enhancment
-- Bumped dependancies
--	Added sensor to display added charge, usefull for homekit automation.
-- Added support for Easee Equalizer.
-- Added support to change dynamic current.
-- Updated list of error codes.
-- Fix bug with lock updating.
--	Logging cleanup
-- Add config options foe additional logging
--	Code cleanup
+-  Bumped dependancies
+-  Added sensor to display added charge, usefull for homekit automation.
+-  Improved battery state calulation.
+-  Added support for Easee Equalizer.
+-  Added support to change dynamic current.
+-  Updated list of error codes.
+-  Fix bug with lock updating.
+-  Logging cleanup
+-  Add config options foe additional logging
+-  Code cleanup
+-	Clean whitespace
 
 ## 1.1.9
 Fix
 - Bumped dependancies
--	Added explict user-agent info to API calls.
--	Code cleanup
+- Added explict user-agent info to API calls.
+- Code cleanup
 
 ## 1.1.8
 Fix
@@ -27,12 +29,12 @@ Fix
 ## 1.1.7
 Update
 - Code cleanup
--	Updated streaming endpoint
+- Updated streaming endpoint
 
 ## 1.1.6
 Fix
 - Fixed an issue where signalR was not automatically reconnecting following netowrk connection interuption.
--	Tied battery service option to having a car defined.
+- Tied battery service option to having a car defined.
 
 ## 1.1.5
 Fix
@@ -54,14 +56,14 @@ Update
 ## 1.1.2
 Update
 - Suppessed extra logging info that does nto need action.
--	Fixed sync for LED light on/off when turnign back on.
+- Fixed sync for LED light on/off when turnign back on.
 - Added location support.
 - Inital support to track battery charge added, will need to update config with info
 
 ## 1.1.1
 Update
 - Fixed logging messages for op mode changes
--	Programmed LED light on/off
+- Programmed LED light on/off
 - Fixed sync for charging state
 
 ## 1.1.0

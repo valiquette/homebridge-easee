@@ -9,21 +9,21 @@ function lockMechanism (platform,log){
 
 lockMechanism.prototype={
 
-  createLockAccessory(device, details, state, uuid){
-    this.log.debug('Create Lock Accessory %s',device.name)
-    let newPlatformAccessory=new PlatformAccessory(device.name, uuid)
-    newPlatformAccessory.getService(Service.AccessoryInformation)
-      .setCharacteristic(Characteristic.Name, device.name)
-      .setCharacteristic(Characteristic.Manufacturer, "Easee")
-      .setCharacteristic(Characteristic.SerialNumber, details.serialNumber)
-      .setCharacteristic(Characteristic.Model, details.product)
-      .setCharacteristic(Characteristic.Identify, true)
-			.setCharacteristic(Characteristic.ProductData,details.unitType)
-      .setCharacteristic(Characteristic.FirmwareRevision, state.chargerFirmware.toString())
-      .setCharacteristic(Characteristic.HardwareRevision, device.backPlate.masterBackPlateId)
-      .setCharacteristic(Characteristic.SoftwareRevision, packageJson.version)
-    return newPlatformAccessory
-  },
+	createLockAccessory(device, details, state, uuid){
+		this.log.debug('Create Lock Accessory %s',device.name)
+		let newPlatformAccessory=new PlatformAccessory(device.name, uuid)
+		newPlatformAccessory.getService(Service.AccessoryInformation)
+		.setCharacteristic(Characteristic.Name, device.name)
+		.setCharacteristic(Characteristic.Manufacturer, "Easee")
+		.setCharacteristic(Characteristic.SerialNumber, details.serialNumber)
+		.setCharacteristic(Characteristic.Model, details.product)
+		.setCharacteristic(Characteristic.Identify, true)
+		.setCharacteristic(Characteristic.ProductData,details.unitType)
+		.setCharacteristic(Characteristic.FirmwareRevision, state.chargerFirmware.toString())
+		.setCharacteristic(Characteristic.HardwareRevision, device.backPlate.masterBackPlateId)
+		.setCharacteristic(Characteristic.SoftwareRevision, packageJson.version)
+		return newPlatformAccessory
+	},
 
   createLockService(device, details, state){
     this.log.debug("create Lock service for %s, serial number %s",device.name, details.serialNumber )
@@ -46,7 +46,7 @@ lockMechanism.prototype={
 		lockService
 			.getCharacteristic(Characteristic.LockTargetState)
 			.on('get', this.getLockTargetState.bind(this, lockService))
-      .on('set', this.setLockTargetState.bind(this, lockService))
+			.on('set', this.setLockTargetState.bind(this, lockService))
 		lockService
 			.getCharacteristic(Characteristic.LockCurrentState)
 			.on('get', this.getLockCurrentState.bind(this, lockService))

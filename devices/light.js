@@ -8,35 +8,35 @@ function light (platform,log){
 
 light.prototype={
 
-  createLightService(device, config, state, type){
-    this.log.debug('adding new switch')
-    let lightService=new Service.Lightbulb(type, device.id)
+	createLightService(device, config, state, type){
+		this.log.debug('adding new switch')
+		let lightService=new Service.Lightbulb(type, device.id)
 		let lightOn=false
 		if(config.ledStripBrightness>0){lightOn=true}
 		//CurrentPostion tracks level at tiem of off so on returns to pre set level
-    lightService
-      .setCharacteristic(Characteristic.On, lightOn)
-      .setCharacteristic(Characteristic.Name, device.name+" "+type)
-      .setCharacteristic(Characteristic.StatusFault, !state.isOnline)
-      .setCharacteristic(Characteristic.Brightness, config.ledStripBrightness)
-			.setCharacteristic(Characteristic.CurrentPosition, config.ledStripBrightness)
-    return lightService
-  },
-
-  configureLightService(device, lightService){
-    this.log.info("Configured %s light for %s" ,lightService.getCharacteristic(Characteristic.Name).value, device.name,)
-    lightService
-      .getCharacteristic(Characteristic.On)
-      .on('get', this.getLightValue.bind(this, lightService))
-      .on('set', this.setLightValue.bind(this, device, lightService))
 		lightService
-      .getCharacteristic(Characteristic.Brightness)
+		.setCharacteristic(Characteristic.On, lightOn)
+		.setCharacteristic(Characteristic.Name, device.name+" "+type)
+		.setCharacteristic(Characteristic.StatusFault, !state.isOnline)
+		.setCharacteristic(Characteristic.Brightness, config.ledStripBrightness)
+		.setCharacteristic(Characteristic.CurrentPosition, config.ledStripBrightness)
+		return lightService
+	},
+
+	configureLightService(device, lightService){
+		this.log.info("Configured %s light for %s" ,lightService.getCharacteristic(Characteristic.Name).value, device.name,)
+		lightService
+		.getCharacteristic(Characteristic.On)
+		.on('get', this.getLightValue.bind(this, lightService))
+		.on('set', this.setLightValue.bind(this, device, lightService))
+		lightService
+		.getCharacteristic(Characteristic.Brightness)
 			.setProps({
 					minStep:10
 				})
-      .on('get', this.getLightBrightness.bind(this, lightService))
-      .on('set', this.setLightBrightness.bind(this, device, lightService))
-  },
+		.on('get', this.getLightBrightness.bind(this, lightService))
+		.on('set', this.setLightBrightness.bind(this, device, lightService))
+	},
 
   setLightValue(device, lightService, value, callback){
     this.log.debug('%s light switch state %s',lightService.getCharacteristic(Characteristic.Name).value, value)

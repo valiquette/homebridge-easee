@@ -8,38 +8,38 @@ function basicSwitch (platform,log){
 
 basicSwitch.prototype={
 
-  createSwitchService(device, state, type){
-    this.log.debug('adding new switch')
+	createSwitchService(device, state, type){
+		this.log.debug('adding new switch')
 		let switchService=new Service.Switch(type, device.id)
 		let switchOn=false
 		if(state.chargerOpMode==3){switchOn=true}
-    switchService
-      .setCharacteristic(Characteristic.On, switchOn)
-      .setCharacteristic(Characteristic.Name, device.name+" "+type)
-      .setCharacteristic(Characteristic.StatusFault,!state.isOnline)
-    return switchService
-  },
+		switchService
+		.setCharacteristic(Characteristic.On, switchOn)
+		.setCharacteristic(Characteristic.Name, device.name+" "+type)
+		.setCharacteristic(Characteristic.StatusFault,!state.isOnline)
+		return switchService
+	},
 
 	createOtherSwitchService(device, state, type){
-    this.log.debug('adding other switch')
+		this.log.debug('adding other switch')
 		let uuid=UUIDGen.generate(device.id+type)
 		let switchService=new Service.Switch(type, uuid)
 		let switchOn=false
-    switchService
-      .setCharacteristic(Characteristic.On, switchOn)
-      .setCharacteristic(Characteristic.Name, device.name+" "+type)
-      .setCharacteristic(Characteristic.StatusFault,!state.isOnline)
-    return switchService
-  },
+		switchService
+		.setCharacteristic(Characteristic.On, switchOn)
+		.setCharacteristic(Characteristic.Name, device.name+" "+type)
+		.setCharacteristic(Characteristic.StatusFault,!state.isOnline)
+		return switchService
+	},
 
-  configureSwitchService(device, switchService){
-    this.log.info("Configured %s switch for %s" , switchService.getCharacteristic(Characteristic.Name).value, device.name,)
-    switchService
-      .getCharacteristic(Characteristic.On)
-      .on('get', this.getSwitchValue.bind(this, switchService))
-      .on('set', this.setSwitchValue.bind(this, device, switchService))
-  },
-	
+	configureSwitchService(device, switchService){
+		this.log.info("Configured %s switch for %s" , switchService.getCharacteristic(Characteristic.Name).value, device.name,)
+		switchService
+		.getCharacteristic(Characteristic.On)
+		.on('get', this.getSwitchValue.bind(this, switchService))
+		.on('set', this.setSwitchValue.bind(this, device, switchService))
+	},
+
   setSwitchValue(device, switchService, value, callback){
 		this.log.debug('toggle switch state %s',switchService.getCharacteristic(Characteristic.Name).value)
 		this.log.debug('toggle %s',switchService.displayName)

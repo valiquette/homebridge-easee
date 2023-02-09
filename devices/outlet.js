@@ -8,37 +8,37 @@ function basicOutlet (platform,log){
 
 basicOutlet.prototype={
 
-  createOutletService(device, state, type){
-    this.log.debug('adding new outlet')
+	createOutletService(device, state, type){
+		this.log.debug('adding new outlet')
 		let outletService=new Service.Outlet(type, device.id)
 		let outletOn=false
 		if(state.chargerOpMode==3){outletOn=true}
-    outletService
-      .setCharacteristic(Characteristic.On, outletOn)
-      .setCharacteristic(Characteristic.Name, device.name+" "+type)
-      .setCharacteristic(Characteristic.StatusFault,!state.isOnline)
-    return outletService
-  },
+		outletService
+		.setCharacteristic(Characteristic.On, outletOn)
+		.setCharacteristic(Characteristic.Name, device.name+" "+type)
+		.setCharacteristic(Characteristic.StatusFault,!state.isOnline)
+		return outletService
+	},
 
 	createOtherOutletService(device, state, type){
-    this.log.debug('adding other outlet')
+		this.log.debug('adding other outlet')
 		let uuid=UUIDGen.generate(device.id+type)
 		let outletService=new Service.Outlet(type, uuid)
 		let outletOn=false
-    outletService
-      .setCharacteristic(Characteristic.On, outletOn)
-      .setCharacteristic(Characteristic.Name, device.name+" "+type)
-      .setCharacteristic(Characteristic.StatusFault,!state.isOnline)
-    return outletService
-  },
+		outletService
+		.setCharacteristic(Characteristic.On, outletOn)
+		.setCharacteristic(Characteristic.Name, device.name+" "+type)
+		.setCharacteristic(Characteristic.StatusFault,!state.isOnline)
+		return outletService
+	},
 
-  configureOutletService(device, outletService){
-    this.log.info("Configured %s outlet for %s" , outletService.getCharacteristic(Characteristic.Name).value, device.name,)
-    outletService
-      .getCharacteristic(Characteristic.On)
-      .on('get', this.getOutletValue.bind(this, outletService))
-      .on('set', this.setOutletValue.bind(this, device, outletService))
-  },
+	configureOutletService(device, outletService){
+		this.log.info("Configured %s outlet for %s" , outletService.getCharacteristic(Characteristic.Name).value, device.name,)
+		outletService
+		.getCharacteristic(Characteristic.On)
+		.on('get', this.getOutletValue.bind(this, outletService))
+		.on('set', this.setOutletValue.bind(this, device, outletService))
+	},
 
   setOutletValue(device, outletService, value, callback){
 		this.log.debug('toggle outlet state %s',outletService.getCharacteristic(Characteristic.Name).value)

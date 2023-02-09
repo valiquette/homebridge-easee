@@ -20,9 +20,9 @@ control.prototype={
 		let switchOn=false
 		if(state.chargerOpMode==3){switchOn=true}
 		let controlService=new Service.Thermostat(type, device.id)
-    controlService
-      .setCharacteristic(Characteristic.Name, device.name+' '+type)
-      .setCharacteristic(Characteristic.StatusFault,Characteristic.StatusFault.NO_FAULT)
+		controlService
+			.setCharacteristic(Characteristic.Name, device.name+' '+type)
+			.setCharacteristic(Characteristic.StatusFault,Characteristic.StatusFault.NO_FAULT)
 			.setCharacteristic(Characteristic.TargetTemperature, currentAmps)
 			.setCharacteristic(Characteristic.CurrentTemperature, currentAmps)
 			.setCharacteristic(Characteristic.TemperatureDisplayUnits,this.platform.useFahrenheit)
@@ -74,7 +74,7 @@ control.prototype={
 		controlService
       .getCharacteristic(Characteristic.TemperatureDisplayUnits)
 			.on('get', this.getControlUnits.bind(this, controlService))
-      .on('set', this.setControlUnits.bind(this, device, controlService))
+			.on('set', this.setControlUnits.bind(this, device, controlService))
   },
 
 	async setControlAmps(device, controlService, value, callback){

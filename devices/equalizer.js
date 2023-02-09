@@ -12,24 +12,24 @@ function equalizer (platform,log,config){
 }
 
 equalizer.prototype={
-  createWindowAccessory(device, details, state, uuid){
-    this.log.debug('Create Window Accessory for Equalizer %s',device.name)
-    let newPlatformAccessory=new PlatformAccessory(device.name, uuid)
-    newPlatformAccessory.getService(Service.AccessoryInformation)
-      .setCharacteristic(Characteristic.Name, device.name)
-      .setCharacteristic(Characteristic.Manufacturer, "Easee")
-      .setCharacteristic(Characteristic.SerialNumber, details.equalizerId)
-      .setCharacteristic(Characteristic.Model, "Equalizer")
-      .setCharacteristic(Characteristic.Identify, true)
+	createWindowAccessory(device, details, state, uuid){
+		this.log.debug('Create Window Accessory for Equalizer %s',device.name)
+		let newPlatformAccessory=new PlatformAccessory(device.name, uuid)
+		newPlatformAccessory.getService(Service.AccessoryInformation)
+		.setCharacteristic(Characteristic.Name, device.name)
+		.setCharacteristic(Characteristic.Manufacturer, "Easee")
+		.setCharacteristic(Characteristic.SerialNumber, details.equalizerId)
+		.setCharacteristic(Characteristic.Model, "Equalizer")
+		.setCharacteristic(Characteristic.Identify, true)
 			//.setCharacteristic(Characteristic.ProductData,details.unitType)
-      .setCharacteristic(Characteristic.FirmwareRevision, state.latestFirmware.toString())
-      .setCharacteristic(Characteristic.HardwareRevision, details.masterBackPlateId)
-      .setCharacteristic(Characteristic.SoftwareRevision, packageJson.version)
-    return newPlatformAccessory
-  },
+		.setCharacteristic(Characteristic.FirmwareRevision, state.latestFirmware.toString())
+		.setCharacteristic(Characteristic.HardwareRevision, details.masterBackPlateId)
+		.setCharacteristic(Characteristic.SoftwareRevision, packageJson.version)
+		return newPlatformAccessory
+	},
 
-  createWindowService(device, details, config, state){
-    this.log.debug("create Window service for Equalizer %s, serial number %s",device.name, config.serialNumber )
+	createWindowService(device, details, config, state){
+		this.log.debug("create Window service for Equalizer %s, serial number %s",device.name, config.serialNumber )
 		let windowService=new Service.WindowCovering(device.name, device.id)
 		windowService
 			.setCharacteristic(Characteristic.SerialNumber, details.serialNumber)
@@ -66,7 +66,7 @@ equalizer.prototype={
 			})
 			.on('get', this.getTargetPosition.bind(this, windowService))
 			.on('set', this.setTargetPosition.bind(this, windowService, config))
-  },
+	},
 
 	getTargetPosition: function (windowService, callback) {
 		let currentValue=windowService.getCharacteristic(Characteristic.TargetPosition).value

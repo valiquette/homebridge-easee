@@ -40,22 +40,26 @@ This plugin is only been tested with Easee Home Charger.
       "kwH": 84
     }
   ],
-	"location_address": "123 Easy St",
-	"showControls": 1,
-	"showLight": true,
-	"showReboot": false,
-	"showOverride": true,
-	"socSensor": true,
-	"showEqualizer": true,
-	"eqMin": 0,
-	"eqMax": 90,
-	"_bridge": {
-	  "username": "0E:46:88:49:71:DD",
-	  "port": 39306
-   },
+  "location_address": "123 Easy St",
+  "showControls": 3,
+  "showLight": false,
+  "useOutlet": true,
+  "showReboot": false,
+  "showOverride": false,
+  "socSensor": true,
+  "showEqualizer": false,
+  "showSignalRMessages": false,
+  "showAPIMessages": false,
+  "experimental": true,
+  "eqMin": 20,
+  "eqMax": 95,
+  "_bridge": {
+    "username": "0E:46:88:49:71:DD",
+    "port": 39306
+    },
   "platform": "easee"
-	}
-]
+  }
+  ]
 ```
 showControls valid values
 0:None, 1:Toggle, 2:Start/Stop, 3:Pause/Resume, 4:Amperage control with Pause/Resume

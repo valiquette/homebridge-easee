@@ -7,20 +7,25 @@ Enumerations https://developer.easee.cloud/docs/enumerations
 */
 
 let axios = require('axios')
+let rax = require('retry-axios') //v3.0.0 ES6 only
 let signalR = require('@microsoft/signalr')
 
 let endpoint = 'https://api.easee.cloud/api'
 //let streamingEndpoint = 'https://api.beta.easee.cloud'
 let streamingEndpoint = 'https://api.easee.cloud'
 
-function easeeAPI (platform,log){
+function easeeAPI (platform,log,config){
 	this.log=log
 	this.platform=platform
+	this.config=config
 }
 
 easeeAPI.prototype={
 
 	login: async function(userName,password){
+		if(this.config.testToken){
+			return this.config.testToken
+		}
 		try {
 			this.log.debug('Authenticating and retrieving access Token')
 			let response = await axios({
@@ -51,6 +56,7 @@ easeeAPI.prototype={
 	},
 
 	refreshToken: async function(accessToken,refreshToken){
+		rax.attach()
 		try {
 			this.log.debug('Refreshing access token')
 			let response = await axios({
@@ -66,7 +72,19 @@ easeeAPI.prototype={
 					'accessToken': accessToken,
 					'refreshToken': refreshToken
 				},
-				responseType: 'json'
+				responseType: 'json',
+				raxConfig: {
+					retry: 5,
+					noResponseRetries: 2,
+					retryDelay: 100,
+					httpMethodsToRetry: ['GET','PUT'],
+					statusCodesToRetry: [[100, 199], [400, 400], [401, 401], [404, 404], [500, 599]],
+					backoffType: 'exponential',
+					onRetryAttempt: err => {
+					  let cfg = rax.getConfig(err)
+					  this.log.warn(`${err.message} retrying refreshing token, attempt #${cfg.currentRetryAttempt}`)
+					}
+				 }
 			}).catch(err=>{
 				this.log.debug(JSON.stringify(err,null,2))
 				this.log.error('Error refreshing token %s', err.message)

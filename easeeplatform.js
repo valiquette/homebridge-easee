@@ -33,6 +33,8 @@ class easeePlatform {
 	this.token
 	this.refreshToken
 	this.retryWait=config.retryWait || 60 //sec
+	this.retryMax=config.retryMax || 3 //attempts
+	this.retryAttempt=0
 	this.showBattery=config.showBattery
 	this.showControls=config.showControls
 	this.useOutlet=config.useOutlet ? config.useOutlet : false
@@ -68,7 +70,7 @@ class easeePlatform {
 	}
 	if(config.cars){this.showBattery=true}
 	if(!config.username || !config.password){
-	this.log.error('Valid username and password are required in order to communicate with easee, please check the plugin config')
+	this.log.error('Valid username and password are required in order to communicate with easee, please check the plugin config.')
 	}
 	this.log.info('Starting Easee Platform using homebridge API', api.version)
 	if(api){
@@ -89,10 +91,10 @@ class easeePlatform {
 			this.log.debug('Fetching Build info...')
 			this.log.info('Getting Account info...')
 			//get new observation list
-			this.observations.items=await this.easeeapi.getObservations().catch(err=>{this.log.error('Failed to get observation list for build', err)})
+			this.observations.items=await this.easeeapi.getObservations().catch(err=>{this.log.error('Failed to get observation list for build. \n%s', err)})
 			this.log.debug('Retrieved %s observations',observations.items.length)
 			// login to the API and get the token
-			let login=await this.easeeapi.login(this.username,this.password).catch(err=>{this.log.error('Failed to get login for build', err)})
+			let login=await this.easeeapi.login(this.username,this.password).catch(err=>{this.log.error('Failed to get login for build. \n%s', err)})
 			this.log.debug('Found Token %s**********',login.accessToken.substring(0,100))
 			this.log.debug('Expires in %s hours',login.expiresIn/60/60)
 			this.log.debug('Found Refresh Token %s**********',login.refreshToken.substring(0,25))
@@ -100,11 +102,11 @@ class easeePlatform {
 			this.refreshToken=login.refreshToken
 			this.setTokenRefresh(login.expiresIn)
 			//get profile
-			let profile=await	this.easeeapi.profile(this.token).catch(err=>{this.log.error('Failed to get profile for build', err)})
+			let profile=await	this.easeeapi.profile(this.token).catch(err=>{this.log.error('Failed to get profile for build. \n%s', err)})
 			this.log.info('Found account for %s %s', profile.firstName, profile.lastName)
 			this.userId=profile.userId
 			//get product
-			let products=await this.easeeapi.products(this.token,this.userId).catch(err=>{this.log.error('Failed to get products for build', err)})
+			let products=await this.easeeapi.products(this.token,this.userId).catch(err=>{this.log.error('Failed to get products for build. \n%s', err)})
 			products.filter((location)=>{
 				this.log.info('Found products at %s %s', location.address.street, location.name)
 			//	this.log.warn(this.locationAddress, location.address.street )
@@ -124,9 +126,9 @@ class easeePlatform {
 					circuit.chargers.forEach(async(charger)=>{
 						this.log.info('Found charger %s with ID-%s ', charger.name, charger.id)
 						this.log.info('Circuit ID %s Site ID-%s ', circuit.id, circuit.siteId)
-						let chargerConfig=await this.easeeapi.chargerConfig(this.token,charger.id).catch(err=>{this.log.error('Failed to get charger config info for build', err)})
-						let chargerState=await this.easeeapi.chargerState(this.token,charger.id).catch(err=>{this.log.error('Failed to get charger state for build', err)})
-						let chargerDetails=await this.easeeapi.chargerDetails(this.token,charger.id).catch(err=>{this.log.error('Failed to get charger detail info for build', err)})
+						let chargerConfig=await this.easeeapi.chargerConfig(this.token,charger.id).catch(err=>{this.log.error('Failed to get charger config info for build. \n%s', err)})
+						let chargerState=await this.easeeapi.chargerState(this.token,charger.id).catch(err=>{this.log.error('Failed to get charger state for build. \n%s', err)})
+						let chargerDetails=await this.easeeapi.chargerDetails(this.token,charger.id).catch(err=>{this.log.error('Failed to get charger detail info for build. \n%s', err)})
 						this.log.debug('Phase mode = %s', this.enumeration.data.PhaseMode[chargerConfig.phaseMode])
 						let uuid=UUIDGen.generate(charger.id)
 						if(this.accessories[uuid]){
@@ -232,9 +234,9 @@ class easeePlatform {
 				try{
 					if(this.showEqualizer && location.equalizers[0]){
 						this.eq=location.equalizers[0].id
-						let equalizerConfig=await this.easeeapi.equalizerConfig(this.token,location.equalizers[0].id).catch(err=>{this.log.error('Failed to get equalizer config info for build', err)})
-						let equalizerState=await this.easeeapi.equalizerState(this.token,location.equalizers[0].id).catch(err=>{this.log.error('Failed to get equalizer state for build', err)})
-						let equalizerDetails=await this.easeeapi.equalizerDetails(this.token,location.equalizers[0].id).catch(err=>{this.log.error('Failed to get equalizer detail info for build', err)})
+						let equalizerConfig=await this.easeeapi.equalizerConfig(this.token,location.equalizers[0].id).catch(err=>{this.log.error('Failed to get equalizer config info for build. \n%s', err)})
+						let equalizerState=await this.easeeapi.equalizerState(this.token,location.equalizers[0].id).catch(err=>{this.log.error('Failed to get equalizer state for build. \n%s', err)})
+						let equalizerDetails=await this.easeeapi.equalizerDetails(this.token,location.equalizers[0].id).catch(err=>{this.log.error('Failed to get equalizer detail info for build. \n%s', err)})
 						let uuid2=UUIDGen.generate(location.equalizers[0].id)
 						this.siteStructure=equalizerConfig.siteStructure
 						if(this.accessories[uuid2]){
@@ -266,12 +268,18 @@ class easeePlatform {
 					}
 				}catch(err){this.log.warn('No Equalizer found')}
 			})
-			setTimeout(()=>{this.log.info('Easee Platform finished loading')}, 500)
+			setTimeout(()=>{this.log.info('Easee Platform finished loading')}, 5000)
 		}catch(err){
-			this.log.error('Failed to get devices...%s \nRetrying in %s seconds...', err,this.retryWait)
-			setTimeout(async()=>{
-				this.getDevices()
-			},this.retryWait*1000)
+			if(this.retryAttempt<this.retryMax){
+				this.retryAttempt++
+				this.log.error('Failed to get devices. Retry attempt %s of %s in %s seconds...',this.retryAttempt, this.retryMax, this.retryWait)
+				setTimeout(async()=>{
+					this.getDevices()
+				},this.retryWait*1000)
+			}
+			else{
+				this.log.error('Failed to get devices...\n%s', err)
+			}
 		}
 	}
 
@@ -287,14 +295,14 @@ class easeePlatform {
 	setTokenRefresh(ttl){
 		setInterval(async()=>{
 			try{
-				let tokenInfo=await this.easeeapi.refreshToken(this.token,this.refreshToken).catch(err=>{this.log.error('Failed signin to refresh token', err)})
+				let tokenInfo=await this.easeeapi.refreshToken(this.token,this.refreshToken).catch(err=>{this.log.error('Failed signin to refresh token. \n%s', err)})
 				this.log.debug('new access token %s**********',tokenInfo.accessToken.substring(0,100))
 				this.log.debug('new refresh Token %s**********',tokenInfo.refreshToken.substring(0,25))
 				this.token=tokenInfo.accessToken
 				this.refreshToken=tokenInfo.refreshToken
 				this.log.info('Token has been refreshed')
 				this.log.debug(JSON.stringify(tokenInfo,null,2))
-			}catch(err){this.log.error('Failed to refresh token', err)}
+			}catch(err){this.log.error('Failed to refresh token. \n%s', err)}
 		},ttl*1000/1.2) //~20 hours
 	}
 
@@ -303,7 +311,7 @@ class easeePlatform {
 			try{
 				this.easeeapi.signalR(this.token,charger.id)
 				this.log.info('SignalR has been reset')
-			}catch(err){this.log.error('Failed to reset SignalR', err)}
+			}catch(err){this.log.error('Failed to reset SignalR. \n%s', err)}
 		},ttl*1000/1.2)
 	}
 
@@ -326,7 +334,7 @@ class easeePlatform {
 		x.setSeconds(fullCharge*60*60)
 		let fullChargeTime=x.toTimeString().slice(0,8)
 		this.log.info('Charging time for 100% charge ',fullChargeTime)
-		let currentSession=await this.easeeapi.currentSession(this.token,chargerId).catch(err=>{this.log.error('Failed to get current session', err)})
+		let currentSession=await this.easeeapi.currentSession(this.token,chargerId).catch(err=>{this.log.error('Failed to get current session. \n%s', err)})
 		try {
 			if(currentSession.errorCode){
 				this.log.debug(currentSession.title)
@@ -342,8 +350,8 @@ class easeePlatform {
 
 				let endTime=setInterval(async()=>{
 					try{
-						let currentSession=await this.easeeapi.currentSession(this.token,chargerId).catch(err=>{this.log.error('Failed to get current session', err)})
-						this.log.info(currentSession)
+						let currentSession=await this.easeeapi.currentSession(this.token,chargerId).catch(err=>{this.log.error('Failed to get current session. \n%s', err)})
+						this.log.debug(currentSession)
 						if(currentSession.errorCode){
 							this.log.debug(currentSession.title)
 							this.log.debug('Charge session complete')
@@ -364,19 +372,19 @@ class easeePlatform {
 								clearInterval(endTime)
 							}
 						}
-					}catch(err){this.log.error('Failed', err)}
+					}catch(err){this.log.error('Failed. \n%s', err)}
 				},5*60*1000)
 			this.endTime[batteryService.subtype]=endTime
 			this.endTime[sensorService.subtype]=endTime
 			}
-		}catch(error){
-			this.log.error('Failed to update battery',error)
+		}catch(err){
+			this.log.error('Failed to update battery. \n%s',err)
 		}
 	}
 
 	async updateEq(windowService,eqId){
 		try{
-			let equalizerConfig=await this.easeeapi.equalizerConfig(this.token,eqId).catch(err=>{this.log.error('Failed to get comfig info for build', err)})
+			let equalizerConfig=await this.easeeapi.equalizerConfig(this.token,eqId).catch(err=>{this.log.error('Failed to get comfig info for build. \n%s', err)})
 			if(equalizerConfig){
 				let percent=Math.round(equalizerConfig.siteStructure.maxAllocatedCurrent/equalizerConfig.siteStructure.ratedCurrent*100)
 				if(this.experimental){
@@ -399,7 +407,7 @@ class easeePlatform {
 				windowService.getCharacteristic(Characteristic.TargetPosition).updateValue(percent)
 				windowService.getCharacteristic(Characteristic.CurrentPosition).updateValue(percent)
 			}
-		}catch(err){this.log.error('Failed to update equalizer', err)}
+		}catch(err){this.log.error('Failed to update equalizer. \n%s', err)}
 	}
 
 	updateService(message){

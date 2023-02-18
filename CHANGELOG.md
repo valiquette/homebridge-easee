@@ -4,17 +4,18 @@
 
 ## 1.2.0
 Enhancment
--  Bumped dependancies
+-  Verified badge added.
+-  Bumped dependancies.
 -  Added sensor to display added charge, usefull for homekit automation.
 -  Improved battery state calulation.
 -  Added support for Easee Equalizer.
 -  Added support to change dynamic current.
 -  Updated list of error codes.
 -  Fix bug with lock updating.
--  Logging cleanup
--  Add config options foe additional logging
--  Code cleanup
--	Clean whitespace
+-  Logging cleanup.
+-  Add config options for additional logging
+-  Code cleanup.
+-	Clean whitespace.
 
 ## 1.1.9
 Fix

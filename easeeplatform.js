@@ -227,6 +227,14 @@ class easeePlatform {
 						this.log.info('Adding Charger Lock for %s', charger.name)
 						this.log.debug('Registering platform accessory')
 						this.api.registerPlatformAccessories(PluginName, PlatformName, [lockAccessory])
+						/*
+						let currentSession=await this.easeeapi.currentSession(this.token,charger.id).catch(err=>{this.log.error('Failed to get current session. \n%s', err)})
+						if(currentSession.status==200){
+							this.log.debug('Charge session ongoing')
+							this.updateService({"mid":"EHEWWVHU","dataType":4,"id":109,"timestamp":new Date(Date.now()).toISOString(),"value":"3"})
+							this.updateService({"mid":"EHEWWVHU","dataType":4,"id":114,"timestamp":new Date(Date.now()).toISOString(),"value":"32"})
+						}
+						*/
 						this.easeeapi.signalR(this.token, charger.id)
 						this.resetSignalR(login.expiresIn, charger)
 					})
@@ -316,50 +324,59 @@ class easeePlatform {
 	}
 
 	async calcBattery(chargerId, batteryService, sensorService){
-		if(this.cars){
-			let car=this.cars.filter(charger=>(charger.chargerName.includes(batteryService.getCharacteristic(Characteristic.Name).value)))
-			this.batterySize=car[0].kwH
-		}
-		else{
-			this.batterySize=80
-		}
-		if(this.amps[batteryService.subtype]){this.amperage=this.amps[batteryService.subtype]}
-		if(this.amps[sensorService.subtype]){this.amperage=this.amps[sensorService.subtype]}
-		if(this.showBattery){clearInterval(this.endTime[batteryService.subtype])}
-		if(this.showSensor){clearInterval(this.endTime[sensorService.subtype])}
-
-		let kwh=this.voltage*this.amperage/1000
-		let fullCharge=(this.batterySize)/(kwh)
-		let x=new Date(0,0)
-		x.setSeconds(fullCharge*60*60)
-		let fullChargeTime=x.toTimeString().slice(0,8)
-		this.log.info('Charging time for 100% charge ',fullChargeTime)
-		let currentSession=await this.easeeapi.currentSession(this.token,chargerId).catch(err=>{this.log.error('Failed to get current session. \n%s', err)})
 		try {
-			if(currentSession.errorCode){
-				this.log.debug(currentSession.title)
+			if(this.cars){
+				let car=this.cars.filter(charger=>(charger.chargerName.includes(batteryService.getCharacteristic(Characteristic.Name).value)))
+				this.batterySize=car[0].kwH
+			}
+			else{
+				this.batterySize=80
+			}
+			if(this.showBattery){
+				if(this.amps[batteryService.subtype]){
+					this.amperage=this.amps[batteryService.subtype]
+				}
+				clearInterval(this.endTime[batteryService.subtype])
+			}
+			if(this.showSensor){
+				if(this.amps[sensorService.subtype]){
+					this.amperage=this.amps[sensorService.subtype]
+				}
+				clearInterval(this.endTime[sensorService.subtype])
+			}
+
+			let kwh=this.voltage*this.amperage/1000
+			let fullCharge=(this.batterySize)/(kwh)
+			let x=new Date(0,0)
+			x.setSeconds(fullCharge*60*60)
+			let fullChargeTime=x.toTimeString().slice(0,8)
+			this.log.info('Charging time for 100% charge ',fullChargeTime)
+			let currentSession=await this.easeeapi.currentSession(this.token,chargerId).catch(err=>{this.log.error('Failed to get current session. \n%s', err)})
+			//this.log.debug(currentSession.status)
+			if(currentSession.status==404){
+				this.log.debug(currentSession.data.title)
 				this.log.debug('Charge session complete')
 				return
 			}
 			else{
-				let startTime=Date.parse(currentSession.sessionStart)
-				let runningTime=currentSession.chargeDurationInSeconds
-				let chargeAdded=currentSession.sessionEnergy
+				let startTime=Date.parse(currentSession.data.sessionStart)
+				let runningTime=currentSession.data.chargeDurationInSeconds
+				let chargeAdded=currentSession.data.sessionEnergy
 				let percentAdded=(chargeAdded/this.batterySize*100).toFixed(0)
 				this.log.debug('Charge added %s kwh, %s%',chargeAdded,percentAdded)
 
 				let endTime=setInterval(async()=>{
 					try{
 						let currentSession=await this.easeeapi.currentSession(this.token,chargerId).catch(err=>{this.log.error('Failed to get current session. \n%s', err)})
-						this.log.debug(currentSession)
-						if(currentSession.errorCode){
-							this.log.debug(currentSession.title)
+						//this.log.debug(currentSession.status)
+						if(currentSession.status==404){
+							this.log.debug(currentSession.data.title)
 							this.log.debug('Charge session complete')
 							clearInterval(endTime)
 						}
 						else{
-							runningTime=currentSession.chargeDurationInSeconds
-							chargeAdded=currentSession.sessionEnergy
+							runningTime=currentSession.data.chargeDurationInSeconds
+							chargeAdded=currentSession.data.sessionEnergy
 							percentAdded=(chargeAdded/this.batterySize*100).toFixed(0)
 							this.log.debug('Charge added %s kwh, %s%',chargeAdded,percentAdded)
 							if(this.showBattery){
@@ -374,8 +391,12 @@ class easeePlatform {
 						}
 					}catch(err){this.log.error('Failed. \n%s', err)}
 				},5*60*1000)
-			this.endTime[batteryService.subtype]=endTime
-			this.endTime[sensorService.subtype]=endTime
+				if(this.showBattery){
+					this.endTime[batteryService.subtype]=endTime
+				}
+				if(this.showSensor){
+					this.endTime[sensorService.subtype]=endTime
+				}
 			}
 		}catch(err){
 			this.log.error('Failed to update battery. \n%s',err)
@@ -556,17 +577,20 @@ class easeePlatform {
 					case 1://disconnected
 						this.log.info('%s disconnected',lockService.getCharacteristic(Characteristic.Name).value)
 						lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(false)
-						if(this.showBattery){clearInterval(this.endTime[batteryService.subtype])}
-						if(this.showSensor){clearInterval(this.endTime[sensorService.subtype])}
-						if(this.showBattery){batteryService.getCharacteristic(Characteristic.BatteryLevel).updateValue(0)}
-						if(this.showSensor){HumiditySensor.getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(0)}
+						if(this.showBattery){
+							clearInterval(this.endTime[batteryService.subtype])
+							batteryService.getCharacteristic(Characteristic.BatteryLevel).updateValue(0)
+						}
+						if(this.showSensor){
+							clearInterval(this.endTime[sensorService.subtype])
+							HumiditySensor.getCharacteristic(Characteristic.CurrentRelativeHumidity).updateValue(0)
+						}
 						break
 					case 2://awating start
 						this.log.info('%s paused, waiting to start',lockService.getCharacteristic(Characteristic.Name).value)
 						lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(true)
 						if(this.showBattery){clearInterval(this.endTime[batteryService.subtype])}
 						if(this.showSensor){clearInterval(this.endTime[sensorService.subtype])}
-						//add delay
 						break
 					case 3://charging
 						this.log.info('%s charging',lockService.getCharacteristic(Characteristic.Name).value)
@@ -576,7 +600,7 @@ class easeePlatform {
 					case 4://complete
 						this.log.info('%s complete, %s% charge added',lockService.getCharacteristic(Characteristic.Name).value,batteryService.getCharacteristic(Characteristic.BatteryLevel).value)
 							if(this.showBattery){clearInterval(this.endTime[batteryService.subtype])}
-							if(this.showBattery){clearInterval(this.endTime[sensorService.subtype])}
+							if(this.showSensor){clearInterval(this.endTime[sensorService.subtype])}
 						break
 					case 5://error
 						this.log.info('%s error',lockService.getCharacteristic(Characteristic.Name).value)

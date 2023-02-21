@@ -18,6 +18,7 @@ function easeeAPI (platform,log,config){
 	this.log=log
 	this.platform=platform
 	this.config=config
+	this.interceptorId=rax.attach()
 }
 
 easeeAPI.prototype={
@@ -56,7 +57,6 @@ easeeAPI.prototype={
 	},
 
 	refreshToken: async function(accessToken,refreshToken){
-		rax.attach()
 		try {
 			this.log.debug('Refreshing access token')
 			let response = await axios({
@@ -316,7 +316,6 @@ easeeAPI.prototype={
 	},
 
 	currentSession: async function(token,chargerId){
-		rax.attach()
 		try {
 			this.log.debug('Retrieving current session %s',chargerId)
 			let response = await axios({
@@ -331,7 +330,7 @@ easeeAPI.prototype={
 					},
 					responseType: 'json',
 					raxConfig: {
-						retry: 5,
+						retry: 3,
 						noResponseRetries: 2,
 						retryDelay: 100,
 						httpMethodsToRetry: ['GET','PUT'],
@@ -339,26 +338,27 @@ easeeAPI.prototype={
 						backoffType: 'exponential',
 						onRetryAttempt: err => {
 						  let cfg = rax.getConfig(err)
-						  this.log.warn(`${err.message} retrying refreshing token, attempt #${cfg.currentRetryAttempt}`)
+						  this.log.warn(`${err.message} retrying current session, attempt #${cfg.currentRetryAttempt}`)
 						}
 					 }
 			}).catch(err=>{
 				if(err.response.status==404){
 					if(this.platform.showAPIMessages){this.log.debug('no current session', err.response.data)}
 					this.log.warn(JSON.stringify(err.response.data,null,2))
-					return err.response.data
+					return err.response
 				}
 				else{
 					this.log.debug(JSON.stringify(err,null,2))
 					this.log.error('Error getting current session %s', err.message)
 					if(err.response){this.log.warn(JSON.stringify(err.response.data,null,2))}
-					return
+					return err.response
 				}
 			})
 			if(response.status==200){
 				if(this.platform.showAPIMessages){this.log.debug('get current session response',JSON.stringify(response.data,null,2))}
-				return response.data
+				return response
 			}
+			return response
 		}catch(err) {this.log.error('Error retrieving current session. \n%s', err)}
 	},
 

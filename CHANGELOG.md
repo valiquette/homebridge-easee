@@ -1,7 +1,5 @@
 # Changes
 
-## If updating from version 1.0.x it will be nessasary to resave the configuration, see readme for syntax or use plugin config.
-
 ## 1.2.0
 Enhancment
 -  Verified badge added.

@@ -47,7 +47,7 @@ easeeAPI.prototype={
 				this.log.debug(JSON.stringify(err,null,2))
 				this.log.error('Error authenticating. %s', err.message)
 				if(err.response){this.log.warn(JSON.stringify(err.response.data,null,2))}
-				return
+				return err.response
 			})
 			if(response.status==200){
 				if(this.platform.showAPIMessages){this.log.debug('authentication response',JSON.stringify(response.data,null,2))}
@@ -89,7 +89,7 @@ easeeAPI.prototype={
 				this.log.debug(JSON.stringify(err,null,2))
 				this.log.error('Error refreshing token %s', err.message)
 				if(err.response){this.log.warn(JSON.stringify(err.response.data,null,2))}
-				return
+				return err.response
 			})
 			if(response.status==200){
 				if(this.platform.showAPIMessages){this.log.debug('refresh response',JSON.stringify(response.data,null,2))}
@@ -116,7 +116,7 @@ easeeAPI.prototype={
 				this.log.debug(JSON.stringify(err,null,2))
 				this.log.error('Error getting user profile %s', err.message)
 				if(err.response){this.log.warn(JSON.stringify(err.response.data,null,2))}
-				return
+				return err.response
 			})
 			if(response.status==200){
 				if(this.platform.showAPIMessages){this.log.debug('get user response',JSON.stringify(response.data,null,2))}
@@ -144,7 +144,7 @@ easeeAPI.prototype={
 					this.log.debug(JSON.stringify(err,null,2))
 					this.log.error('Error getting products %s', err.message)
 					if(err.response){this.log.warn(JSON.stringify(err.response.data,null,2))}
-					return
+					return err.response
 				})
 				if(response.status==200){
 					if(this.platform.showAPIMessages){this.log.debug('get products data response',JSON.stringify(response.data,null,2))}
@@ -171,7 +171,7 @@ easeeAPI.prototype={
 				this.log.debug(JSON.stringify(err,null,2))
 				this.log.error('Error getting site info %s', err.message)
 				if(err.response){this.log.warn(JSON.stringify(err.response.data,null,2))}
-				return
+				return err.response
 			})
 			if(response.status==200){
 				if(this.platform.showAPIMessages){this.log.debug('get site data response',JSON.stringify(response.data,null,2))}
@@ -198,7 +198,7 @@ easeeAPI.prototype={
 				this.log.debug(JSON.stringify(err,null,2))
 				this.log.error('Error getting chargers %s', err.message)
 				if(err.response){this.log.warn(JSON.stringify(err.response.data,null,2))}
-				return
+				return err.response
 			})
 			if(response.status==200){
 				if(this.platform.showAPIMessages){	this.log.debug('get chargers config response',JSON.stringify(response.data,null,2))}
@@ -225,7 +225,7 @@ easeeAPI.prototype={
 				this.log.debug(JSON.stringify(err,null,2))
 				this.log.error('Error getting charger info %s', err.message)
 				if(err.response){this.log.warn(JSON.stringify(err.response.data,null,2))}
-				return
+				return err.response
 			})
 			if(response.status==200){
 				if(this.platform.showAPIMessages){this.log.debug('get charger info config response',JSON.stringify(response.data,null,2))}
@@ -306,7 +306,7 @@ easeeAPI.prototype={
 				this.log.debug(JSON.stringify(err,null,2))
 				this.log.error('Error getting charger config %s', err.message)
 				if(err.response){this.log.warn(JSON.stringify(err.response.data,null,2))}
-				return
+				return err.response
 			})
 			if(response.status==200){
 				if(this.platform.showAPIMessages){this.log.debug('get charger config response',JSON.stringify(response.data,null,2))}
@@ -380,7 +380,7 @@ easeeAPI.prototype={
 				this.log.debug(JSON.stringify(err,null,2))
 				this.log.error('Error getting equalizer info %s', err.message)
 				if(err.response){this.log.warn(JSON.stringify(err.response.data,null,2))}
-				return
+				return err.response
 			})
 			if(response.status==200){
 				if(this.platform.showAPIMessages){this.log.debug('get equalizer info response',JSON.stringify(response.data,null,2))}
@@ -407,7 +407,7 @@ easeeAPI.prototype={
 				this.log.debug(JSON.stringify(err,null,2))
 				this.log.error('Error getting equalizer details %s', err.message)
 				if(err.response){this.log.warn(JSON.stringify(err.response.data,null,2))}
-				return
+				return err.response
 			})
 			if(response.status==200){
 				if(this.platform.showAPIMessages){this.log.debug('get equalizer details config response',JSON.stringify(response.data,null,2))}
@@ -434,7 +434,7 @@ easeeAPI.prototype={
 				this.log.debug(JSON.stringify(err,null,2))
 				this.log.error('Error getting equalizer state %s', err.message)
 				if(err.response){this.log.warn(JSON.stringify(err.response.data,null,2))}
-				return
+				return err.response
 			})
 			if(response.status==200){
 				if(this.platform.showAPIMessages){this.log.debug('get equalizer state config response',JSON.stringify(response.data,null,2))}
@@ -460,7 +460,7 @@ easeeAPI.prototype={
 				this.log.debug(JSON.stringify(err,null,2))
 				this.log.error('Error getting equalizer config %s', err.message)
 				if(err.response){this.log.warn(JSON.stringify(err.response.data,null,2))}
-				return
+				return err.response
 			})
 			if(response.status==200){
 				response.data.siteStructure=JSON.parse(response.data.siteStructure.replace(/(\r\n\t|\r\n|\r|\n|\t)/gm,'')) //removing CR LF and Tabs
@@ -490,7 +490,7 @@ easeeAPI.prototype={
 				this.log.debug(JSON.stringify(err,null,2))
 				this.log.error('Error getting observations %s', err.message)
 				if(err.response){this.log.warn(JSON.stringify(err.response.data,null,2))}
-				return
+				return err.response
 			})
 			if(response.status==200){
 				//if(this.platform.showAPIMessages){this.log.debug('get observations response',JSON.stringify(response.data,null,2))}

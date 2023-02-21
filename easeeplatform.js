@@ -369,12 +369,7 @@ class easeePlatform {
 					try{
 						let currentSession=await this.easeeapi.currentSession(this.token,chargerId).catch(err=>{this.log.error('Failed to get current session. \n%s', err)})
 						//this.log.debug(currentSession.status)
-						if(currentSession.status==404){
-							this.log.debug(currentSession.data.title)
-							this.log.debug('Charge session complete')
-							clearInterval(endTime)
-						}
-						else{
+						if(currentSession.status==200){
 							runningTime=currentSession.data.chargeDurationInSeconds
 							chargeAdded=currentSession.data.sessionEnergy
 							percentAdded=(chargeAdded/this.batterySize*100).toFixed(0)
@@ -388,6 +383,11 @@ class easeePlatform {
 							if(percentAdded>100){
 								clearInterval(endTime)
 							}
+						}
+						else if(currentSession.status==404){
+							this.log.debug(currentSession.data.title)
+							this.log.debug('Charge session complete')
+							clearInterval(endTime)
 						}
 					}catch(err){this.log.error('Failed. \n%s', err)}
 				},5*60*1000)

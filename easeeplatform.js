@@ -95,9 +95,9 @@ class easeePlatform {
 			this.log.debug('Retrieved %s observations',observations.items.length)
 			// login to the API and get the token
 			let login=await this.easeeapi.login(this.username,this.password).catch(err=>{this.log.error('Failed to get login for build. \n%s', err)})
-			this.log.debug('Found Token %s**********',login.accessToken.substring(0,100))
+			this.log.debug('Found token %s********************%s', login.accessToken.substring(0,50),login.accessToken.substring((login.accessToken).length-50))
 			this.log.debug('Expires in %s hours',login.expiresIn/60/60)
-			this.log.debug('Found Refresh Token %s**********',login.refreshToken.substring(0,25))
+			this.log.debug('Found Refresh Token %s********************%s', login.refreshToken.substring(0,10),login.refreshToken.substring((login.refreshToken).length-10))
 			this.token=login.accessToken
 			this.refreshToken=login.refreshToken
 			this.setTokenRefresh(login.expiresIn)
@@ -304,8 +304,8 @@ class easeePlatform {
 		setInterval(async()=>{
 			try{
 				let tokenInfo=await this.easeeapi.refreshToken(this.token,this.refreshToken).catch(err=>{this.log.error('Failed signin to refresh token. \n%s', err)})
-				this.log.debug('new access token %s**********',tokenInfo.accessToken.substring(0,100))
-				this.log.debug('new refresh Token %s**********',tokenInfo.refreshToken.substring(0,25))
+				this.log.debug('new token %s**********%s', tokenInfo.accessToken.substring(0,50),tokenInfo.accessToken.substring((tokenInfo.accessToken).length-50))
+				this.log.debug('new Refresh Token %s**********%s', tokenInfo.refreshToken.substring(0,10),tokenInfo.refreshToken.substring((tokenInfo.refreshToken).length-10))
 				this.token=tokenInfo.accessToken
 				this.refreshToken=tokenInfo.refreshToken
 				this.log.info('Token has been refreshed')

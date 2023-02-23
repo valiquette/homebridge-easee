@@ -591,16 +591,23 @@ class easeePlatform {
 						lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(true)
 						if(this.showBattery){clearInterval(this.endTime[batteryService.subtype])}
 						if(this.showSensor){clearInterval(this.endTime[sensorService.subtype])}
+						if(this.showControls==1 || this.showControls==2 || this.showControls==3){activeService.getCharacteristic(Characteristic.On).updateValue(false)}
+						if(this.showControls==10 || this.showControls==20 || this.showControls==30){activeService.getCharacteristic(Characteristic.On).updateValue(false)}
 						break
 					case 3://charging
 						this.log.info('%s charging',lockService.getCharacteristic(Characteristic.Name).value)
 						lockService.getCharacteristic(Characteristic.OutletInUse).updateValue(true)
 						if(this.showBattery || this.showSensor){this.calcBattery(message.mid,batteryService,sensorService)}
+						if(this.showControls==1 || this.showControls==2 || this.showControls==3){activeService.getCharacteristic(Characteristic.On).updateValue(true)}
+						if(this.showControls==10 || this.showControls==20 || this.showControls==30){activeService.getCharacteristic(Characteristic.On).updateValue(true)}
 						break
 					case 4://complete
 						this.log.info('%s complete, %s% charge added',lockService.getCharacteristic(Characteristic.Name).value,batteryService.getCharacteristic(Characteristic.BatteryLevel).value)
 							if(this.showBattery){clearInterval(this.endTime[batteryService.subtype])}
 							if(this.showSensor){clearInterval(this.endTime[sensorService.subtype])}
+							if(this.showBattery){batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(false)}
+							if(this.showControls==1 || this.showControls==2 || this.showControls==3){activeService.getCharacteristic(Characteristic.On).updateValue(false)}
+							if(this.showControls==10 || this.showControls==20 || this.showControls==30){activeService.getCharacteristic(Characteristic.On).updateValue(false)}
 						break
 					case 5://error
 						this.log.info('%s error',lockService.getCharacteristic(Characteristic.Name).value)
@@ -623,14 +630,14 @@ class easeePlatform {
 				if(this.showSensor){sensorService=lockAccessory.getServiceById(Service.HumiditySensor, message.mid)}
 				if(value>0){
 					if(this.showBattery){batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(true)}
-					if(this.showControls==1 || this.showControls==2 || this.showControls==3){activeService.getCharacteristic(Characteristic.On).updateValue(true)}
-					if(this.showControls==10 || this.showControls==20 || this.showControls==30){activeService.getCharacteristic(Characteristic.On).updateValue(true)}
+					//if(this.showControls==1 || this.showControls==2 || this.showControls==3){activeService.getCharacteristic(Characteristic.On).updateValue(true)}
+					//if(this.showControls==10 || this.showControls==20 || this.showControls==30){activeService.getCharacteristic(Characteristic.On).updateValue(true)}
 					if(this.showControls==4){
-						if(this.useFahrenheit){value=((value-32)*5/9).toFixed(1)}
 						activeService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(true)
 						activeService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(true)
-						activeService.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)
-						activeService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(value)
+						if(this.useFahrenheit){value=((value-32)*5/9).toFixed(1)}
+							activeService.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)
+							activeService.getCharacteristic(Characteristic.CurrentTemperature).updateValue(value)
 						}
 					if(this.showEqualizer && !this.experimental){
 						this.log.info('%s %s updated to %s for equalizer max allocation current %s', message.mid, messageText, value, this.eq)
@@ -638,10 +645,10 @@ class easeePlatform {
 						this.updateEq(windowService,this.eq)
 					}
 				}
-				else{
+				else if(value==0){
 					if(this.showBattery){batteryService.getCharacteristic(Characteristic.ChargingState).updateValue(false)}
-					if(this.showControls==1 || this.showControls==2 || this.showControls==3){activeService.getCharacteristic(Characteristic.On).updateValue(false)}
-					if(this.showControls==10 || this.showControls==20 || this.showControls==30){activeService.getCharacteristic(Characteristic.On).updateValue(false)}
+					//if(this.showControls==1 || this.showControls==2 || this.showControls==3){activeService.getCharacteristic(Characteristic.On).updateValue(false)}
+					//if(this.showControls==10 || this.showControls==20 || this.showControls==30){activeService.getCharacteristic(Characteristic.On).updateValue(false)}
 					if(this.showControls==4){
 						activeService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).updateValue(false)
 						activeService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(false)

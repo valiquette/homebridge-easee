@@ -223,7 +223,7 @@ basicSwitch.prototype={
 			callback('error')
 		}
 		else{
-			currentValue=switchService.getCharacteristic(Characteristic.On).value
+			let currentValue=switchService.getCharacteristic(Characteristic.On).value
 			callback(null, currentValue)
 		}
 	}

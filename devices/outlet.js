@@ -170,7 +170,7 @@ basicOutlet.prototype={
 			callback('error')
 		}
 		else{
-			currentValue=outletService.getCharacteristic(Characteristic.On).value
+			let currentValue=outletService.getCharacteristic(Characteristic.On).value
 			callback(null, currentValue)
 		}
 	}

@@ -435,9 +435,11 @@ class easeePlatform {
 		let messageText=this.observations.items.filter(result=>result.observationId == message.id)[0].name
 		this.log.debug('%s %s(%s)=%s', message.mid, messageText, message.id, message.value)
 		let uuid=UUIDGen.generate(message.mid)
-		let uuid2=UUIDGen.generate(this.eq)
 		let lockAccessory=this.accessories[uuid]
-		let windowAccessory=this.accessories[uuid2]
+		if(this.showEqualizer){
+			let uuid2=UUIDGen.generate(this.eq)
+			let windowAccessory=this.accessories[uuid2]
+		}
 		let activeService
 		let lockService
 		let windowService

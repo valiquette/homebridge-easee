@@ -274,7 +274,7 @@ class easeePlatform {
 						}
 						if(this.showEqualizer)this.log.info('No Equalizer found')
 					}
-				}catch(err){this.log.warn('No Equalizer found')}
+				}catch(err){this.log.warn('Failed to add Equalizer')}
 			})
 			setTimeout(()=>{this.log.info('Easee Platform finished loading')}, 5000)
 		}catch(err){

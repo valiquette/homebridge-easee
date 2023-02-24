@@ -22,7 +22,7 @@ equalizer.prototype={
 		.setCharacteristic(Characteristic.Model, "Equalizer")
 		.setCharacteristic(Characteristic.Identify, true)
 			//.setCharacteristic(Characteristic.ProductData,details.unitType)
-		.setCharacteristic(Characteristic.FirmwareRevision, state.latestFirmware.toString())
+		.setCharacteristic(Characteristic.FirmwareRevision, state.softwareRelease.toString())
 		.setCharacteristic(Characteristic.HardwareRevision, details.masterBackPlateId)
 		.setCharacteristic(Characteristic.SoftwareRevision, packageJson.version)
 		return newPlatformAccessory

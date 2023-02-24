@@ -416,7 +416,7 @@ easeeAPI.prototype={
 		}catch(err) {this.log.error('Error retrieving equalizer details. \n%s', err)}
 	},
 
-	equalizerState: async function(token,equalizerId){
+	equalizerState: async function(token,equalizerId){ //un documented API keep an eye on this one.
 		try {
 			this.log.debug('Retrieving equalizer state %s',equalizerId)
 			let response = await axios({

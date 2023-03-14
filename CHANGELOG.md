@@ -1,19 +1,23 @@
 # Changes
 
-## 1.2.0
+## 1.2.1
+Fix
+-  Fixed bug with multiple SignalR connections being opened at the same time.
+
+## 1.2.0-Beta
 Enhancment
 -  Verified badge added.
 -  Bumped dependancies.
 -  Added sensor to display added charge, usefull for homekit automation.
 -  Improved battery state calulation.
 -  Added support for Easee Equalizer.
--  Added support to change dynamic current.
+-  Added support to change dynamic charging current.
 -  Updated list of error codes.
 -  Fix bug with lock updating.
 -  Logging cleanup.
 -  Add config options for additional logging
 -  Code cleanup.
--	Clean whitespace.
+-	Cleanup whitespace.
 
 ## 1.1.9
 Fix

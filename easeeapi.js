@@ -18,6 +18,7 @@ function easeeAPI (platform,log,config){
 	this.log=log
 	this.platform=platform
 	this.config=config
+	this.openConnection
 	this.interceptorId=rax.attach()
 }
 
@@ -737,6 +738,10 @@ easeeAPI.prototype={
 			None = 6
 			The highest possible log level. Used when configuring logging to indicate that no log messages should be emitted.
 		*/
+		if(this.openConnection){
+			this.log.debug('stopping open connection %s',this.openConnection.connectionId)
+			this.openConnection.stop()
+		}
 		let connection = new signalR.HubConnectionBuilder()
 			//.withUrl(`${streamingEndpoint}/hubs/chargers`, {
 			.withUrl(`${streamingEndpoint}/hubs/products`, {
@@ -753,27 +758,27 @@ easeeAPI.prototype={
 			}).catch((err) => {this.log.error('Error while starting connection: %s', err)
 		})
 		connection.onclose((error)=>{
-			this.log.warn('Connection close...',error.message)
+			this.log.warn('Connection closed',error.message)
 		})
 		connection.onreconnected(()=>{
 			connection.invoke('SubscribeWithCurrentState', chargerId, true)
-			this.log.info('Reconnected...')
+			this.log.info('Reconnected to Connection id %s, updating current status',connection.connectionId)
 		})
 		connection.onreconnecting((error)=>{
 			this.log.info('Reconnecting...',error.message)
 		})
 		connection.on('ProductUpdate', (productUpdate)=>{
 			if(this.platform.showSignalRMessages){
-				this.log.debug('Product:',JSON.stringify(productUpdate, null, null))
+				this.log.debug('Connection %s Product: %s',connection.connectionId, JSON.stringify(productUpdate, null, null))
 			}
-			//** full set of responses with a lot of extras
+			//** full set of responses with a lot of extras **
 			this.platform.updateService(productUpdate)
 		})
 		connection.on('ChargerUpdate', (chargerUpdate)=>{
 			if(this.platform.showSignalRMessages){
-				this.log.debug('Charger:',JSON.stringify(chargerUpdate, null, null))
+				this.log.debug('Connection %s Charger: %s',connection.connectionId, JSON.stringify(chargerUpdate, null, null))
 			}
-			//** duplicate responses to product but fewer
+			//** duplicate responses to product but fewer **
 			//this.platform.updateService(chargerUpdate)
 		})
 		connection.on('CommandResponse', (update)=>{
@@ -782,6 +787,7 @@ easeeAPI.prototype={
 			}
 			//if needed could process response here vs api response
 		})
+		this.openConnection=connection
 	}
 }
 

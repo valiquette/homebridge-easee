@@ -100,7 +100,7 @@ equalizer.prototype={
 		}
 		else{
 			clearTimeout(this.x)
-			this.x=setTimeout(() => {
+			this.x=setTimeout(() => { // wait 2.5 sec for user to settle on new value
 				if(this.eqMin>=this.eqMax){
 					this.log.warn('Equalizer min-max values are inverted, will use default 15-100')
 					this.eqMin=15
@@ -109,10 +109,12 @@ equalizer.prototype={
 				if(value>this.eqMax){
 					this.log.warn('Limits out of range, will use max value. Check high limits in config')
 					value=this.eqMax
+					windowService.getCharacteristic(Characteristic.TargetPosition).updateValue(value)
 				}
 				if(value<this.eqMin){
 					this.log.warn('Limits out of range, will use min value. Check low limits in config')
 					value=this.eqMin
+					windowService.getCharacteristic(Characteristic.TargetPosition).updateValue(value)
 				}
 				if(this.platform.experimental){
 					convertedValue=Math.round(config.siteStructure.ratedCurrent*value/100)

@@ -432,7 +432,13 @@ class easeePlatform {
 	}
 
 	updateService(message){
-		let messageText=this.observations.items.filter(result=>result.observationId == message.id)[0].name
+		let messageText
+		if(this.observations.items.filter(result=>result.observationId == message.id)[0]){
+			messageText=this.observations.items.filter(result=>result.observationId == message.id)[0].name
+		}
+		else{
+			this.log.debug('Missing observation from get observations for %s',message.id)
+		}
 		this.log.debug('%s %s(%s)=%s', message.mid, messageText, message.id, message.value)
 		let uuid=UUIDGen.generate(message.mid)
 		let lockAccessory=this.accessories[uuid]
@@ -460,7 +466,7 @@ class easeePlatform {
 
 		switch(message.id){
 			case 11://ChargerOfflineReason
-			this.log.info('% offline reason %s', message.mid, value)
+			this.log.info('%s offline reason %s', message.mid, value)
 				break
 			case 40://config_ledStripBrightness
 				if(this.showLight){
@@ -554,6 +560,7 @@ class easeePlatform {
 					break
 			case 103://state_cableLocked
 				this.log.info('%s cable lock state to %s', message.mid, value)
+				activeService=lockAccessory.getServiceById(Service.LockMechanism, message.mid)
 				this.log.debug('%s cable lock updated',activeService.getCharacteristic(Characteristic.Name).value)
 				break
 			case 109://state_chargerOpMode
@@ -666,7 +673,10 @@ class easeePlatform {
 					windowService=windowAccessory.getServiceById(Service.WindowCovering, this.eq)
 					this.updateEq(windowService,this.eq)
 				}
-			break
+				break
+			default:
+				//this.log.debug(message)
+				break
 		}
 	}
 }

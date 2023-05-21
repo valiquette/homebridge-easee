@@ -1,5 +1,15 @@
 # Changes
 
+## 1.2.2
+fix
+-  403 error during startup due to Easse API Domain change and SignalR URI change.
+-  There are soem new observations that are documented but not yet available in API response. Some logic was added to address this condition
+
+Update
+-  Added suppport for node.js v20.
+-  Removed support for node.js v14.
+-  Bumped dependencies.
+
 ## 1.2.1
 Fix
 -  Fixed bug with multiple SignalR connections being opened at the same time.

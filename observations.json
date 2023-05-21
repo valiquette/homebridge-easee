@@ -563,7 +563,15 @@
 		{"observationId": 232,
 			"name": "EqAvailableCurrentP3",
 			"dataType": 3
-		}
+		},
+		{"observationId": 250,
+		"name": "CONNECTED TO CLOUD",
+		"dataType": 2
+		},
+		{"observationId": 251,
+		"name": "CLOUD DISCONNECT REASON",
+		"dataType": 6
+}
 	]
 }
 

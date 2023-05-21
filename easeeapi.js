@@ -10,9 +10,10 @@ let axios = require('axios')
 let rax = require('retry-axios') //v3.0.0 ES6 only
 let signalR = require('@microsoft/signalr')
 
-let endpoint = 'https://api.easee.cloud/api'
-//let streamingEndpoint = 'https://api.beta.easee.cloud'
-let streamingEndpoint = 'https://api.easee.cloud'
+//let endpoint = 'https://api.easee.cloud/api' depracating Sep 2023
+let endpoint = 'https://api.easee.com/api'
+//let streamingEndpoint = 'https://api.easee.cloud' depracated
+let streamingEndpoint = 'https://streams.easee.com'
 
 function easeeAPI (platform,log,config){
 	this.log=log
@@ -745,9 +746,11 @@ easeeAPI.prototype={
 		let connection = new signalR.HubConnectionBuilder()
 			//.withUrl(`${streamingEndpoint}/hubs/chargers`, {
 			.withUrl(`${streamingEndpoint}/hubs/products`, {
+				//skipNegotiation: true,
+				//transport: signalR.HttpTransportType.WebSockets,
 				accessTokenFactory:()=>token
 			})
-			.configureLogging(signalR.LogLevel.None)
+			.configureLogging(signalR.LogLevel.None) //change logging here if needed
 			.withAutomaticReconnect()
 			.build()
 		connection.start()
@@ -755,7 +758,8 @@ easeeAPI.prototype={
 				connection.invoke('SubscribeWithCurrentState', chargerId, true)
 				this.log.info('Starting connection for live updates...')
 				this.log.debug('signalR %s with id %s', connection.state, connection.connectionId)
-			}).catch((err) => {this.log.error('Error while starting connection: %s', err)
+				this.openConnection=connection
+			}).catch((err) => {this.log.error('Error while starting connection: %s', err.message)
 		})
 		connection.onclose((error)=>{
 			this.log.warn('Connection closed',error.message)
@@ -787,7 +791,6 @@ easeeAPI.prototype={
 			}
 			//if needed could process response here vs api response
 		})
-		this.openConnection=connection
 	}
 }
 

@@ -23,6 +23,7 @@ class easeeAPI {
 		this.openConnection
 		this.interceptorId = rax.attach()
 	}
+
 	async login(userName, password) {
 		if (this.config.testToken) {
 			return this.config.testToken
@@ -55,6 +56,7 @@ class easeeAPI {
 			}
 		} catch (err) { this.log.error('Error authenticating and retrieving token \n%s', err)}
 	}
+
 	async refreshToken(accessToken, refreshToken) {
 		try {
 			this.log.debug('Refreshing access token')
@@ -96,6 +98,7 @@ class easeeAPI {
 			}
 		} catch (err) { this.log.error('Error refreshing token \n%s', err)}
 	}
+
 	async profile(token) {
 		try {
 			this.log.debug('Retrieving profile info of logged in account')
@@ -149,6 +152,7 @@ class easeeAPI {
 			}
 		} catch (err) { this.log.error('Error retrieving products. \n%s', err)}
 	}
+
 	async chargerSite(token, chargerId) {
 		try {
 			this.log.debug('Retrieving charger site info %s', chargerId)
@@ -175,6 +179,7 @@ class easeeAPI {
 			}
 		} catch (err) { this.log.error('Error site products. \n%s', err)}
 	}
+
 	async chargers(token) {
 		try {
 			this.log.debug('Retrieving chargers')
@@ -227,6 +232,7 @@ class easeeAPI {
 			}
 		} catch (err) { this.log.error('Error retrieving charger info. \n%s', err)}
 	}
+
 	async chargerDetails(token, chargerId) {
 		try {
 			this.log.debug('Retrieving charger details %s', chargerId)
@@ -253,6 +259,7 @@ class easeeAPI {
 			}
 		} catch (err) { this.log.error('Error retrieving charger details. \n%s', err)}
 	}
+
 	async chargerState(token, chargerId) {
 		try {
 			this.log.debug('Retrieving charger state %s', chargerId)
@@ -279,6 +286,7 @@ class easeeAPI {
 			}
 		} catch (err) { this.log.error('Error retrieving charger state. \n%s', err)}
 	}
+
 	async chargerConfig(token, chargerId) {
 		try {
 			this.log.debug('Retrieving charger config %s', chargerId)
@@ -305,6 +313,7 @@ class easeeAPI {
 			}
 		} catch (err) { this.log.error('Error retrieving charger config. \n%s', err)}
 	}
+
 	async currentSession(token, chargerId) {
 		try {
 			this.log.debug('Retrieving current session %s', chargerId)
@@ -351,6 +360,7 @@ class easeeAPI {
 			return response
 		} catch (err) { this.log.error('Error retrieving current session. \n%s', err)}
 	}
+
 	async equalizer(token, equalizerId) {
 		try {
 			this.log.debug('Retrieving specified equalizer info %s', equalizerId)
@@ -377,6 +387,7 @@ class easeeAPI {
 			}
 		} catch (err) { this.log.error('Error retrieving equalizer info. \n%s', err)}
 	}
+
 	async equalizerDetails(token, equalizerId) {
 		try {
 			this.log.debug('Retrieving equalizer details %s', equalizerId)
@@ -403,6 +414,7 @@ class easeeAPI {
 			}
 		} catch (err) { this.log.error('Error retrieving equalizer details. \n%s', err)}
 	}
+
 	async equalizerState(token, equalizerId) {
 		try {
 			this.log.debug('Retrieving equalizer state %s', equalizerId)
@@ -429,6 +441,7 @@ class easeeAPI {
 			}
 		} catch (err) { this.log.error('Error retrieving equalizer state. \n%s', err)}
 	}
+
 	async equalizerConfig(token, equalizerId) {
 		try {
 			this.log.debug('Retrieving equalizer config %s', equalizerId)
@@ -459,6 +472,7 @@ class easeeAPI {
 			}
 		} catch (err) { this.log.error('Error retrieving equalizer config. \n%s', err)}
 	}
+
 	async getObservations() {
 		try {
 			this.log.debug('Retrieving observations')
@@ -484,6 +498,7 @@ class easeeAPI {
 			}
 		} catch (err) { this.log.error('Error retrieving observations. \n%s', err)}
 	}
+
 	async configureEqualizerFuse(token, eqId, fuseSize, value) {
 		try {
 			//change equalizer fuse settings
@@ -512,6 +527,7 @@ class easeeAPI {
 			return response
 		} catch (err) { this.log.error('Error configuring equalizer. \n%s', err)}
 	}
+
 	async setMaxAllocatedCurrent(token, eqId, value) {
 		try {
 			//change equalizer settings
@@ -539,6 +555,7 @@ class easeeAPI {
 			return response
 		} catch (err) { this.log.error('Error setting equalizer. \n%s', err)}
 	}
+
 	async lock(token, chargerId, value) {
 		try {
 			//change charger settings
@@ -566,6 +583,7 @@ class easeeAPI {
 			return response
 		} catch (err) { this.log.error('Error setting lock. \n%s', err)}
 	}
+
 	async dynamicCurrent(token, chargerId, value) {
 		try {
 			//change charger settings
@@ -593,6 +611,7 @@ class easeeAPI {
 			return response
 		} catch (err) { this.log.error('Error setting dynamic current. \n%s', err)}
 	}
+
 	async light(token, chargerId, value) {
 		try {
 			//change charger settings
@@ -620,6 +639,7 @@ class easeeAPI {
 			return response
 		} catch (err) { this.log.error('Error setting light. \n%s', err)}
 	}
+
 	async command(token, chargerId, command) {
 		try {
 			this.log.debug('%s for %s', command, chargerId)
@@ -643,6 +663,7 @@ class easeeAPI {
 			return response
 		} catch (err) { this.log.error('Error excuting command. \n%s', err)}
 	}
+
 	async overrideSchedule(token, chargerId) {
 		try {
 			this.log.debug('Override schedule')
@@ -666,6 +687,7 @@ class easeeAPI {
 			return response
 		} catch (err) { this.log.error('Error setting override. \n%s', err)}
 	}
+
 	async setDelay(token, chargerId) {
 		try {
 			this.log.debug('Delay start')
@@ -697,6 +719,7 @@ class easeeAPI {
 			return response
 		} catch (err) { this.log.error('Error setting delay. \n%s', err)}
 	}
+	
 	async signalR(token, chargerId) {
 		/*	signlR logging
 			 Trace = 0

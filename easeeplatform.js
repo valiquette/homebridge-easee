@@ -680,5 +680,4 @@ class easeePlatform {
 		}
 	}
 }
-
 module.exports=easeePlatform

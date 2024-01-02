@@ -101,7 +101,7 @@ class easeeAPI {
 
 	async profile(token) {
 		try {
-			this.log.debug('Retrieving profile info of logged in account')
+			this.log.debug('Retrieving profile info for logged in account')
 			let response = await axios({
 				method: 'get',
 				baseURL: endpoint,
@@ -128,7 +128,7 @@ class easeeAPI {
 	async products(token, userId) {
 		//is userID needed
 		try {
-			this.log.debug('Retrieving products of logged in account')
+			this.log.debug('Retrieving products for logged in account')
 			let response = await axios({
 				method: 'get',
 				baseURL: endpoint,
@@ -719,7 +719,7 @@ class easeeAPI {
 			return response
 		} catch (err) { this.log.error('Error setting delay. \n%s', err)}
 	}
-	
+
 	async signalR(token, chargerId) {
 		/*	signlR logging
 			 Trace = 0

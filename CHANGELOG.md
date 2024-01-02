@@ -1,5 +1,10 @@
 # Changes
 
+## 1.2.4
+Fix
+-  Bumped dependencies.
+-  Will allow plugin to startup if location is not defined in API response..
+
 ## 1.2.3
 Update
 -  Refactor.

@@ -108,14 +108,30 @@ class easeePlatform {
 			//get product
 			let products=await this.easeeapi.products(this.token,this.userId).catch(err=>{this.log.error('Failed to get products for build. \n%s', err)})
 			products.filter((location)=>{
+				if(location.address==undefined){
+					location.address={
+						"street": "undefined location",
+						"buildingNumber": "",
+						"zip": "",
+						"area": "",
+						"country": {
+								"id": "",
+								"name": "",
+								"phonePrefix": 0
+						},
+						"latitude": null,
+						"longitude": null,
+						"altitude": null
+					}
+					this.log.debug('No location address defined, adding dummy location %s',location.address)
+				}
 				this.log.info('Found products at %s %s', location.address.street, location.name)
-			//	this.log.warn(this.locationAddress, location.address.street )
 				if(!this.locationAddress || this.locationAddress==location.address.street){
-					this.log.info('Adding location %s found at the configured location: %s',location.name,location.address.street)
+					this.log.info('Adding %s found at the configured location: %s',location.name, location.address.street)
 					this.locationMatch=true
 				}
 				else{
-					this.log.info('Skipping location %s at %s, not found at the configured location: %s',location.name,location.address.street,this.locationAddress,)
+					this.log.info('Skipping location %s at %s, not found at the configured location: %s',location.name, location.address.street, this.locationAddress,)
 					this.locationMatch=false
 				}
 				return this.locationMatch
@@ -227,14 +243,6 @@ class easeePlatform {
 						this.log.info('Adding Charger Lock for %s', charger.name)
 						this.log.debug('Registering platform accessory')
 						this.api.registerPlatformAccessories(PluginName, PlatformName, [lockAccessory])
-						/*
-						let currentSession=await this.easeeapi.currentSession(this.token,charger.id).catch(err=>{this.log.error('Failed to get current session. \n%s', err)})
-						if(currentSession.status==200){
-							this.log.debug('Charge session ongoing')
-							this.updateService({"mid":"EHEWWVHU","dataType":4,"id":109,"timestamp":new Date(Date.now()).toISOString(),"value":"3"})
-							this.updateService({"mid":"EHEWWVHU","dataType":4,"id":114,"timestamp":new Date(Date.now()).toISOString(),"value":"32"})
-						}
-						*/
 						this.easeeapi.signalR(this.token, charger.id)
 						this.resetSignalR(login.expiresIn, charger)
 					})

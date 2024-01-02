@@ -1,7 +1,16 @@
 # Changes
 
+## 1.2.4
+Fix
+-  Bumped dependencies.
+-  Will allow plugin to startup if location is not defined in API response..
+
+## 1.2.3
+Update
+-  Refactor.
+
 ## 1.2.2
-fix
+Fix
 -  403 error during startup due to Easse API Domain change and SignalR URI change.
 -  There are soem new observations that are documented but not yet available in API response. Some logic was added to address this condition
 

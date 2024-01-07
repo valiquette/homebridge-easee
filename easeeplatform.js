@@ -159,6 +159,7 @@ class easeePlatform {
 						lockAccessory.addService(lockService)
 
 						//extras
+						let sensorService
 						let batteryService
 						let lightService
 						let switchService
@@ -168,7 +169,7 @@ class easeePlatform {
 						let overrideService
 
 						if(this.showSensor){
-							let sensorService=this.sensor.createSensorService(charger,'SOC')
+							sensorService=this.sensor.createSensorService(charger,'SOC')
 							this.sensor.configureSensorService(charger,sensorService)
 							lockAccessory.getService(Service.LockMechanism).addLinkedService(sensorService)
 							lockAccessory.addService(sensorService)

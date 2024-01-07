@@ -49,9 +49,9 @@ class lockMechanism {
 		lockService
 			.getCharacteristic(Characteristic.LockCurrentState)
 			.on('get', this.getLockCurrentState.bind(this, lockService))
-		//.on('set', this.setLockCurrentState.bind(this, device, lockService))
+		 //.on('set', this.setLockCurrentState.bind(this, lockService))
 	}
-	
+
 	getLockCurrentState(lockService, callback) {
 		let currentValue = lockService.getCharacteristic(Characteristic.LockCurrentState).value
 		callback(null, currentValue)

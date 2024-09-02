@@ -1,5 +1,11 @@
 # Changes
 
+## 1.2.5-beta.0
+Update
+-  Homebridge 2.0 support
+-  Renamed devices with soon to be invalid characters
+-  Bumped dependencies.
+
 ## 1.2.4
 Fix
 -  Bumped dependencies.

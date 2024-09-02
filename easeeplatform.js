@@ -193,13 +193,13 @@ class easeePlatform {
 							lockAccessory.addService(switchService)
 						}
 						if(this.showControls==2){
-							switchService=this.basicSwitch.createSwitchService(charger, chargerState,'Start/Stop')
+							switchService=this.basicSwitch.createSwitchService(charger, chargerState,'Start Stop')
 							this.basicSwitch.configureSwitchService(charger, switchService)
 							lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
 							lockAccessory.addService(switchService)
 						}
 						if(this.showControls==3){
-							switchService=this.basicSwitch.createSwitchService(charger, chargerState,'Pause/Resume')
+							switchService=this.basicSwitch.createSwitchService(charger, chargerState,'Pause Resume')
 							this.basicSwitch.configureSwitchService(charger, switchService)
 							lockAccessory.getService(Service.LockMechanism).addLinkedService(switchService)
 							lockAccessory.addService(switchService)
@@ -217,13 +217,13 @@ class easeePlatform {
 							lockAccessory.addService(outletService)
 						}
 						if(this.showControls==20){
-							outletService=this.basicOutlet.createOutletService(charger, chargerState,'Start/Stop')
+							outletService=this.basicOutlet.createOutletService(charger, chargerState,'Start Stop')
 							this.basicOutlet.configureOutletService(charger, outletService)
 							lockAccessory.getService(Service.LockMechanism).addLinkedService(outletService)
 							lockAccessory.addService(outletService)
 						}
 						if(this.showControls==30){
-							outletService=this.basicOutlet.createOutletService(charger, chargerState,'Pause/Resume')
+							outletService=this.basicOutlet.createOutletService(charger, chargerState,'Pause Resume')
 							this.basicOutlet.configureOutletService(charger, outletService)
 							lockAccessory.getService(Service.LockMechanism).addLinkedService(outletService)
 							lockAccessory.addService(outletService)

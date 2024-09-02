@@ -81,11 +81,11 @@
 						"enum": [1]
 					},
 					{
-						"title": "Start/Stop Charging Reguires Authorzation to be enabled",
+						"title": "Start Stop Charging Reguires Authorzation to be enabled",
 						"enum": [2]
 					},
 					{
-						"title": "Pause/Resume Charging",
+						"title": "Pause Resume Charging",
 						"enum": [3]
 					},
 					{

@@ -1,8 +1,11 @@
+# Ignore compiled code
+dist
+
 # System Files
 .DS_Store
 Thumbs.db
-~/,node_modules
-~/.vscode
+.vscode
+.prettierrc
 
 # Dependency directories
 node_modules/
@@ -11,3 +14,6 @@ jspm_packages/
 # ignore file
 package-lock.json
 testeaseeapi.js
+
+# Optional npm cache directory
+.npm

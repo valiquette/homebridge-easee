@@ -1,4 +1,4 @@
-let easeeAPI=require('../easeeapi')
+let easeeAPI = require('../easeeapi')
 
 class basicSwitch {
 	constructor(platform, log) {
@@ -11,10 +11,12 @@ class basicSwitch {
 		this.log.debug('adding new switch')
 		let switchService = new Service.Switch(type, device.id)
 		let switchOn = false
-		if (state.chargerOpMode == 3) { switchOn = true}
+		if (state.chargerOpMode == 3) {
+			switchOn = true
+		}
 		switchService
 			.setCharacteristic(Characteristic.On, switchOn)
-			.setCharacteristic(Characteristic.Name, device.name + " " + type)
+			.setCharacteristic(Characteristic.Name, device.name + ' ' + type)
 			.setCharacteristic(Characteristic.StatusFault, !state.isOnline)
 		return switchService
 	}
@@ -26,17 +28,14 @@ class basicSwitch {
 		let switchOn = false
 		switchService
 			.setCharacteristic(Characteristic.On, switchOn)
-			.setCharacteristic(Characteristic.Name, device.name + " " + type)
+			.setCharacteristic(Characteristic.Name, device.name + ' ' + type)
 			.setCharacteristic(Characteristic.StatusFault, !state.isOnline)
 		return switchService
 	}
 
 	configureSwitchService(device, switchService) {
-		this.log.info("Configured %s switch for %s", switchService.getCharacteristic(Characteristic.Name).value, device.name)
-		switchService
-			.getCharacteristic(Characteristic.On)
-			.on('get', this.getSwitchValue.bind(this, switchService))
-			.on('set', this.setSwitchValue.bind(this, device, switchService))
+		this.log.info('Configured %s switch for %s', switchService.getCharacteristic(Characteristic.Name).value, device.name)
+		switchService.getCharacteristic(Characteristic.On).on('get', this.getSwitchValue.bind(this, switchService)).on('set', this.setSwitchValue.bind(this, device, switchService))
 	}
 
 	setSwitchValue(device, switchService, value, callback) {
@@ -46,8 +45,7 @@ class basicSwitch {
 			case 'Start/Stop':
 				if (switchService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 					callback('error')
-				}
-				else {
+				} else {
 					if (value) {
 						this.easeeapi.command(this.platform.token, device.id, 'start_charging').then(response => {
 							switch (response.status) {
@@ -66,8 +64,7 @@ class basicSwitch {
 									break
 							}
 						})
-					}
-					else {
+					} else {
 						this.easeeapi.command(this.platform.token, device.id, 'stop_charging').then(response => {
 							switch (response.status) {
 								case 200:
@@ -92,8 +89,7 @@ class basicSwitch {
 			case 'Pause/Resume':
 				if (switchService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 					callback('error')
-				}
-				else {
+				} else {
 					if (value) {
 						this.easeeapi.command(this.platform.token, device.id, 'resume_charging').then(response => {
 							switch (response.status) {
@@ -112,8 +108,7 @@ class basicSwitch {
 									break
 							}
 						})
-					}
-					else {
+					} else {
 						this.easeeapi.command(this.platform.token, device.id, 'pause_charging').then(response => {
 							switch (response.status) {
 								case 200:
@@ -138,8 +133,7 @@ class basicSwitch {
 			case 'Toggle':
 				if (switchService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 					callback('error')
-				}
-				else {
+				} else {
 					this.easeeapi.command(this.platform.token, device.id, 'toggle_charging').then(response => {
 						switch (response.status) {
 							case 200:
@@ -163,8 +157,7 @@ class basicSwitch {
 			case 'Reboot':
 				if (switchService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 					callback('error')
-				}
-				else {
+				} else {
 					this.easeeapi.command(this.platform.token, device.id, 'reboot').then(response => {
 						switch (response.status) {
 							case 200:
@@ -188,8 +181,7 @@ class basicSwitch {
 			case 'Start Now':
 				if (switchService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 					callback('error')
-				}
-				else {
+				} else {
 					if (value) {
 						this.easeeapi.overrideSchedule(this.platform.token, device.id).then(response => {
 							switch (response.status) {
@@ -220,8 +212,7 @@ class basicSwitch {
 		//this.log.debug("%s=%s", switchService.getCharacteristic(Characteristic.Name).value,switchService.getCharacteristic(Characteristic.On).value)
 		if (switchService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 			callback('error')
-		}
-		else {
+		} else {
 			let currentValue = switchService.getCharacteristic(Characteristic.On).value
 			callback(null, currentValue)
 		}

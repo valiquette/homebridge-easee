@@ -1,4 +1,4 @@
-let easeeAPI=require('homebridge-easee/easeeapi')
+let easeeAPI = require('homebridge-easee/easeeapi')
 
 class basicOutlet {
 	constructor(platform, log) {
@@ -11,10 +11,12 @@ class basicOutlet {
 		this.log.debug('adding new outlet')
 		let outletService = new Service.Outlet(type, device.id)
 		let outletOn = false
-		if (state.chargerOpMode == 3) { outletOn = true}
+		if (state.chargerOpMode == 3) {
+			outletOn = true
+		}
 		outletService
 			.setCharacteristic(Characteristic.On, outletOn)
-			.setCharacteristic(Characteristic.Name, device.name + " " + type)
+			.setCharacteristic(Characteristic.Name, device.name + ' ' + type)
 			.setCharacteristic(Characteristic.StatusFault, !state.isOnline)
 		return outletService
 	}
@@ -26,17 +28,14 @@ class basicOutlet {
 		let outletOn = false
 		outletService
 			.setCharacteristic(Characteristic.On, outletOn)
-			.setCharacteristic(Characteristic.Name, device.name + " " + type)
+			.setCharacteristic(Characteristic.Name, device.name + ' ' + type)
 			.setCharacteristic(Characteristic.StatusFault, !state.isOnline)
 		return outletService
 	}
 
 	configureOutletService(device, outletService) {
-		this.log.info("Configured %s outlet for %s", outletService.getCharacteristic(Characteristic.Name).value, device.name)
-		outletService
-			.getCharacteristic(Characteristic.On)
-			.on('get', this.getOutletValue.bind(this, outletService))
-			.on('set', this.setOutletValue.bind(this, device, outletService))
+		this.log.info('Configured %s outlet for %s', outletService.getCharacteristic(Characteristic.Name).value, device.name)
+		outletService.getCharacteristic(Characteristic.On).on('get', this.getOutletValue.bind(this, outletService)).on('set', this.setOutletValue.bind(this, device, outletService))
 	}
 
 	setOutletValue(device, outletService, value, callback) {
@@ -46,8 +45,7 @@ class basicOutlet {
 			case 'Start/Stop':
 				if (outletService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 					callback('error')
-				}
-				else {
+				} else {
 					if (value) {
 						this.easeeapi.command(this.platform.token, device.id, 'start_charging').then(response => {
 							switch (response.status) {
@@ -66,8 +64,7 @@ class basicOutlet {
 									break
 							}
 						})
-					}
-					else {
+					} else {
 						this.easeeapi.command(this.platform.token, device.id, 'stop_charging').then(response => {
 							switch (response.status) {
 								case 200:
@@ -92,8 +89,7 @@ class basicOutlet {
 			case 'Pause/Resume':
 				if (outletService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 					callback('error')
-				}
-				else {
+				} else {
 					if (value) {
 						this.easeeapi.command(this.platform.token, device.id, 'resume_charging').then(response => {
 							switch (response.status) {
@@ -112,8 +108,7 @@ class basicOutlet {
 									break
 							}
 						})
-					}
-					else {
+					} else {
 						this.easeeapi.command(this.platform.token, device.id, 'pause_charging').then(response => {
 							switch (response.status) {
 								case 200:
@@ -138,8 +133,7 @@ class basicOutlet {
 			case 'Toggle':
 				if (outletService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 					callback('error')
-				}
-				else {
+				} else {
 					this.easeeapi.command(this.platform.token, device.id, 'toggle_charging').then(response => {
 						switch (response.status) {
 							case 200:
@@ -167,8 +161,7 @@ class basicOutlet {
 		//this.log.debug("%s=%s", outletService.getCharacteristic(Characteristic.Name).value,outletService.getCharacteristic(Characteristic.On).value)
 		if (outletService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 			callback('error')
-		}
-		else {
+		} else {
 			let currentValue = outletService.getCharacteristic(Characteristic.On).value
 			callback(null, currentValue)
 		}

@@ -35,26 +35,32 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/accounts/login`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				data: {
-					'userName': userName,
-					'password': password
+					userName: userName,
+					password: password
 				},
 				responseType: 'json'
 			}).catch(err => {
 				this.log.debug(JSON.stringify(err, null, 2))
 				this.log.error('Error authenticating. %s', err.message)
-				if (err.response) { this.log.warn(JSON.stringify(err.response.data, null, 2))}
+				if (err.response) {
+					this.log.warn(JSON.stringify(err.response.data, null, 2))
+				}
 				return err.response
 			})
 			if (response.status == 200) {
-				if (this.platform.showAPIMessages) { this.log.debug('authentication response', JSON.stringify(response.data, null, 2))}
+				if (this.platform.showAPIMessages) {
+					this.log.debug('authentication response', JSON.stringify(response.data, null, 2))
+				}
 				return response.data
 			}
-		} catch (err) { this.log.error('Error authenticating and retrieving token \n%s', err)}
+		} catch (err) {
+			this.log.error('Error authenticating and retrieving token \n%s', err)
+		}
 	}
 
 	async refreshToken(accessToken, refreshToken) {
@@ -65,13 +71,13 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/accounts/refresh_token`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				data: {
-					'accessToken': accessToken,
-					'refreshToken': refreshToken
+					accessToken: accessToken,
+					refreshToken: refreshToken
 				},
 				responseType: 'json',
 				raxConfig: {
@@ -79,7 +85,13 @@ class easeeAPI {
 					noResponseRetries: 2,
 					retryDelay: 100,
 					httpMethodsToRetry: ['GET', 'PUT'],
-					statusCodesToRetry: [[100, 199], [400, 400], [401, 401], [404, 404], [500, 599]],
+					statusCodesToRetry: [
+						[100, 199],
+						[400, 400],
+						[401, 401],
+						[404, 404],
+						[500, 599]
+					],
 					backoffType: 'exponential',
 					onRetryAttempt: err => {
 						let cfg = rax.getConfig(err)
@@ -89,14 +101,20 @@ class easeeAPI {
 			}).catch(err => {
 				this.log.debug(JSON.stringify(err, null, 2))
 				this.log.error('Error refreshing token %s', err.message)
-				if (err.response) { this.log.warn(JSON.stringify(err.response.data, null, 2))}
+				if (err.response) {
+					this.log.warn(JSON.stringify(err.response.data, null, 2))
+				}
 				return err.response
 			})
 			if (response.status == 200) {
-				if (this.platform.showAPIMessages) { this.log.debug('refresh response', JSON.stringify(response.data, null, 2))}
+				if (this.platform.showAPIMessages) {
+					this.log.debug('refresh response', JSON.stringify(response.data, null, 2))
+				}
 				return response.data
 			}
-		} catch (err) { this.log.error('Error refreshing token \n%s', err)}
+		} catch (err) {
+			this.log.error('Error refreshing token \n%s', err)
+		}
 	}
 
 	async profile(token) {
@@ -107,23 +125,29 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/accounts/profile`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				responseType: 'json'
 			}).catch(err => {
 				this.log.debug(JSON.stringify(err, null, 2))
 				this.log.error('Error getting user profile %s', err.message)
-				if (err.response) { this.log.warn(JSON.stringify(err.response.data, null, 2))}
+				if (err.response) {
+					this.log.warn(JSON.stringify(err.response.data, null, 2))
+				}
 				return err.response
 			})
 			if (response.status == 200) {
-				if (this.platform.showAPIMessages) { this.log.debug('get user response', JSON.stringify(response.data, null, 2))}
+				if (this.platform.showAPIMessages) {
+					this.log.debug('get user response', JSON.stringify(response.data, null, 2))
+				}
 				return response.data
 			}
-		} catch (err) { this.log.error('Error retrieving user profile info. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error retrieving user profile info. \n%s', err)
+		}
 	}
 	async products(token, userId) {
 		//is userID needed
@@ -134,23 +158,29 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/accounts/products`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				responseType: 'json'
 			}).catch(err => {
 				this.log.debug(JSON.stringify(err, null, 2))
 				this.log.error('Error getting products %s', err.message)
-				if (err.response) { this.log.warn(JSON.stringify(err.response.data, null, 2))}
+				if (err.response) {
+					this.log.warn(JSON.stringify(err.response.data, null, 2))
+				}
 				return err.response
 			})
 			if (response.status == 200) {
-				if (this.platform.showAPIMessages) { this.log.debug('get products data response', JSON.stringify(response.data, null, 2))}
+				if (this.platform.showAPIMessages) {
+					this.log.debug('get products data response', JSON.stringify(response.data, null, 2))
+				}
 				return response.data
 			}
-		} catch (err) { this.log.error('Error retrieving products. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error retrieving products. \n%s', err)
+		}
 	}
 
 	async chargerSite(token, chargerId) {
@@ -161,23 +191,29 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/chargers/${chargerId}/${site}`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				responseType: 'json'
 			}).catch(err => {
 				this.log.debug(JSON.stringify(err, null, 2))
 				this.log.error('Error getting site info %s', err.message)
-				if (err.response) { this.log.warn(JSON.stringify(err.response.data, null, 2))}
+				if (err.response) {
+					this.log.warn(JSON.stringify(err.response.data, null, 2))
+				}
 				return err.response
 			})
 			if (response.status == 200) {
-				if (this.platform.showAPIMessages) { this.log.debug('get site data response', JSON.stringify(response.data, null, 2))}
+				if (this.platform.showAPIMessages) {
+					this.log.debug('get site data response', JSON.stringify(response.data, null, 2))
+				}
 				return response.data
 			}
-		} catch (err) { this.log.error('Error site products. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error site products. \n%s', err)
+		}
 	}
 
 	async chargers(token) {
@@ -188,23 +224,29 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/chargers`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				responseType: 'json'
 			}).catch(err => {
 				this.log.debug(JSON.stringify(err, null, 2))
 				this.log.error('Error getting chargers %s', err.message)
-				if (err.response) { this.log.warn(JSON.stringify(err.response.data, null, 2))}
+				if (err.response) {
+					this.log.warn(JSON.stringify(err.response.data, null, 2))
+				}
 				return err.response
 			})
 			if (response.status == 200) {
-				if (this.platform.showAPIMessages) { this.log.debug('get chargers config response', JSON.stringify(response.data, null, 2))}
+				if (this.platform.showAPIMessages) {
+					this.log.debug('get chargers config response', JSON.stringify(response.data, null, 2))
+				}
 				return response.data
 			}
-		} catch (err) { this.log.error('Error retrieving chargers. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error retrieving chargers. \n%s', err)
+		}
 	}
 	async charger(token, chargerId) {
 		try {
@@ -214,23 +256,29 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/chargers/${chargerId}`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				responseType: 'json'
 			}).catch(err => {
 				this.log.debug(JSON.stringify(err, null, 2))
 				this.log.error('Error getting charger info %s', err.message)
-				if (err.response) { this.log.warn(JSON.stringify(err.response.data, null, 2))}
+				if (err.response) {
+					this.log.warn(JSON.stringify(err.response.data, null, 2))
+				}
 				return err.response
 			})
 			if (response.status == 200) {
-				if (this.platform.showAPIMessages) { this.log.debug('get charger info config response', JSON.stringify(response.data, null, 2))}
+				if (this.platform.showAPIMessages) {
+					this.log.debug('get charger info config response', JSON.stringify(response.data, null, 2))
+				}
 				return response.data
 			}
-		} catch (err) { this.log.error('Error retrieving charger info. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error retrieving charger info. \n%s', err)
+		}
 	}
 
 	async chargerDetails(token, chargerId) {
@@ -241,23 +289,29 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/chargers/${chargerId}/details`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				responseType: 'json'
 			}).catch(err => {
 				this.log.debug(JSON.stringify(err, null, 2))
 				this.log.error('Error getting charger details %s', err.message)
-				if (err.response) { this.log.warn(JSON.stringify(err.response.data, null, 2))}
+				if (err.response) {
+					this.log.warn(JSON.stringify(err.response.data, null, 2))
+				}
 				return
 			})
 			if (response.status == 200) {
-				if (this.platform.showAPIMessages) { this.log.debug('get charger details config response', JSON.stringify(response.data, null, 2))}
+				if (this.platform.showAPIMessages) {
+					this.log.debug('get charger details config response', JSON.stringify(response.data, null, 2))
+				}
 				return response.data
 			}
-		} catch (err) { this.log.error('Error retrieving charger details. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error retrieving charger details. \n%s', err)
+		}
 	}
 
 	async chargerState(token, chargerId) {
@@ -268,23 +322,29 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/chargers/${chargerId}/state`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				responseType: 'json'
 			}).catch(err => {
 				this.log.debug(JSON.stringify(err, null, 2))
 				this.log.error('Error getting charger state %s', err.message)
-				if (err.response) { this.log.warn(JSON.stringify(err.response.data, null, 2))}
+				if (err.response) {
+					this.log.warn(JSON.stringify(err.response.data, null, 2))
+				}
 				return
 			})
 			if (response.status == 200) {
-				if (this.platform.showAPIMessages) { this.log.debug('get charger state config response', JSON.stringify(response.data, null, 2))}
+				if (this.platform.showAPIMessages) {
+					this.log.debug('get charger state config response', JSON.stringify(response.data, null, 2))
+				}
 				return response.data
 			}
-		} catch (err) { this.log.error('Error retrieving charger state. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error retrieving charger state. \n%s', err)
+		}
 	}
 
 	async chargerConfig(token, chargerId) {
@@ -295,23 +355,29 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/chargers/${chargerId}/config`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				responseType: 'json'
 			}).catch(err => {
 				this.log.debug(JSON.stringify(err, null, 2))
 				this.log.error('Error getting charger config %s', err.message)
-				if (err.response) { this.log.warn(JSON.stringify(err.response.data, null, 2))}
+				if (err.response) {
+					this.log.warn(JSON.stringify(err.response.data, null, 2))
+				}
 				return err.response
 			})
 			if (response.status == 200) {
-				if (this.platform.showAPIMessages) { this.log.debug('get charger config response', JSON.stringify(response.data, null, 2))}
+				if (this.platform.showAPIMessages) {
+					this.log.debug('get charger config response', JSON.stringify(response.data, null, 2))
+				}
 				return response.data
 			}
-		} catch (err) { this.log.error('Error retrieving charger config. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error retrieving charger config. \n%s', err)
+		}
 	}
 
 	async currentSession(token, chargerId) {
@@ -322,9 +388,9 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/chargers/${chargerId}/sessions/ongoing`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				responseType: 'json',
@@ -333,7 +399,13 @@ class easeeAPI {
 					noResponseRetries: 2,
 					retryDelay: 100,
 					httpMethodsToRetry: ['GET', 'PUT'],
-					statusCodesToRetry: [[100, 199], [400, 400], [401, 401], [404, 404], [500, 599]],
+					statusCodesToRetry: [
+						[100, 199],
+						[400, 400],
+						[401, 401],
+						[404, 404],
+						[500, 599]
+					],
 					backoffType: 'exponential',
 					onRetryAttempt: err => {
 						let cfg = rax.getConfig(err)
@@ -342,23 +414,30 @@ class easeeAPI {
 				}
 			}).catch(err => {
 				if (err.response.status == 404) {
-					if (this.platform.showAPIMessages) { this.log.debug('no current session', err.response.data)}
+					if (this.platform.showAPIMessages) {
+						this.log.debug('no current session', err.response.data)
+					}
 					this.log.warn(JSON.stringify(err.response.data, null, 2))
 					return err.response
-				}
-				else {
+				} else {
 					this.log.debug(JSON.stringify(err, null, 2))
 					this.log.error('Error getting current session %s', err.message)
-					if (err.response) { this.log.warn(JSON.stringify(err.response.data, null, 2))}
+					if (err.response) {
+						this.log.warn(JSON.stringify(err.response.data, null, 2))
+					}
 					return err.response
 				}
 			})
 			if (response.status == 200) {
-				if (this.platform.showAPIMessages) { this.log.debug('get current session response', JSON.stringify(response.data, null, 2))}
+				if (this.platform.showAPIMessages) {
+					this.log.debug('get current session response', JSON.stringify(response.data, null, 2))
+				}
 				return response
 			}
 			return response
-		} catch (err) { this.log.error('Error retrieving current session. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error retrieving current session. \n%s', err)
+		}
 	}
 
 	async equalizer(token, equalizerId) {
@@ -369,23 +448,29 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/equalizers/${equalizerId}`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				responseType: 'json'
 			}).catch(err => {
 				this.log.debug(JSON.stringify(err, null, 2))
 				this.log.error('Error getting equalizer info %s', err.message)
-				if (err.response) { this.log.warn(JSON.stringify(err.response.data, null, 2))}
+				if (err.response) {
+					this.log.warn(JSON.stringify(err.response.data, null, 2))
+				}
 				return err.response
 			})
 			if (response.status == 200) {
-				if (this.platform.showAPIMessages) { this.log.debug('get equalizer info response', JSON.stringify(response.data, null, 2))}
+				if (this.platform.showAPIMessages) {
+					this.log.debug('get equalizer info response', JSON.stringify(response.data, null, 2))
+				}
 				return response.data
 			}
-		} catch (err) { this.log.error('Error retrieving equalizer info. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error retrieving equalizer info. \n%s', err)
+		}
 	}
 
 	async equalizerDetails(token, equalizerId) {
@@ -396,23 +481,29 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/equalizers/${equalizerId}/details`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				responseType: 'json'
 			}).catch(err => {
 				this.log.debug(JSON.stringify(err, null, 2))
 				this.log.error('Error getting equalizer details %s', err.message)
-				if (err.response) { this.log.warn(JSON.stringify(err.response.data, null, 2))}
+				if (err.response) {
+					this.log.warn(JSON.stringify(err.response.data, null, 2))
+				}
 				return err.response
 			})
 			if (response.status == 200) {
-				if (this.platform.showAPIMessages) { this.log.debug('get equalizer details config response', JSON.stringify(response.data, null, 2))}
+				if (this.platform.showAPIMessages) {
+					this.log.debug('get equalizer details config response', JSON.stringify(response.data, null, 2))
+				}
 				return response.data
 			}
-		} catch (err) { this.log.error('Error retrieving equalizer details. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error retrieving equalizer details. \n%s', err)
+		}
 	}
 
 	async equalizerState(token, equalizerId) {
@@ -423,23 +514,29 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/equalizers/${equalizerId}/state`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				responseType: 'json'
 			}).catch(err => {
 				this.log.debug(JSON.stringify(err, null, 2))
 				this.log.error('Error getting equalizer state %s', err.message)
-				if (err.response) { this.log.warn(JSON.stringify(err.response.data, null, 2))}
+				if (err.response) {
+					this.log.warn(JSON.stringify(err.response.data, null, 2))
+				}
 				return err.response
 			})
 			if (response.status == 200) {
-				if (this.platform.showAPIMessages) { this.log.debug('get equalizer state config response', JSON.stringify(response.data, null, 2))}
+				if (this.platform.showAPIMessages) {
+					this.log.debug('get equalizer state config response', JSON.stringify(response.data, null, 2))
+				}
 				return response.data
 			}
-		} catch (err) { this.log.error('Error retrieving equalizer state. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error retrieving equalizer state. \n%s', err)
+		}
 	}
 
 	async equalizerConfig(token, equalizerId) {
@@ -450,16 +547,18 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/equalizers/${equalizerId}/config`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				responseType: 'json'
 			}).catch(err => {
 				this.log.debug(JSON.stringify(err, null, 2))
 				this.log.error('Error getting equalizer config %s', err.message)
-				if (err.response) { this.log.warn(JSON.stringify(err.response.data, null, 2))}
+				if (err.response) {
+					this.log.warn(JSON.stringify(err.response.data, null, 2))
+				}
 				return err.response
 			})
 			if (response.status == 200) {
@@ -470,7 +569,9 @@ class easeeAPI {
 				}
 				return response.data
 			}
-		} catch (err) { this.log.error('Error retrieving equalizer config. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error retrieving equalizer config. \n%s', err)
+		}
 	}
 
 	async getObservations() {
@@ -481,7 +582,7 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/resources/observation_properties`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
@@ -489,14 +590,18 @@ class easeeAPI {
 			}).catch(err => {
 				this.log.debug(JSON.stringify(err, null, 2))
 				this.log.error('Error getting observations %s', err.message)
-				if (err.response) { this.log.warn(JSON.stringify(err.response.data, null, 2))}
+				if (err.response) {
+					this.log.warn(JSON.stringify(err.response.data, null, 2))
+				}
 				return err.response
 			})
 			if (response.status == 200) {
 				//if(this.platform.showAPIMessages){this.log.debug('get observations response',JSON.stringify(response.data,null,2))}
 				return response.data
 			}
-		} catch (err) { this.log.error('Error retrieving observations. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error retrieving observations. \n%s', err)
+		}
 	}
 
 	async configureEqualizerFuse(token, eqId, fuseSize, value) {
@@ -508,14 +613,14 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `equalizers/${eqId}/commands/configure_fuse`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				data: {
-					'FuseSize': fuseSize,
-					'MaxContinuousCurrent': value
+					FuseSize: fuseSize,
+					MaxContinuousCurrent: value
 				},
 				responseType: 'json'
 			}).catch(err => {
@@ -523,9 +628,13 @@ class easeeAPI {
 				this.log.debug('Error posting fuse command  %s', err.response.config.header, err.response.config.method, err.response.config.url)
 				return err.response
 			})
-			if ((response.status == 200 || response.status == 202) && this.platform.showAPIMessages) { this.log.debug('post fuse response', JSON.stringify(response.data, null, 2))}
+			if ((response.status == 200 || response.status == 202) && this.platform.showAPIMessages) {
+				this.log.debug('post fuse response', JSON.stringify(response.data, null, 2))
+			}
 			return response
-		} catch (err) { this.log.error('Error configuring equalizer. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error configuring equalizer. \n%s', err)
+		}
 	}
 
 	async setMaxAllocatedCurrent(token, eqId, value) {
@@ -537,13 +646,13 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `equalizers/${eqId}/commands/configure_max_allocated_current`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				data: {
-					'maxCurrent': value
+					maxCurrent: value
 				},
 				responseType: 'json'
 			}).catch(err => {
@@ -551,9 +660,13 @@ class easeeAPI {
 				this.log.debug('Error posting max allocated %s', err.response.config.header, err.response.config.method, err.response.config.url)
 				return err.response
 			})
-			if ((response.status == 200 || response.status == 202) && this.platform.showAPIMessages) { this.log.debug('post max allocated response', JSON.stringify(response.data, null, 2))}
+			if ((response.status == 200 || response.status == 202) && this.platform.showAPIMessages) {
+				this.log.debug('post max allocated response', JSON.stringify(response.data, null, 2))
+			}
 			return response
-		} catch (err) { this.log.error('Error setting equalizer. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error setting equalizer. \n%s', err)
+		}
 	}
 
 	async lock(token, chargerId, value) {
@@ -565,13 +678,13 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/chargers/${chargerId}/settings`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				data: {
-					'authorizationRequired': value
+					authorizationRequired: value
 				},
 				responseType: 'json'
 			}).catch(err => {
@@ -579,9 +692,13 @@ class easeeAPI {
 				this.log.debug('Error posting lock command  %s', err.response.config.header, err.response.config.method, err.response.config.url)
 				return err.response
 			})
-			if ((response.status == 200 || response.status == 202) && this.platform.showAPIMessages) { this.log.debug('post lock response', JSON.stringify(response.data, null, 2))}
+			if ((response.status == 200 || response.status == 202) && this.platform.showAPIMessages) {
+				this.log.debug('post lock response', JSON.stringify(response.data, null, 2))
+			}
 			return response
-		} catch (err) { this.log.error('Error setting lock. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error setting lock. \n%s', err)
+		}
 	}
 
 	async dynamicCurrent(token, chargerId, value) {
@@ -593,13 +710,13 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/chargers/${chargerId}/settings`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				data: {
-					'dynamicChargerCurrent': value
+					dynamicChargerCurrent: value
 				},
 				responseType: 'json'
 			}).catch(err => {
@@ -607,9 +724,13 @@ class easeeAPI {
 				this.log.debug('Error posting dynamic current command  %s', err.response.config.header, err.response.config.method, err.response.config.url)
 				return err.response
 			})
-			if ((response.status == 200 || response.status == 202) && this.platform.showAPIMessages) { this.log.debug('post dynamic current response', JSON.stringify(response.data, null, 2))}
+			if ((response.status == 200 || response.status == 202) && this.platform.showAPIMessages) {
+				this.log.debug('post dynamic current response', JSON.stringify(response.data, null, 2))
+			}
 			return response
-		} catch (err) { this.log.error('Error setting dynamic current. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error setting dynamic current. \n%s', err)
+		}
 	}
 
 	async light(token, chargerId, value) {
@@ -621,13 +742,13 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/chargers/${chargerId}/settings`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				data: {
-					'ledStripBrightness': value
+					ledStripBrightness: value
 				},
 				responseType: 'json'
 			}).catch(err => {
@@ -635,9 +756,13 @@ class easeeAPI {
 				this.log.debug('Error posting light command  %s', err.response.config.header, err.response.config.method, err.response.config.url)
 				return err.response
 			})
-			if ((response.status == 200 || response.status == 202) && this.platform.showAPIMessages) { this.log.debug('post light response', JSON.stringify(response.data, null, 2))}
+			if ((response.status == 200 || response.status == 202) && this.platform.showAPIMessages) {
+				this.log.debug('post light response', JSON.stringify(response.data, null, 2))
+			}
 			return response
-		} catch (err) { this.log.error('Error setting light. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error setting light. \n%s', err)
+		}
 	}
 
 	async command(token, chargerId, command) {
@@ -648,9 +773,9 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/chargers/${chargerId}/commands/${command}`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				responseType: 'json'
@@ -659,9 +784,13 @@ class easeeAPI {
 				this.log.debug('Error posting %s command  %s', command, err.response.config.header, err.response.config.method, err.response.config.url)
 				return err.response
 			})
-			if ((response.status == 200 || response.status == 202) && this.platform.showAPIMessages) { this.log.debug('post %s response', command, JSON.stringify(response.data, null, 2))}
+			if ((response.status == 200 || response.status == 202) && this.platform.showAPIMessages) {
+				this.log.debug('post %s response', command, JSON.stringify(response.data, null, 2))
+			}
 			return response
-		} catch (err) { this.log.error('Error excuting command. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error excuting command. \n%s', err)
+		}
 	}
 
 	async overrideSchedule(token, chargerId) {
@@ -672,9 +801,9 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/chargers/${chargerId}/commands/override_schedule`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				responseType: 'json'
@@ -683,9 +812,13 @@ class easeeAPI {
 				this.log.debug('Error posting override  %s', err.response.config.header, err.response.config.method, err.response.config.url)
 				return err.response
 			})
-			if ((response.status == 200 || response.status == 202) && this.platform.showAPIMessages) { this.log.debug('post response', JSON.stringify(response.data, null, 2))}
+			if ((response.status == 200 || response.status == 202) && this.platform.showAPIMessages) {
+				this.log.debug('post response', JSON.stringify(response.data, null, 2))
+			}
 			return response
-		} catch (err) { this.log.error('Error setting override. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error setting override. \n%s', err)
+		}
 	}
 
 	async setDelay(token, chargerId) {
@@ -696,18 +829,18 @@ class easeeAPI {
 				baseURL: endpoint,
 				url: `/chargers/${chargerId}/commands/override_schedule`,
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`,
+					Authorization: `Bearer ${token}`,
 					'User-Agent': `${PluginName}/${PluginVersion}`
 				},
 				data: {
-					"chargingCurrentLimit": 32,
-					"id": chargerId,
-					"chargeStartTime": "18:00",
-					"chargeStopTime": "",
-					"repeat": false,
-					"isEnabled": true
+					chargingCurrentLimit: 32,
+					id: chargerId,
+					chargeStartTime: '18:00',
+					chargeStopTime: '',
+					repeat: false,
+					isEnabled: true
 				},
 				responseType: 'json'
 			}).catch(err => {
@@ -715,9 +848,13 @@ class easeeAPI {
 				this.log.debug('Error posting delay  %s', err.response.config.header, err.response.config.method, err.response.config.url)
 				return err.response
 			})
-			if ((response.status == 200 || response.status == 202) && this.platform.showAPIMessages) { this.log.debug('post response', JSON.stringify(response.data, null, 2))}
+			if ((response.status == 200 || response.status == 202) && this.platform.showAPIMessages) {
+				this.log.debug('post response', JSON.stringify(response.data, null, 2))
+			}
 			return response
-		} catch (err) { this.log.error('Error setting delay. \n%s', err)}
+		} catch (err) {
+			this.log.error('Error setting delay. \n%s', err)
+		}
 	}
 
 	async signalR(token, chargerId) {
@@ -751,40 +888,42 @@ class easeeAPI {
 			.configureLogging(signalR.LogLevel.None) //change logging here if needed
 			.withAutomaticReconnect()
 			.build()
-		connection.start()
+		connection
+			.start()
 			.then(() => {
 				connection.invoke('SubscribeWithCurrentState', chargerId, true)
 				this.log.info('Starting connection for live updates...')
 				this.log.debug('signalR %s with id %s', connection.state, connection.connectionId)
 				this.openConnection = connection
-			}).catch((err) => {
+			})
+			.catch(err => {
 				this.log.error('Error while starting connection: %s', err.message)
 			})
-		connection.onclose((error) => {
+		connection.onclose(error => {
 			this.log.warn('Connection closed', error.message)
 		})
 		connection.onreconnected(() => {
 			connection.invoke('SubscribeWithCurrentState', chargerId, true)
 			this.log.info('Reconnected to Connection id %s, updating current status', connection.connectionId)
 		})
-		connection.onreconnecting((error) => {
+		connection.onreconnecting(error => {
 			this.log.info('Reconnecting...', error.message)
 		})
-		connection.on('ProductUpdate', (productUpdate) => {
+		connection.on('ProductUpdate', productUpdate => {
 			if (this.platform.showSignalRMessages) {
 				this.log.debug('Connection %s Product: %s', connection.connectionId, JSON.stringify(productUpdate, null, null))
 			}
 			//** full set of responses with a lot of extras **
 			this.platform.updateService(productUpdate)
 		})
-		connection.on('ChargerUpdate', (chargerUpdate) => {
+		connection.on('ChargerUpdate', chargerUpdate => {
 			if (this.platform.showSignalRMessages) {
 				this.log.debug('Connection %s Charger: %s', connection.connectionId, JSON.stringify(chargerUpdate, null, null))
 			}
 			//** duplicate responses to product but fewer **
 			//this.platform.updateService(chargerUpdate)
 		})
-		connection.on('CommandResponse', (update) => {
+		connection.on('CommandResponse', update => {
 			if (this.platform.showSignalRMessages) {
 				this.log.debug('Command:', JSON.stringify(update, null, null))
 			}

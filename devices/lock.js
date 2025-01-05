@@ -1,5 +1,5 @@
-let packageJson=require('../package.json')
-let easeeAPI=require('../easeeapi')
+let packageJson = require('../package.json')
+let easeeAPI = require('../easeeapi')
 
 class lockMechanism {
 	constructor(platform, log) {
@@ -11,9 +11,10 @@ class lockMechanism {
 	createLockAccessory(device, details, state, uuid) {
 		this.log.debug('Create Lock Accessory %s', device.name)
 		let newPlatformAccessory = new PlatformAccessory(device.name, uuid)
-		newPlatformAccessory.getService(Service.AccessoryInformation)
+		newPlatformAccessory
+			.getService(Service.AccessoryInformation)
 			.setCharacteristic(Characteristic.Name, device.name)
-			.setCharacteristic(Characteristic.Manufacturer, "Easee")
+			.setCharacteristic(Characteristic.Manufacturer, 'Easee')
 			.setCharacteristic(Characteristic.SerialNumber, details.serialNumber)
 			.setCharacteristic(Characteristic.Model, details.product)
 			.setCharacteristic(Characteristic.Identify, true)
@@ -25,9 +26,13 @@ class lockMechanism {
 	}
 
 	createLockService(device, details, state) {
-		this.log.debug("create Lock service for %s, serial number %s", device.name, details.serialNumber)
+		this.log.debug('create Lock service for %s, serial number %s', device.name, details.serialNumber)
 		let inUse
-		if (state.chargerOpMode == 1) { inUse = false}  else { inUse = true}
+		if (state.chargerOpMode == 1) {
+			inUse = false
+		} else {
+			inUse = true
+		}
 		let lockService = new Service.LockMechanism(device.name, device.id)
 		lockService
 			.setCharacteristic(Characteristic.SerialNumber, details.serialNumber)
@@ -38,18 +43,11 @@ class lockMechanism {
 	}
 
 	configureLockService(lockService, config) {
-		this.log.info("Configured Lock for %s", lockService.getCharacteristic(Characteristic.Name).value)
-		lockService
-			.setCharacteristic(Characteristic.LockCurrentState, config.authorizationRequired)
-			.setCharacteristic(Characteristic.LockTargetState, config.authorizationRequired)
-		lockService
-			.getCharacteristic(Characteristic.LockTargetState)
-			.on('get', this.getLockTargetState.bind(this, lockService))
-			.on('set', this.setLockTargetState.bind(this, lockService))
-		lockService
-			.getCharacteristic(Characteristic.LockCurrentState)
-			.on('get', this.getLockCurrentState.bind(this, lockService))
-		 //.on('set', this.setLockCurrentState.bind(this, lockService))
+		this.log.info('Configured Lock for %s', lockService.getCharacteristic(Characteristic.Name).value)
+		lockService.setCharacteristic(Characteristic.LockCurrentState, config.authorizationRequired).setCharacteristic(Characteristic.LockTargetState, config.authorizationRequired)
+		lockService.getCharacteristic(Characteristic.LockTargetState).on('get', this.getLockTargetState.bind(this, lockService)).on('set', this.setLockTargetState.bind(this, lockService))
+		lockService.getCharacteristic(Characteristic.LockCurrentState).on('get', this.getLockCurrentState.bind(this, lockService))
+		//.on('set', this.setLockCurrentState.bind(this, lockService))
 	}
 
 	getLockCurrentState(lockService, callback) {
@@ -61,13 +59,11 @@ class lockMechanism {
 		this.log.info('Set State %s', lockService.getCharacteristic(Characteristic.Name).value)
 		if (lockService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 			callback('error')
-		}
-		else {
+		} else {
 			if (value == true) {
 				this.log.info('%s locked', lockService.getCharacteristic(Characteristic.Name).value)
 				lockService.getCharacteristic(Characteristic.LockCurrentState).updatevalue(Characteristic.LockCurrentState.SECURED)
-			}
-			else {
+			} else {
 				this.log.info('%s unlocked', lockService.getCharacteristic(Characteristic.Name).value)
 				lockService.getCharacteristic(Characteristic.LockCurrentState).updateValue(Characteristic.LockCurrentState.UNSECURED)
 			}
@@ -83,8 +79,7 @@ class lockMechanism {
 	setLockTargetState(lockService, value, callback) {
 		if (lockService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 			callback('error')
-		}
-		else {
+		} else {
 			if (value) {
 				this.log.info('Locking %s', lockService.getCharacteristic(Characteristic.Name).value)
 				lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.SECURED)
@@ -108,8 +103,7 @@ class lockMechanism {
 							break
 					}
 				})
-			}
-			else {
+			} else {
 				this.log.info('Unlocking %s', lockService.getCharacteristic(Characteristic.Name).value)
 				lockService.getCharacteristic(Characteristic.LockTargetState).updateValue(Characteristic.LockTargetState.UNSECURED)
 				let chargerId = lockService.getCharacteristic(Characteristic.SerialNumber).value

@@ -1,4 +1,4 @@
-let easeeAPI=require('../easeeapi')
+let easeeAPI = require('../easeeapi')
 
 class control {
 	constructor(platform, log, config) {
@@ -12,13 +12,14 @@ class control {
 		this.log.debug('create new control')
 		let currentAmps
 		if (this.platform.useFahrenheit) {
-			currentAmps = ((state.dynamicChargerCurrent - 32) * 5 / 9).toFixed(1)
-		}
-		else {
+			currentAmps = (((state.dynamicChargerCurrent - 32) * 5) / 9).toFixed(1)
+		} else {
 			currentAmps = state.dynamicChargerCurrent
 		}
 		let switchOn = false
-		if (state.chargerOpMode == 3) { switchOn = true}
+		if (state.chargerOpMode == 3) {
+			switchOn = true
+		}
 		let controlService = new Service.Thermostat(type, device.id)
 		controlService
 			.setCharacteristic(Characteristic.Name, device.name + ' ' + type)
@@ -38,15 +39,14 @@ class control {
 		if (this.platform.useFahrenheit) {
 			min = -14.5
 			max = 0
-			step = .5
-		}
-		else {
+			step = 0.5
+		} else {
 			min = 6
 			max = 32
 			step = 1
 		}
 
-		this.log.debug("configured %s control for %s", controlService.getCharacteristic(Characteristic.Name).value, device.name)
+		this.log.debug('configured %s control for %s', controlService.getCharacteristic(Characteristic.Name).value, device.name)
 		controlService
 			.getCharacteristic(Characteristic.TargetHeatingCoolingState)
 			.setProps({
@@ -55,13 +55,11 @@ class control {
 			})
 			.on('get', this.getControlState.bind(this, controlService))
 			.on('set', this.setControlState.bind(this, device, controlService))
-		controlService
-			.getCharacteristic(Characteristic.CurrentTemperature)
-			.setProps({
-				minValue: min,
-				maxValue: max,
-				minStep: step
-			})
+		controlService.getCharacteristic(Characteristic.CurrentTemperature).setProps({
+			minValue: min,
+			maxValue: max,
+			minStep: step
+		})
 		controlService
 			.getCharacteristic(Characteristic.TargetTemperature)
 			.setProps({
@@ -71,22 +69,17 @@ class control {
 			})
 			.on('get', this.getControlAmps.bind(this, controlService))
 			.on('set', this.setControlAmps.bind(this, device, controlService))
-		controlService
-			.getCharacteristic(Characteristic.TemperatureDisplayUnits)
-			.on('get', this.getControlUnits.bind(this, controlService))
-			.on('set', this.setControlUnits.bind(this, device, controlService))
+		controlService.getCharacteristic(Characteristic.TemperatureDisplayUnits).on('get', this.getControlUnits.bind(this, controlService)).on('set', this.setControlUnits.bind(this, device, controlService))
 	}
 
 	async setControlAmps(device, controlService, value, callback) {
 		if (controlService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 			callback('error')
-		}
-		else {
+		} else {
 			let amps
 			if (this.platform.useFahrenheit) {
-				amps = (value * 1.8 + 32 + .01).toFixed(0)
-			}
-			else {
+				amps = (value * 1.8 + 32 + 0.01).toFixed(0)
+			} else {
 				amps = value.toFixed(0)
 			}
 			controlService.getCharacteristic(Characteristic.TargetTemperature).updateValue(value)
@@ -115,8 +108,7 @@ class control {
 	setControlState(device, controlService, value, callback) {
 		if (controlService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 			callback('error')
-		}
-		else {
+		} else {
 			this.log.debug('set toggle to = %s', value)
 			controlService.getCharacteristic(Characteristic.TargetHeatingCoolingState).updateValue(value)
 			if (value) {
@@ -138,8 +130,7 @@ class control {
 							break
 					}
 				})
-			}
-			else {
+			} else {
 				this.easeeapi.command(this.platform.token, device.id, 'pause_charging').then(response => {
 					switch (response.status) {
 						case 200:
@@ -166,11 +157,10 @@ class control {
 	setControlUnits(device, controlService, value, callback) {
 		if (controlService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 			callback('error')
-		}
-		else {
+		} else {
 			//this.platform.useFahrenheit=value
 			//controlService.getCharacteristic(Characteristic.TemperatureDisplayUnits).value=value
-			this.log.debug("change unit value to %s", value)
+			this.log.debug('change unit value to %s', value)
 			callback()
 		}
 	}
@@ -178,8 +168,7 @@ class control {
 	getControlState(controlService, callback) {
 		if (controlService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 			callback('error')
-		}
-		else {
+		} else {
 			let currentValue = controlService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).value
 			callback(null, currentValue)
 		}
@@ -188,8 +177,7 @@ class control {
 	getControlAmps(controlService, callback) {
 		if (controlService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 			callback('error')
-		}
-		else {
+		} else {
 			let currentValue = controlService.getCharacteristic(Characteristic.CurrentTemperature).value
 			callback(null, currentValue)
 		}
@@ -198,8 +186,7 @@ class control {
 	getControlUnits(controlService, callback) {
 		if (controlService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 			callback('error')
-		}
-		else {
+		} else {
 			let currentValue = controlService.getCharacteristic(Characteristic.TemperatureDisplayUnits).value
 			this.platform.useFahrenheit = currentValue
 			callback(null, currentValue)

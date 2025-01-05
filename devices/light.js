@@ -1,4 +1,4 @@
-let easeeAPI=require('../easeeapi')
+let easeeAPI = require('../easeeapi')
 
 class light {
 	constructor(platform, log) {
@@ -11,11 +11,13 @@ class light {
 		this.log.debug('adding new switch')
 		let lightService = new Service.Lightbulb(type, device.id)
 		let lightOn = false
-		if (config.ledStripBrightness > 0) { lightOn = true}
+		if (config.ledStripBrightness > 0) {
+			lightOn = true
+		}
 		//CurrentPostion tracks level at tiem of off so on returns to pre set level
 		lightService
 			.setCharacteristic(Characteristic.On, lightOn)
-			.setCharacteristic(Characteristic.Name, device.name + " " + type)
+			.setCharacteristic(Characteristic.Name, device.name + ' ' + type)
 			.setCharacteristic(Characteristic.StatusFault, !state.isOnline)
 			.setCharacteristic(Characteristic.Brightness, config.ledStripBrightness)
 			.setCharacteristic(Characteristic.CurrentPosition, config.ledStripBrightness)
@@ -23,11 +25,8 @@ class light {
 	}
 
 	configureLightService(device, lightService) {
-		this.log.info("Configured %s light for %s", lightService.getCharacteristic(Characteristic.Name).value, device.name)
-		lightService
-			.getCharacteristic(Characteristic.On)
-			.on('get', this.getLightValue.bind(this, lightService))
-			.on('set', this.setLightValue.bind(this, device, lightService))
+		this.log.info('Configured %s light for %s', lightService.getCharacteristic(Characteristic.Name).value, device.name)
+		lightService.getCharacteristic(Characteristic.On).on('get', this.getLightValue.bind(this, lightService)).on('set', this.setLightValue.bind(this, device, lightService))
 		lightService
 			.getCharacteristic(Characteristic.Brightness)
 			.setProps({
@@ -41,13 +40,11 @@ class light {
 		this.log.debug('%s light switch state %s', lightService.getCharacteristic(Characteristic.Name).value, value)
 		if (lightService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 			callback('error')
-		}
-		else {
+		} else {
 			if (value > 0) {
 				value = lightService.getCharacteristic(Characteristic.CurrentPosition).value
 				lightService.setCharacteristic(Characteristic.Brightness, value)
-			}
-			else {
+			} else {
 				value = 0
 				lightService.setCharacteristic(Characteristic.Brightness, value)
 			}
@@ -59,8 +56,7 @@ class light {
 		this.log.debug('%s light brightness = %s', lightService.getCharacteristic(Characteristic.Name).value, value)
 		if (lightService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 			callback('error')
-		}
-		else {
+		} else {
 			lightService.getCharacteristic(Characteristic.Brightness).updateValue(value)
 			if (value > 0 && value < 100) {
 				lightService.getCharacteristic(Characteristic.CurrentPosition).updateValue(value)
@@ -88,8 +84,7 @@ class light {
 	getLightValue(lightService, callback) {
 		if (lightService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 			callback('error')
-		}
-		else {
+		} else {
 			let currentValue = lightService.getCharacteristic(Characteristic.On).value
 			callback(null, currentValue)
 		}
@@ -98,8 +93,7 @@ class light {
 	getLightBrightness(lightService, callback) {
 		if (lightService.getCharacteristic(Characteristic.StatusFault).value == Characteristic.StatusFault.GENERAL_FAULT) {
 			callback('error')
-		}
-		else {
+		} else {
 			let currentValue = lightService.getCharacteristic(Characteristic.Brightness).value
 			callback(null, currentValue)
 		}

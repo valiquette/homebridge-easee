@@ -1,5 +1,11 @@
 # Changes
 
+## 1.2.6-test.0
+Update
+-  Bumped dependencies.
+-  Updated deprecated api
+-  Removed equalized references to software version
+
 ## 1.2.5-beta.0
 Update
 -  Homebridge 2.0 support
@@ -18,7 +24,7 @@ Update
 ## 1.2.2
 Fix
 -  403 error during startup due to Easse API Domain change and SignalR URI change.
--  There are soem new observations that are documented but not yet available in API response. Some logic was added to address this condition
+-  There are some new observations that are documented but not yet available in API response. Some logic was added to address this condition
 
 Update
 -  Added suppport for node.js v20.

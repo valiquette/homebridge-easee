@@ -1,4 +1,4 @@
-let easeeAPI=require('../easeeapi')
+let easeeAPI = require('../easeeapi')
 
 class battery {
 	constructor(platform, log) {
@@ -9,7 +9,7 @@ class battery {
 
 	createBatteryService(device, config) {
 		let batteryStatus
-		this.log.debug("create battery service for %s", device.name)
+		this.log.debug('create battery service for %s', device.name)
 		batteryStatus = new Service.Battery(device.name, device.id)
 		batteryStatus
 			.setCharacteristic(Characteristic.StatusLowBattery, Characteristic.StatusLowBattery.BATTERY_LEVEL_NORMAL)
@@ -19,9 +19,8 @@ class battery {
 	}
 
 	configureBatteryService(batteryStatus) {
-		this.log.debug("configured battery service for %s", batteryStatus.getCharacteristic(Characteristic.Name).value)
-		batteryStatus
-			.getCharacteristic(Characteristic.StatusLowBattery)
+		this.log.debug('configured battery service for %s', batteryStatus.getCharacteristic(Characteristic.Name).value)
+		batteryStatus.getCharacteristic(Characteristic.StatusLowBattery)
 		//.on('get', this.getStatusLowBattery.bind(this, batteryStatus))
 	}
 

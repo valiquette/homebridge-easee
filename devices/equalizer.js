@@ -12,7 +12,7 @@ class equalizer {
 		this.eqMax = this.config.eqMax || 100
 	}
 
-	createWindowAccessory(device, details, state, uuid) {
+	createWindowAccessory(device, details, uuid) {
 		this.log.debug('Create Window Accessory for Equalizer %s', device.name)
 		let newPlatformAccessory = new PlatformAccessory(device.name, uuid)
 		newPlatformAccessory
@@ -22,14 +22,12 @@ class equalizer {
 			.setCharacteristic(Characteristic.SerialNumber, details.equalizerId)
 			.setCharacteristic(Characteristic.Model, 'Equalizer')
 			.setCharacteristic(Characteristic.Identify, true)
-			//.setCharacteristic(Characteristic.ProductData,details.unitType)
-			.setCharacteristic(Characteristic.FirmwareRevision, state.softwareRelease.toString())
 			.setCharacteristic(Characteristic.HardwareRevision, details.masterBackPlateId)
 			.setCharacteristic(Characteristic.SoftwareRevision, packageJson.version)
 		return newPlatformAccessory
 	}
 
-	createWindowService(device, details, config, state) {
+	createWindowService(device, details, config) {
 		this.log.debug('create Window service for Equalizer %s, serial number %s', device.name, config.serialNumber)
 		let windowService = new Service.WindowCovering(device.name, device.id)
 		windowService.setCharacteristic(Characteristic.SerialNumber, details.serialNumber).setCharacteristic(Characteristic.StatusFault, !state.isOnline).setCharacteristic(Characteristic.AccessoryIdentifier, device.id)

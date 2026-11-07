@@ -1,9 +1,9 @@
 /*
-Easee information
-Public API info https://developer.easee.cloud/docs
-SignalR examples https://developer.easee.cloud/page/signalr-code-examples
-Observations https://developer.easee.cloud/docs/observation-ids
-Enumerations https://developer.easee.cloud/docs/enumerations
+Easee information https://developer.easee.com
+Public API info https://developer.easee.com/reference
+SignalR examples https://developer.easee.com/docs/signalr-stream
+Observations https://developer.easee.com/docs/charger-observation-ids
+Enumerations https://developer.easee.com/docs/enumerations
 */
 
 let axios = require('axios')
@@ -119,7 +119,7 @@ class easeeAPI {
 
 	async profile(token) {
 		try {
-			this.log.debug('Retrieving profile info for logged in account')
+			this.log.debug('Retrieving profile info for active account')
 			let response = await axios({
 				method: 'get',
 				baseURL: endpoint,
@@ -152,7 +152,7 @@ class easeeAPI {
 	async products(token, userId) {
 		//is userID needed
 		try {
-			this.log.debug('Retrieving products for logged in account')
+			this.log.debug('Retrieving products for active account')
 			let response = await axios({
 				method: 'get',
 				baseURL: endpoint,
@@ -314,13 +314,13 @@ class easeeAPI {
 		}
 	}
 
-	async chargerState(token, chargerId) {
+	async getSiteDashboardCircuitStates(token, siteId) {
 		try {
-			this.log.debug('Retrieving charger state %s', chargerId)
+			this.log.debug('Retrieving charger state %s', siteId)
 			let response = await axios({
 				method: 'get',
 				baseURL: endpoint,
-				url: `/chargers/${chargerId}/state`,
+				url: `/sites/${siteId}/state`,
 				headers: {
 					Accept: 'application/json',
 					'Content-Type': 'application/json',
@@ -338,7 +338,7 @@ class easeeAPI {
 			})
 			if (response.status == 200) {
 				if (this.platform.showAPIMessages) {
-					this.log.debug('get charger state config response', JSON.stringify(response.data, null, 2))
+					this.log.debug('get charger state response', JSON.stringify(response.data, null, 2))
 				}
 				return response.data
 			}
@@ -879,7 +879,6 @@ class easeeAPI {
 			this.openConnection.stop()
 		}
 		let connection = new signalR.HubConnectionBuilder()
-			//.withUrl(`${streamingEndpoint}/hubs/chargers`, {
 			.withUrl(`${streamingEndpoint}/hubs/products`, {
 				//skipNegotiation: true,
 				//transport: signalR.HttpTransportType.WebSockets,

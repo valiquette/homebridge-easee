@@ -1,6 +1,6 @@
 'use strict'
+//let easeeAPI = require('./testeaseeapi') // used for dev test
 let easeeAPI = require('./easeeapi')
-//let easeeAPI=require('./testeaseeapi')
 let lockMechanism = require('./devices/lock')
 let battery = require('./devices/battery')
 let basicSwitch = require('./devices/switch')
@@ -104,9 +104,9 @@ class easeePlatform {
 			let login = await this.easeeapi.login(this.username, this.password).catch(err => {
 				this.log.error('Failed to get login for build. \n%s', err)
 			})
-			this.log.debug('Found token %s********************%s', login.accessToken.substring(0, 50), login.accessToken.substring(login.accessToken.length - 50))
+			this.log.debug('Found token %s********************%s', login.accessToken.substring(0, 20), login.accessToken.substring(login.accessToken.length - 20))
 			this.log.debug('Expires in %s hours', login.expiresIn / 60 / 60)
-			this.log.debug('Found Refresh Token %s********************%s', login.refreshToken.substring(0, 10), login.refreshToken.substring(login.refreshToken.length - 10))
+			this.log.debug('Found Refresh Token %s********************%s', login.refreshToken.substring(0, 20), login.refreshToken.substring(login.refreshToken.length - 20))
 			this.token = login.accessToken
 			this.refreshToken = login.refreshToken
 			this.setTokenRefresh(login.expiresIn)
@@ -159,9 +159,12 @@ class easeePlatform {
 							let chargerConfig = await this.easeeapi.chargerConfig(this.token, charger.id).catch(err => {
 								this.log.error('Failed to get charger config info for build. \n%s', err)
 							})
-							let chargerState = await this.easeeapi.chargerState(this.token, charger.id).catch(err => {
+							let dashboard = await this.easeeapi.getSiteDashboardCircuitStates(this.token, circuit.siteId).catch(err => {
 								this.log.error('Failed to get charger state for build. \n%s', err)
 							})
+							let a = dashboard.circuitStates.findIndex(x => x.circuit.id == circuit.id);
+							let b = dashboard.circuitStates[a].chargerStates.findIndex(chargerState => chargerState.chargerID == charger.id)
+							let chargerState = dashboard.circuitStates[a].chargerStates[b].chargerState
 							let chargerDetails = await this.easeeapi.chargerDetails(this.token, charger.id).catch(err => {
 								this.log.error('Failed to get charger detail info for build. \n%s', err)
 							})
@@ -274,9 +277,6 @@ class easeePlatform {
 							let equalizerConfig = await this.easeeapi.equalizerConfig(this.token, location.equalizers[0].id).catch(err => {
 								this.log.error('Failed to get equalizer config info for build. \n%s', err)
 							})
-							let equalizerState = await this.easeeapi.equalizerState(this.token, location.equalizers[0].id).catch(err => {
-								this.log.error('Failed to get equalizer state for build. \n%s', err)
-							})
 							let equalizerDetails = await this.easeeapi.equalizerDetails(this.token, location.equalizers[0].id).catch(err => {
 								this.log.error('Failed to get equalizer detail info for build. \n%s', err)
 							})
@@ -288,8 +288,8 @@ class easeePlatform {
 							}
 							this.log.info('Adding Equalizer %s for site ID %s', location.equalizers[0].name, location.equalizers[0].siteId)
 							this.log.debug('Registering platform accessory')
-							let windowAccessory = this.equalizer.createWindowAccessory(location.equalizers[0], equalizerConfig, equalizerState, uuid2)
-							let windowService = this.equalizer.createWindowService(location.equalizers[0], equalizerDetails, equalizerConfig, equalizerState)
+							let windowAccessory = this.equalizer.createWindowAccessory(location.equalizers[0], equalizerConfig, uuid2)
+							let windowService = this.equalizer.createWindowService(location.equalizers[0], equalizerDetails, equalizerConfig)
 							this.equalizer.configureWindowService(windowService, equalizerConfig)
 							windowAccessory.addService(windowService)
 
@@ -343,8 +343,8 @@ class easeePlatform {
 				let tokenInfo = await this.easeeapi.refreshToken(this.token, this.refreshToken).catch(err => {
 					this.log.error('Failed signin to refresh token. \n%s', err)
 				})
-				this.log.debug('new token %s**********%s', tokenInfo.accessToken.substring(0, 50), tokenInfo.accessToken.substring(tokenInfo.accessToken.length - 50))
-				this.log.debug('new Refresh Token %s**********%s', tokenInfo.refreshToken.substring(0, 10), tokenInfo.refreshToken.substring(tokenInfo.refreshToken.length - 10))
+				this.log.debug('new token %s**********%s', tokenInfo.accessToken.substring(0, 20), tokenInfo.accessToken.substring(tokenInfo.accessToken.length - 20))
+				this.log.debug('new Refresh Token %s**********%s', tokenInfo.refreshToken.substring(0, 20), tokenInfo.refreshToken.substring(tokenInfo.refreshToken.length - 20))
 				this.token = tokenInfo.accessToken
 				this.refreshToken = tokenInfo.refreshToken
 				this.log.info('Token has been refreshed')
@@ -613,13 +613,13 @@ class easeePlatform {
 				}
 				break
 			case 65: //Paired equalizer details
-				this.log.warn('%S Equalizer %s', message.mid, value)
+				this.log.warn('%s Equalizer %s', message.mid, value)
 				break
 			case 76: //NumberOfCarsConnected
-				this.log.info('%S cars connected %s', message.mid, value)
+				this.log.info('%s cars connected %s', message.mid, value)
 				break
 			case 77: //NumberOfCarsCharging
-				this.log.info('%S cars charging %s', message.mid, value)
+				this.log.info('%s cars charging %s', message.mid, value)
 				break
 			case 78: //NumberOfCarsInQueue
 				this.log.info('%s cars queued %s', message.mid, value)
